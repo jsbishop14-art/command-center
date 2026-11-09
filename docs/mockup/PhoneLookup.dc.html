@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command Center — Phone lookup</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E4E9F2}
+a{color:#9A3412}a:hover{color:#7C2D12}
+</style>
+</helmet>
+<div style="min-height: 1100px; background-color: #E4E9F2; background-image: radial-gradient(circle at 8% 6%, rgba(194,65,12,0.20), transparent 38%), radial-gradient(circle at 92% 14%, rgba(47,91,211,0.24), transparent 44%), radial-gradient(circle at 40% 62%, rgba(138,90,0,0.10), transparent 40%), radial-gradient(circle at 78% 96%, rgba(21,128,61,0.16), transparent 46%); color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 24px; background: rgba(22,24,29,0.78); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border-bottom: 1px solid rgba(255,255,255,0.10); color: #F4F4F1">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; color: #D4D7DE; text-decoration: none; height: 40px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+      Home
+    </a>
+    <div style="font-weight: 700; font-size: 16px; flex: 1">Phone lookup</div>
+    <span style="font-size: 12px; color: #B8BCC6">Not tied to a board · no AI</span>
+  </header>
+
+  <main style="width: 100%; max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 24px; display: flex; flex-direction: column; gap: 20px">
+
+    <form style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end">
+      <label style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 600; color: #3A3F49">
+        Phone number
+        <input type="text" placeholder="Type or paste a number in any format" style="height: 52px; box-sizing: border-box; border-radius: 10px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.8); padding: 0 16px; font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: #16181D">
+      </label>
+      <button type="submit" style="height: 52px; padding: 0 22px; border-radius: 10px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 600">Look up</button>
+    </form>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+      <section aria-label="Result" style="flex: 2 1 520px; min-width: 0; background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column">
+        <div style="background: #B91C1C; color: #FFFFFF; padding: 18px 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" aria-hidden="true"><path d="M12 3l10 18H2L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+            <div style="font-size: 26px; font-weight: 700">Likely telemarketer</div>
+            <div style="font-size: 13px; color: #FECACA">Score [n] · 4 or more</div>
+          </div>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 22px">([xxx]) [xxx]-[xxxx]</span>
+        </div>
+        <div style="padding: 18px 22px; display: flex; flex-direction: column; gap: 16px">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px">
+            <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #5B606B">Caller name</span><span style="font-weight: 600">[NAME FROM TWILIO]</span></div>
+            <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #5B606B">Line type</span><span style="font-weight: 600">Internet phone (VoIP)</span></div>
+            <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 11px; color: #5B606B">Carrier</span><span style="font-weight: 600">[carrier]</span></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span style="font-size: 12px; font-weight: 600">Reasons</span>
+            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px">
+              <sc-for list="{{reasons}}" as="r" hint-placeholder-count="4">
+                <li>{{r.text}}</li>
+              </sc-for>
+            </ul>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px">
+            <div style="border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.5); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 11px; color: #5B606B">FTC complaints · 12 months</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 20px">[n]</span>
+              <span style="font-size: 11px; color: #5B606B">most recent [date]</span>
+            </div>
+            <div style="border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.5); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px">
+              <span style="font-size: 11px; color: #5B606B">FCC complaints · 12 months</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 20px">[n]</span>
+              <span style="font-size: 11px; color: #5B606B">most recent [date]</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <button style="height: 40px; padding: 0 14px; border-radius: 8px; border: 0; background: #B91C1C; color: #FFFFFF; font: inherit; font-weight: 600">Mark spam</button>
+            <button style="height: 40px; padding: 0 14px; border-radius: 8px; border: 0; background: #15803D; color: #FFFFFF; font: inherit; font-weight: 600">Mark real</button>
+            <button style="height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.75); font: inherit">Refresh (paid lookup)</button>
+            <button style="height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.75); font: inherit">Copy number</button>
+          </div>
+          <div style="font-size: 11px; color: #5B606B; font-family: 'IBM Plex Mono', monospace">Twilio data cached [date] · free repeat lookups for 30 days</div>
+        </div>
+      </section>
+
+      <aside style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+        <section style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+          <h2 style="margin: 0; font-size: 14px">Data status</h2>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #15803D"></span>FTC data current through [date]</div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #5B606B"><span>12-month backfill</span><span style="font-family: 'IBM Plex Mono', monospace">[x]%</span></div>
+            <div style="height: 8px; border-radius: 4px; background: rgba(22,24,29,0.10); overflow: hidden"><div style="width: 62%; height: 8px; background: #2F5BD3"></div></div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #15803D"></span>FCC live · 3 s timeout</div>
+        </section>
+        <section style="background: rgba(255,255,255,0.42); border: 1px solid rgba(255,255,255,0.7); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #3A3F49">
+          <h2 style="margin: 0 0 4px; font-size: 14px; color: #16181D">Limits</h2>
+          <span>Spoofed numbers can look clean or show the innocent owner.</span>
+          <span>New telemarketer numbers may have no complaints yet.</span>
+          <span>Many cell numbers have no registered name.</span>
+          <span>Complaint data is unverified.</span>
+        </section>
+      </aside>
+    </div>
+
+    <section style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+        <h2 style="margin: 0; font-size: 16px; flex: 1">History · last 90 days</h2>
+        <label style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.7)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B606B" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input type="search" aria-label="Search history" placeholder="Search history" style="border: 0; background: transparent; font: inherit; outline: none; width: 180px">
+        </label>
+      </div>
+      <div style="overflow-x: auto">
+        <div style="min-width: 760px; display: flex; flex-direction: column">
+          <div style="display: grid; grid-template-columns: 170px 170px 1fr 120px 130px; gap: 10px; padding: 6px 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5B606B">
+            <span>Number</span><span>Verdict</span><span>Name</span><span>Looked up by</span><span>Date</span>
+          </div>
+          <sc-for list="{{history}}" as="h" hint-placeholder-count="5">
+            <a href="#" style="display: grid; grid-template-columns: 170px 170px 1fr 120px 130px; gap: 10px; align-items: center; padding: 10px 8px; border-top: 1px solid rgba(22,24,29,0.08); color: #16181D; text-decoration: none">
+              <span style="font-family: 'IBM Plex Mono', monospace">{{h.num}}</span>
+              <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 5px; background: {{h.dot}}"></span><span style="font-weight: 600">{{h.verdict}}</span></span>
+              <span style="display: flex; align-items: center; gap: 6px">{{h.name}}<sc-if value="{{h.marked}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; border-radius: 6px; padding: 1px 8px; background: rgba(22,24,29,0.08)">{{h.mark}}</span></sc-if></span>
+              <span>{{h.who}}</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5B606B">{{h.date}}</span>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#C2410C","options":["#C2410C","#1D4ED8","#15803D","#16181D"]},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var red = { verdict: 'Likely telemarketer', dot: '#B91C1C' };
+    var amber = { verdict: 'Unclear', dot: '#B45309' };
+    var green = { verdict: 'Likely real person', dot: '#15803D' };
+    function h(v, num, name, who, date, mark) { return Object.assign({ num: num, name: name, who: who, date: date, marked: !!mark, mark: mark || '' }, v); }
+    return {
+      accent: this.props.accent ?? '#C2410C',
+      reasons: [
+        { text: '[n] FTC complaints in the last 12 months (most recent [date])' },
+        { text: '[n] FCC complaints in the last 12 months' },
+        { text: 'Internet phone line (VoIP)' },
+        { text: 'No registered name' }
+      ],
+      history: [
+        h(red, '([xxx]) [xxx]-[xxxx]', '[NAME]', 'Josh', '[date]'),
+        h(green, '([xxx]) [xxx]-[xxxx]', '[NAME]', 'Christine', '[date]', 'Marked real by Christine'),
+        h(amber, '([xxx]) [xxx]-[xxxx]', '[NAME]', 'Josh · Shortcut', '[date]'),
+        h(red, '([xxx]) [xxx]-[xxxx]', '[NAME]', 'Josh', '[date]', 'Marked spam by Josh'),
+        h(green, '([xxx]) [xxx]-[xxxx]', '[NAME]', 'Josh · Shortcut', '[date]')
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

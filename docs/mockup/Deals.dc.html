@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command Center — Deals</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E4E9F2}
+a{color:#9A3412}a:hover{color:#7C2D12}
+</style>
+</helmet>
+<div style="min-height: 1000px; background-color: #E4E9F2; background-image: radial-gradient(circle at 8% 6%, rgba(194,65,12,0.20), transparent 38%), radial-gradient(circle at 92% 14%, rgba(47,91,211,0.24), transparent 44%), radial-gradient(circle at 40% 62%, rgba(138,90,0,0.10), transparent 40%), radial-gradient(circle at 78% 96%, rgba(21,128,61,0.16), transparent 46%); color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 24px; background: rgba(22,24,29,0.78); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border-bottom: 1px solid rgba(255,255,255,0.10); color: #F4F4F1">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; color: #D4D7DE; text-decoration: none; height: 40px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+      Home
+    </a>
+    <div style="font-weight: 700; font-size: 16px; flex: 1">Deals</div>
+    <div role="group" aria-label="Board" style="display: flex; background: rgba(255,255,255,0.10); border-radius: 8px; padding: 3px">
+      <button style="height: 34px; padding: 0 14px; border-radius: 6px; border: 0; background: #F4F4F1; color: #16181D; font: inherit; font-weight: 600">Josh</button>
+      <button style="height: 34px; padding: 0 14px; border-radius: 6px; border: 0; background: transparent; color: #D4D7DE; font: inherit">Christine</button>
+      <button style="height: 34px; padding: 0 14px; border-radius: 6px; border: 0; background: transparent; color: #D4D7DE; font: inherit">Bishops</button>
+    </div>
+    <button style="height: 40px; padding: 0 14px; border-radius: 8px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-weight: 600">+ Deal</button>
+  </header>
+
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.42); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%)">
+    <div role="group" aria-label="Type" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap">
+      <span style="font-size: 12px; color: #5B606B; margin-right: 4px">Type</span>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 0; background: #16181D; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600">All</button>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Sale</button>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Development</button>
+    </div>
+    <label style="display: flex; align-items: center; gap: 8px">
+      <span style="font-size: 12px; color: #5B606B">Show</span>
+      <select style="height: 32px; border-radius: 8px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.7); font: inherit; font-size: 12px; padding: 0 8px">
+        <option>Open deals</option>
+        <option>Archived</option>
+      </select>
+    </label>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-wrap: wrap; align-items: flex-start">
+    <main style="flex: 999 1 640px; min-width: 0; padding: 20px 24px; display: flex; flex-direction: column; gap: 10px; overflow-x: auto">
+      <div style="min-width: 760px; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: grid; grid-template-columns: 1.6fr 1fr 110px 70px 1.4fr 90px 70px; gap: 10px; padding: 0 14px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5B606B">
+          <span>Deal</span><span>Stage</span><span>Value</span><span>Prob.</span><span>Next action</span><span>Date</span><span>Boards</span>
+        </div>
+        <sc-for list="{{deals}}" as="d" hint-placeholder-count="5">
+          <a href="#" style="display: grid; grid-template-columns: 1.6fr 1fr 110px 70px 1.4fr 90px 70px; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,0.58); border: {{d.border}}; backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); color: #16181D; text-decoration: none">
+            <span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600">{{d.name}}</span><span style="font-size: 11px; color: #5B606B">{{d.type}}</span></span>
+            <span><span style="font-size: 12px; font-weight: 600; border-radius: 6px; padding: 2px 8px; background: {{d.stageBg}}; color: {{d.stageInk}}">{{d.stage}}</span></span>
+            <span style="font-family: 'IBM Plex Mono', monospace">{{d.value}}</span>
+            <span style="font-family: 'IBM Plex Mono', monospace">{{d.prob}}</span>
+            <span style="font-size: 13px">{{d.next}}</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5B606B">{{d.date}}</span>
+            <span style="display: flex; gap: 3px">
+              <sc-for list="{{d.on}}" as="o" hint-placeholder-count="1">
+                <span style="width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #FFFFFF; background: {{o.bg}}">{{o.l}}</span>
+              </sc-for>
+            </span>
+          </a>
+        </sc-for>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 18px; padding: 8px 14px 0; font-size: 12px; color: #5B606B">
+        <span><strong style="color: #16181D">Sale stages:</strong> Lead, Estimating, Proposal sent, Negotiating, Won, Lost</span>
+        <span><strong style="color: #16181D">Development stages:</strong> Due diligence, Entitlement, Financing, Closing</span>
+      </div>
+    </main>
+
+    <aside aria-label="Deal detail" style="flex: 1 1 320px; max-width: 380px; margin: 20px 24px 20px 0; background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #5B606B">Deal · Sale</span>
+        <button aria-label="Close" style="width: 32px; height: 32px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B606B" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+      <div style="font-size: 18px; font-weight: 600">BNT / ES Windows pool</div>
+      <div style="display: grid; grid-template-columns: 110px 1fr; gap: 8px 10px; font-size: 13px">
+        <span style="color: #5B606B">Stage</span><span>[Stage]</span>
+        <span style="color: #5B606B">Value</span><span style="font-family: 'IBM Plex Mono', monospace">$[value]</span>
+        <span style="color: #5B606B">Probability</span><span style="font-family: 'IBM Plex Mono', monospace">[x]%</span>
+        <span style="color: #5B606B">Current task</span><span>[current task]</span>
+        <span style="color: #5B606B">Next action</span><span>[next action] · <span style="font-family: 'IBM Plex Mono', monospace">[date]</span></span>
+        <span style="color: #5B606B">Customer</span><span>[EZ Binder customer]</span>
+        <span style="color: #5B606B">EZ Binder job</span><span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap"><span style="color: #5B606B">Linked once Won</span><button style="height: 28px; padding: 0 10px; border-radius: 6px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.75); font: inherit; font-size: 11px; font-weight: 600">Link job</button></span>
+      </div>
+
+      <section style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <span style="font-size: 12px; font-weight: 600">Linked estimates · EZ Binder</span>
+          <button style="height: 30px; padding: 0 10px; border-radius: 6px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.75); font: inherit; font-size: 11px; font-weight: 600">+ Link estimate</button>
+        </div>
+        <sc-for list="{{estimates}}" as="e" hint-placeholder-count="2">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 7px 10px; border-radius: 8px; background: rgba(255,255,255,0.5)">
+            <span style="font-family: 'IBM Plex Mono', monospace; flex: 1">{{e.id}}</span>
+            <span style="font-weight: 600">{{e.status}}</span>
+            <span style="font-family: 'IBM Plex Mono', monospace">{{e.total}}</span>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 12px; font-weight: 600">Contacts</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px">
+          <a href="Contacts.dc.html" style="font-size: 12px; border-radius: 6px; padding: 3px 8px; background: rgba(255,255,255,0.7); text-decoration: none; color: #16181D">[Contact · partner]</a>
+          <a href="Contacts.dc.html" style="font-size: 12px; border-radius: 6px; padding: 3px 8px; background: rgba(255,255,255,0.7); text-decoration: none; color: #16181D">[Contact · lender]</a>
+        </div>
+      </section>
+
+      <fieldset style="border: 1px solid rgba(22,24,29,0.10); background: rgba(255,255,255,0.4); border-radius: 10px; padding: 10px 14px; margin: 0; display: flex; flex-wrap: wrap; gap: 14px">
+        <legend style="font-size: 12px; font-weight: 600; padding: 0 6px">Show on boards</legend>
+        <label style="display: flex; align-items: center; gap: 8px; min-height: 32px"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #16181D"><span>Josh</span></label>
+        <label style="display: flex; align-items: center; gap: 8px; min-height: 32px"><input type="checkbox" style="width: 18px; height: 18px; accent-color: #2F5BD3"><span>Christine</span></label>
+        <label style="display: flex; align-items: center; gap: 8px; min-height: 32px"><input type="checkbox" style="width: 18px; height: 18px; accent-color: #8A5A00"><span>Bishops</span></label>
+      </fieldset>
+
+      <section aria-label="History" style="display: flex; flex-direction: column; gap: 4px">
+        <div style="font-size: 12px; font-weight: 600">History</div>
+        <sc-for list="{{history}}" as="h" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 6px 0; border-top: 1px solid rgba(22,24,29,0.08)">
+            <span style="flex: none; width: 22px; height: 22px; border-radius: 11px; background: {{h.bg}}; color: #FFFFFF; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{h.l}}</span>
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 1px"><span>{{h.text}}</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5B606B">{{h.when}}</span></span>
+            <sc-if value="{{h.revert}}" hint-placeholder-val="{{ false }}">
+              <button style="height: 30px; padding: 0 10px; border-radius: 6px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.75); font: inherit; font-size: 11px; font-weight: 600">Revert</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </section>
+
+      <div style="display: flex; justify-content: flex-end">
+        <button style="height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.7); font: inherit; font-size: 12px">Archive deal</button>
+      </div>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#C2410C","options":["#C2410C","#1D4ED8","#15803D","#16181D"]},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var J = { l: 'J', bg: '#16181D' };
+    var sale = { type: 'Sale', stageBg: '#FCE7DA', stageInk: '#7C2D12' };
+    var dev = { type: 'Development', stageBg: '#E7EAF1', stageInk: '#273246' };
+    function d(t, name, sel) {
+      return Object.assign({ name: name, stage: '[Stage]', value: '$[value]', prob: '[x]%', next: '[next action]', date: '[date]', on: [J], border: sel ? '2px solid #16181D' : '1px solid rgba(255,255,255,0.78)' }, t);
+    }
+    return {
+      accent: this.props.accent ?? '#C2410C',
+      deals: [
+        d(sale, 'BNT / ES Windows pool', true),
+        d(dev, 'Ohio affordable housing'),
+        d(sale, 'Best Western Naples'),
+        d(dev, '33406 · 48 units'),
+        d(dev, 'NeighborLee Living')
+      ],
+      estimates: [
+        { id: 'EST-[n]', status: '[status]', total: '$[total]' },
+        { id: 'EST-[n]', status: '[status]', total: '$[total]' }
+      ],
+      history: [
+        { l: 'D', bg: '#6D28D9', text: 'Duet updated the next action', when: 'Duet · [date] [time]', revert: true },
+        { l: 'Cl', bg: '#C2410C', text: 'Claude changed the stage', when: 'Chat · [date] [time]', revert: true },
+        { l: 'J', bg: '#16181D', text: 'Josh linked EST-[n]', when: '[date] [time]', revert: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

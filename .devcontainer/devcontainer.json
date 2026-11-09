@@ -1,0 +1,19 @@
+{
+  "name": "Command Center build workspace",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": { "version": "3.12" },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "codespaces": {
+      "repositories": {
+        "jsbishop14-art/build-control": { "permissions": { "contents": "write" } }
+      }
+    }
+  },
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && git config core.hooksPath scripts/hooks && chmod +x scripts/hooks/pre-push",
+  "remoteEnv": {
+    "BUILD_BUDGET_REPO": "https://github.com/jsbishop14-art/build-control.git"
+  }
+}

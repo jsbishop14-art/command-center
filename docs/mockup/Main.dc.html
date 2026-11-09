@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command Center — Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E4E9F2}
+a{color:#9A3412}a:hover{color:#7C2D12}
+</style>
+</helmet>
+<div style="min-height: 1640px; background-color: #E4E9F2; background-image: radial-gradient(circle at 8% 6%, rgba(194,65,12,0.20), transparent 38%), radial-gradient(circle at 92% 14%, rgba(47,91,211,0.24), transparent 44%), radial-gradient(circle at 40% 62%, rgba(138,90,0,0.10), transparent 40%), radial-gradient(circle at 78% 96%, rgba(21,128,61,0.16), transparent 46%); color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 24px; background: rgba(22,24,29,0.78); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border-bottom: 1px solid rgba(255,255,255,0.10); color: #F4F4F1">
+    <div style="display: flex; align-items: center; gap: 10px; flex: 1 1 240px">
+      <div style="width: 28px; height: 28px; border-radius: 6px; background: {{accent}}"></div>
+      <div style="font-weight: 700; font-size: 16px; letter-spacing: 0.01em">Command Center</div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #B8BCC6">Thu, Oct 22</div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; background: rgba(255,255,255,0.10)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M9 2v1.5M3.2 4.2l1 1M2 9h1.5M14.8 4.2l-1 1"></path><path d="M10 20h8a4 4 0 0 0 0-8 5 5 0 0 0-9.6 1.5A3.3 3.3 0 0 0 10 20z" stroke="#D4D7DE"></path></svg>
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; font-weight: 500">[temp]°</span>
+      <span style="font-size: 12px; color: #B8BCC6">[conditions] · rain [x]% · H [hi]° L [lo]° · 33472</span>
+    </div>
+    <label style="display: flex; align-items: center; gap: 8px; flex: 1 1 220px; max-width: 340px; background: rgba(255,255,255,0.10); border-radius: 8px; padding: 0 12px; height: 40px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B8BCC6" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <input type="search" placeholder="Search projects, notes, contacts" style="flex: 1; min-width: 0; background: transparent; border: 0; color: #F4F4F1; font: inherit; outline: none">
+    </label>
+    <div style="display: flex; align-items: center; gap: 8px">
+      <button style="height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.10); color: #F4F4F1; font: inherit; display: flex; align-items: center; gap: 8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F4F4F1" stroke-width="2" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"></path><path d="M4 3v5h5"></path><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"></path><path d="M20 21v-5h-5"></path></svg>
+        <span style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15"><span style="font-weight: 600; font-size: 13px">Refresh</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #B8BCC6">no AI · [time] ago</span></span>
+      </button>
+      <a href="SyncDialog.dc.html" style="height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.10); color: #F4F4F1; text-decoration: none; display: flex; align-items: center; gap: 8px; box-sizing: border-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FDBA74" stroke-width="2" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"></path></svg>
+        <span style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15"><span style="font-weight: 600; font-size: 13px">Sync with Claude</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #B8BCC6">last [time] · runs only when pressed</span></span>
+      </a>
+      <a href="Builds.dc.html" aria-label="Notifications: 2 builds need you" style="position: relative; width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.10); display: flex; align-items: center; justify-content: center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4F4F1" stroke-width="2" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4l2-2z"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg>
+        <span style="position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; border-radius: 10px; background: #DC2626; color: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; padding: 0 5px; box-sizing: border-box">2</span>
+      </a>
+      <button style="height: 40px; padding: 0 12px; border-radius: 8px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-weight: 600; display: flex; align-items: center; gap: 8px">+ Quick add <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; background: rgba(0,0,0,0.25); border-radius: 4px; padding: 2px 6px">Ctrl K</span></button>
+      <div role="group" aria-label="Board" style="display: flex; background: rgba(255,255,255,0.10); border-radius: 8px; padding: 3px">
+        <button style="height: 34px; padding: 0 12px; border-radius: 6px; border: 0; background: #F4F4F1; color: #16181D; font: inherit; font-weight: 600">Josh</button>
+        <button style="height: 34px; padding: 0 12px; border-radius: 6px; border: 0; background: transparent; color: #D4D7DE; font: inherit">Christine</button>
+        <button style="height: 34px; padding: 0 12px; border-radius: 6px; border: 0; background: transparent; color: #D4D7DE; font: inherit">Bishops</button>
+      </div>
+    </div>
+  </header>
+
+  <div style="display: flex; flex-wrap: wrap; align-items: stretch; flex: 1">
+
+    <nav aria-label="Main" style="flex: 1 1 200px; max-width: 220px; padding: 20px 12px; border-right: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.42); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); display: flex; flex-direction: column; gap: 4px">
+      <a href="#" style="display: flex; align-items: center; height: 40px; padding: 0 12px; border-radius: 8px; background: #16181D; color: #F4F4F1; text-decoration: none; font-weight: 600">Home</a>
+      <a href="#" style="display: flex; align-items: center; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none">Projects</a>
+      <a href="Kanban.dc.html" style="display: flex; align-items: center; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none">Kanban</a>
+      <a href="#" style="display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none"><span>Inbox</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; background: {{accent}}; color: #FFFFFF; border-radius: 10px; padding: 1px 8px">4</span></a>
+      <a href="#" style="display: flex; align-items: center; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none">Calendar</a>
+      <a href="#" style="display: flex; align-items: center; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none">Schedule</a>
+      <a href="Deals.dc.html" style="display: flex; align-items: center; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none">Deals</a>
+      <a href="Contacts.dc.html" style="display: flex; align-items: center; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none">Contacts</a>
+      <a href="Builds.dc.html" style="display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none"><span>Builds</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: #DC2626; color: #FFFFFF; border-radius: 10px; padding: 1px 8px">2 need you</span></a>
+      <a href="#" style="display: flex; align-items: center; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none">Money</a>
+      <a href="PhoneLookup.dc.html" style="display: flex; align-items: center; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none">Phone lookup</a>
+      <a href="#" style="display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 12px; border-radius: 8px; color: #16181D; text-decoration: none"><span>Problems</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: rgba(22,24,29,0.10); color: #16181D; border-radius: 10px; padding: 1px 8px">[n]</span></a>
+      <div style="height: 1px; background: rgba(22,24,29,0.10); margin: 12px 4px"></div>
+      <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #5B606B; padding: 0 12px 6px">Live feeds</div>
+      <sc-for list="{{feeds}}" as="f" hint-placeholder-count="6">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 4px 12px; font-size: 13px; color: #3A3F49">
+          <span style="width: 8px; height: 8px; border-radius: 4px; background: {{f.dot}}"></span>
+          <span style="flex: 1">{{f.name}}</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5B606B">{{f.state}}</span>
+        </div>
+      </sc-for>
+      <a href="#" style="display: flex; align-items: center; height: 40px; padding: 0 12px; margin-top: auto; border-radius: 8px; color: #5B606B; text-decoration: none">Settings</a>
+    </nav>
+
+    <main style="flex: 999 1 560px; min-width: 0; padding: 24px; display: flex; flex-direction: column; gap: 20px">
+
+      <section aria-label="Money" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px">
+        <sc-for list="{{money}}" as="m" hint-placeholder-count="4">
+          <div style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px">
+            <div style="font-size: 12px; color: #5B606B">{{m.label}}</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500">{{m.value}}</div>
+            <div style="font-size: 11px; color: #5B606B">{{m.src}}</div>
+          </div>
+        </sc-for>
+      </section>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px">
+
+        <section style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; height: 440px; box-sizing: border-box; overflow-y: auto">
+          <div style="display: flex; align-items: center; gap: 4px">
+            <button aria-label="Drag to reorder" style="width: 28px; height: 28px; border: 0; background: transparent; padding: 0; cursor: grab; display: flex; align-items: center; justify-content: center"><svg width="12" height="16" viewBox="0 0 12 16" fill="#9A9EA7" aria-hidden="true"><circle cx="3" cy="3" r="1.5"></circle><circle cx="9" cy="3" r="1.5"></circle><circle cx="3" cy="8" r="1.5"></circle><circle cx="9" cy="8" r="1.5"></circle><circle cx="3" cy="13" r="1.5"></circle><circle cx="9" cy="13" r="1.5"></circle></svg></button>
+            <h2 style="margin: 0; font-size: 16px; flex: 1">Today</h2>
+            <button aria-label="Collapse panel" style="width: 28px; height: 28px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B606B" stroke-width="2" aria-hidden="true"><path d="M6 15l6-6 6 6"></path></svg></button>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; color: #5B606B">
+            <span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #16181D"></span>Josh work</span>
+            <span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #8A8F99"></span>Josh personal</span>
+            <span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #2F5BD3"></span>Christine</span>
+          </div>
+          <sc-for list="{{today}}" as="t" hint-placeholder-count="5">
+            <div style="display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-top: 1px solid rgba(22,24,29,0.08)">
+              <div style="width: 48px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5B606B; padding-top: 2px">{{t.time}}</div>
+              <div style="width: 4px; align-self: stretch; border-radius: 2px; background: {{t.color}}"></div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+                <div style="font-weight: 500">{{t.title}}</div>
+                <div style="font-size: 12px; color: #5B606B">{{t.sub}}</div>
+              </div>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; height: 440px; box-sizing: border-box; overflow-y: auto">
+          <div style="display: flex; align-items: center; gap: 4px">
+            <button aria-label="Drag to reorder" style="width: 28px; height: 28px; border: 0; background: transparent; padding: 0; cursor: grab; display: flex; align-items: center; justify-content: center"><svg width="12" height="16" viewBox="0 0 12 16" fill="#9A9EA7" aria-hidden="true"><circle cx="3" cy="3" r="1.5"></circle><circle cx="9" cy="3" r="1.5"></circle><circle cx="3" cy="8" r="1.5"></circle><circle cx="9" cy="8" r="1.5"></circle><circle cx="3" cy="13" r="1.5"></circle><circle cx="9" cy="13" r="1.5"></circle></svg></button>
+            <h2 style="margin: 0; font-size: 16px; flex: 1">Inbox <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #5B606B">4</span></h2>
+            <button aria-label="Collapse panel" style="width: 28px; height: 28px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B606B" stroke-width="2" aria-hidden="true"><path d="M6 15l6-6 6 6"></path></svg></button>
+          </div>
+          <sc-for list="{{inbox}}" as="n" hint-placeholder-count="4">
+            <div style="border: 1px solid rgba(255,255,255,0.8); background: rgba(255,255,255,0.5); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px">
+              <div style="display: flex; justify-content: space-between; font-size: 11px; color: #5B606B; font-family: 'IBM Plex Mono', monospace"><span>{{n.via}}</span><span>{{n.when}}</span></div>
+              <div style="font-weight: 500">{{n.text}}</div>
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap">
+                <span title="Suggested at last Sync" style="font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.7); border-radius: 6px; padding: 3px 8px">{{n.suggest}}</span>
+                <span style="flex: 1"></span>
+                <button style="height: 32px; padding: 0 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Dismiss</button>
+                <button style="height: 32px; padding: 0 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Change</button>
+                <button style="height: 32px; padding: 0 10px; border-radius: 6px; border: 0; background: #16181D; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600">Confirm</button>
+              </div>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; height: 440px; box-sizing: border-box; overflow-y: auto">
+          <div style="display: flex; align-items: center; gap: 4px">
+            <button aria-label="Drag to reorder" style="width: 28px; height: 28px; border: 0; background: transparent; padding: 0; cursor: grab; display: flex; align-items: center; justify-content: center"><svg width="12" height="16" viewBox="0 0 12 16" fill="#9A9EA7" aria-hidden="true"><circle cx="3" cy="3" r="1.5"></circle><circle cx="9" cy="3" r="1.5"></circle><circle cx="3" cy="8" r="1.5"></circle><circle cx="9" cy="8" r="1.5"></circle><circle cx="3" cy="13" r="1.5"></circle><circle cx="9" cy="13" r="1.5"></circle></svg></button>
+            <h2 style="margin: 0; font-size: 16px; flex: 1">Awaiting reply <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #5B606B">4</span></h2>
+            <button aria-label="Collapse panel" style="width: 28px; height: 28px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B606B" stroke-width="2" aria-hidden="true"><path d="M6 15l6-6 6 6"></path></svg></button>
+          </div>
+          <div style="font-size: 11px; color: #5B606B">You sent last · 2+ days with no answer (1 day for clients with active jobs) · matched by email address, no AI · Nudge drafts template B in Gmail</div>
+          <sc-for list="{{awaiting}}" as="a" hint-placeholder-count="4">
+            <div style="border: 1px solid rgba(255,255,255,0.8); background: rgba(255,255,255,0.5); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px">
+              <div style="display: flex; justify-content: space-between; gap: 8px">
+                <span style="font-weight: 600">{{a.to}}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: {{a.ageInk}}">{{a.age}}</span>
+              </div>
+              <div style="font-size: 13px; color: #3A3F49">{{a.subject}}</div>
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap">
+                <span style="font-size: 11px; color: #5B606B">{{a.project}}</span>
+                <span style="flex: 1"></span>
+                <button style="height: 32px; padding: 0 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">No reply needed</button>                <button style="height: 32px; padding: 0 10px; border-radius: 6px; border: 0; background: #16181D; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600">Nudge</button>
+              </div>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; height: 440px; box-sizing: border-box; overflow-y: auto">
+          <div style="display: flex; align-items: center; gap: 4px">
+            <button aria-label="Drag to reorder" style="width: 28px; height: 28px; border: 0; background: transparent; padding: 0; cursor: grab; display: flex; align-items: center; justify-content: center"><svg width="12" height="16" viewBox="0 0 12 16" fill="#9A9EA7" aria-hidden="true"><circle cx="3" cy="3" r="1.5"></circle><circle cx="9" cy="3" r="1.5"></circle><circle cx="3" cy="8" r="1.5"></circle><circle cx="9" cy="8" r="1.5"></circle><circle cx="3" cy="13" r="1.5"></circle><circle cx="9" cy="13" r="1.5"></circle></svg></button>
+            <h2 style="margin: 0; font-size: 16px; flex: 1">Kanban · in progress</h2>
+            <a href="Kanban.dc.html" style="font-size: 12px; font-weight: 600; padding: 0 4px">Open</a>
+            <button aria-label="Collapse panel" style="width: 28px; height: 28px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B606B" stroke-width="2" aria-hidden="true"><path d="M6 15l6-6 6 6"></path></svg></button>
+          </div>
+          <sc-for list="{{doing}}" as="k" hint-placeholder-count="5">
+            <div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.8); background: rgba(255,255,255,0.5); border-radius: 10px">
+              <div style="display: flex; align-items: center; gap: 6px">
+                <span style="font-size: 11px; font-weight: 600; border-radius: 6px; padding: 2px 8px; background: {{k.chipBg}}; color: {{k.chipInk}}">{{k.area}}</span>
+                <span style="flex: 1"></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5B606B">{{k.due}}</span>
+              </div>
+              <div style="font-weight: 500">{{k.title}}</div>
+            </div>
+          </sc-for>
+        </section>
+      </div>
+
+      <section style="display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-size: 16px">Projects</h2>
+          <div role="group" aria-label="Filter" style="display: flex; gap: 6px; flex-wrap: wrap">
+            <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 0; background: #16181D; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600">All</button>
+            <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Deals</button>
+            <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">GC jobs</button>
+            <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Software</button>
+            <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Personal · Family</button>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px">
+          <sc-for list="{{projects}}" as="p" hint-placeholder-count="8">
+            <div style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+              <div style="display: flex; justify-content: space-between; align-items: center">
+                <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5B606B">{{p.group}}</span>
+                <span style="font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: #5B606B">{{p.src}}</span>
+              </div>
+              <div style="font-weight: 600; font-size: 15px">{{p.name}}</div>
+              <div style="font-size: 13px; color: #3A3F49">{{p.status}}</div>
+              <div style="display: flex; flex-direction: column; gap: 4px; padding-top: 8px; border-top: 1px solid rgba(22,24,29,0.08); font-size: 12px">
+                <div style="display: flex; gap: 6px"><span style="color: #5B606B; width: 44px">Now</span><span style="flex: 1; font-weight: 600">{{p.now}}</span></div>
+                <div style="display: flex; gap: 6px"><span style="color: #5B606B; width: 44px">Next</span><span style="flex: 1">{{p.next}}</span></div>
+                <div style="display: flex; gap: 6px"><span style="color: #5B606B; width: 44px">Due</span><span style="flex: 1; font-family: 'IBM Plex Mono', monospace">{{p.due}}</span></div>
+                <div style="display: flex; gap: 6px"><span style="color: #5B606B; width: 44px">Money</span><span style="flex: 1; font-family: 'IBM Plex Mono', monospace">{{p.money}}</span></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px">
+          <h2 style="margin: 0; font-size: 16px">GC schedule · next 2 weeks</h2>
+          <div style="display: flex; align-items: center; gap: 12px; font-size: 11px; color: #5B606B">
+            <span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #15803D"></span>Active</span>
+            <span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #B45309"></span>Sold, not started</span>
+            <span style="display: flex; align-items: center; gap: 4px"><span style="width: 14px; height: 8px; border-radius: 2px; border: 1.5px dashed #9A9EA7"></span>Proposal (you, rule or Claude)</span>
+            <span>Drag a bar to propose a move</span>
+            <span style="font-family: 'IBM Plex Mono', monospace">EZ Binder schedule</span>
+          </div>
+        </div>
+        <div style="overflow-x: auto">
+          <div style="min-width: 860px; display: flex; flex-direction: column; gap: 6px">
+            <div style="display: grid; grid-template-columns: 170px repeat(10, minmax(0, 1fr)); gap: 4px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5B606B">
+              <span>Job</span>
+              <sc-for list="{{days}}" as="d" hint-placeholder-count="10">
+                <span style="text-align: center; padding: 4px 0; border-radius: 4px; background: {{d.bg}}; color: {{d.ink}}">{{d.label}}</span>
+              </sc-for>
+            </div>
+            <sc-for list="{{schedule}}" as="r" hint-placeholder-count="5">
+              <div style="display: grid; grid-template-columns: 170px repeat(10, minmax(0, 1fr)); gap: 4px; align-items: center; min-height: 36px; border-top: 1px solid rgba(22,24,29,0.08); padding-top: 6px">
+                <span style="grid-column: 1; grid-row: 1; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 2px; background: {{r.dot}}"></span>{{r.job}}</span>
+                <sc-for list="{{r.bars}}" as="b" hint-placeholder-count="2">
+                  <span style="grid-column: {{b.col}}; grid-row: 1; height: 28px; border-radius: 6px; background: {{b.bg}}; color: {{b.ink}}; border: {{b.border}}; box-sizing: border-box; font-size: 12px; font-weight: 500; display: flex; align-items: center; padding: 0 8px; overflow: hidden; white-space: nowrap">{{b.task}}</span>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#C2410C","options":["#C2410C","#1D4ED8","#15803D","#16181D"]},"$preview":{"width":1440,"height":1640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var biz = { chipBg: '#E7EAF1', chipInk: '#273246' };
+    var per = { chipBg: '#E3EFE7', chipInk: '#1D4D30' };
+    var fam = { chipBg: '#F4E7DF', chipInk: '#7A3415' };
+    var blue = { bg: '#E7EAF1', ink: '#273246' };
+    var clay = { bg: '#FCE7DA', ink: '#7C2D12' };
+    var green = { bg: '#E3EFE7', ink: '#1D4D30' };
+    var proposed = { bg: 'rgba(255,255,255,0.6)', ink: '#5B606B', border: '2px dashed #9A9EA7' };
+    function bar(col, task, c) { return { col: col, task: task, bg: c.bg, ink: c.ink, border: c.border || '0' }; }
+    return {
+      accent: this.props.accent ?? '#C2410C',
+      feeds: [
+        { name: 'Gmail', state: 'live', dot: '#15803D' },
+        { name: 'Calendars (3)', state: 'live', dot: '#15803D' },
+        { name: 'EZ Binder', state: '90 min', dot: '#15803D' },
+        { name: 'Claude', state: 'on Sync', dot: '#9A9EA7' },
+        { name: 'Duet', state: 'on', dot: '#15803D' },
+        { name: 'Build files', state: 'live', dot: '#15803D' },
+        { name: 'Weather', state: 'live', dot: '#15803D' }
+      ],
+      money: [
+        { label: 'Open A/R', value: '$[A/R]', src: 'EZ Binder · invoices' },
+        { label: 'Received this week', value: '$[paid]', src: 'EZ Binder · payments' },
+        { label: 'Open invoices', value: '[count]', src: 'EZ Binder · invoices' },
+        { label: 'Over 30 days', value: '$[overdue]', src: 'EZ Binder · invoices' }
+      ],
+      today: [
+        { time: '[time]', title: '[Work calendar event]', sub: 'Josh · work', color: '#16181D' },
+        { time: '[time]', title: '[Site visit / client meeting]', sub: 'Josh · work', color: '#16181D' },
+        { time: '[time]', title: '[Christine event]', sub: 'Christine', color: '#2F5BD3' },
+        { time: '[time]', title: '[Personal event]', sub: 'Josh · personal', color: '#8A8F99' },
+        { time: 'Due', title: '[Card due today]', sub: 'Kanban', color: '#C2410C' }
+      ],
+      inbox: [
+        { via: 'Email', when: '[time]', text: '[Sample note: follow up with ES rep on pooled order]', suggest: 'BNT / ES Windows pool · Josh' },
+        { via: 'Text', when: '[time]', text: '[Sample note: send revised scope]', suggest: 'Jolie kitchen · Josh' },
+        { via: 'Shortcut', when: '[time]', text: '[Sample note: idea for Blueprint Creator]', suggest: 'Blueprint Creator · Josh' },
+        { via: 'Text', when: '[time]', text: '[Sample note: household item]', suggest: 'Bishops · Josh, Christine' },
+        { via: 'Email', when: '[time]', text: '[Note arrived after last Sync]', suggest: 'Not sorted yet · Sync or pick' }
+      ],
+      awaiting: [
+        { to: '[Client · active job]', subject: '[Email subject]', project: 'Riverwood', age: '1d+', ageInk: '#B45309' },
+        { to: '[Recipient]', subject: '[Email subject]', project: 'BNT / ES Windows pool', age: '[x]d', ageInk: '#B45309' },
+        { to: '[Recipient]', subject: '[Email subject]', project: 'Best Western Naples', age: '[x]d', ageInk: '#5B606B' },
+        { to: '[Recipient]', subject: '[Email subject]', project: 'Ohio affordable housing', age: '[x]d', ageInk: '#5B606B' }
+      ],
+      doing: [
+        Object.assign({ area: 'Business', title: 'BNT customer pool → ES order', due: '[date]' }, biz),
+        Object.assign({ area: 'Business', title: 'Ohio sites presentation', due: '[date]' }, biz),
+        Object.assign({ area: 'Business', title: 'Blueprint Creator — next phase', due: '[date]' }, biz),
+        Object.assign({ area: 'Personal', title: '[Personal card]', due: '[date]' }, per),
+        Object.assign({ area: 'Family', title: '[Family card]', due: '[date]' }, fam)
+      ],
+      projects: [
+        { group: 'Deal · Sale', src: 'dashboard · [n] estimates', name: 'BNT / ES Windows pool', status: '[Stage] · pooling BNT customers into one ES supply + install order', now: '[current task]', next: '[next action]', due: '[date]', money: '[order value]' },
+        { group: 'Deal · Development', src: 'dashboard', name: 'Ohio affordable housing', status: '[Stage] · two sites', now: '[current task]', next: '[next action]', due: '[date]', money: '[deal size]' },
+        { group: 'Deal · Sale', src: 'dashboard · [n] estimates', name: 'Best Western Naples', status: '[Stage] · GC project delivery proposal', now: '[current task]', next: '[next action]', due: '[date]', money: '[contract value]' },
+        { group: 'Deal · Development', src: 'dashboard', name: '33406 · 48 units', status: '[Stage] · underwriting', now: '[current task]', next: '[next action]', due: '[date]', money: '[budget]' },
+        { group: 'GC job', src: 'EZ Binder', name: 'Riverwood', status: '[status from EZ Binder]', now: '[task on schedule today]', next: '[next scheduled task]', due: '[date]', money: '[billed / paid]' },
+        { group: 'GC job', src: 'EZ Binder', name: 'Jolie kitchen', status: '[status from EZ Binder]', now: '[task on schedule today]', next: '[next scheduled task]', due: '[date]', money: '[billed / paid]' },
+        { group: 'Software', src: 'build files', name: 'Blueprint Creator', status: '[current phase from PROCESS.md]', now: '[stage running now]', next: '[next stage]', due: '[date]', money: '—' },
+        { group: 'Software', src: 'build files', name: 'FrameFocus', status: '[current phase from PROCESS.md]', now: '[stage running now]', next: '[next stage]', due: '[date]', money: '—' }
+      ],
+      days: ['Thu 10/22', 'Fri 10/23', 'Mon 10/26', 'Tue 10/27', 'Wed 10/28', 'Thu 10/29', 'Fri 10/30', 'Mon 11/2', 'Tue 11/3', 'Wed 11/4'].map(function (l, i) {
+        return { label: l, bg: i === 0 ? '#16181D' : 'rgba(255,255,255,0.55)', ink: i === 0 ? '#FFFFFF' : '#5B606B' };
+      }),
+      schedule: [
+        { job: 'Riverwood', dot: '#15803D', bars: [bar('2 / span 3', '[EZ Binder task]', blue), bar('6 / span 4', '[EZ Binder task]', clay)] },
+        { job: 'Satinwood', dot: '#15803D', bars: [bar('3 / span 5', '[EZ Binder task]', blue), bar('9 / span 2', 'Proposed by rule · confirm in EZ Binder', proposed)] },
+        { job: 'Jolie kitchen', dot: '#15803D', bars: [bar('2 / span 2', '[EZ Binder task]', clay), bar('5 / span 3', '[EZ Binder task]', blue), bar('9 / span 3', '[Inspection]', green)] },
+        { job: '[Sold job]', dot: '#B45309', bars: [bar('8 / span 4', '[Mobilize / start]', clay)] },
+        { job: '[Sold job]', dot: '#B45309', bars: [bar('4 / span 3', 'Proposed by Claude · confirm in EZ Binder', proposed), bar('8 / span 3', 'Proposed by Josh · confirm in EZ Binder', proposed)] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

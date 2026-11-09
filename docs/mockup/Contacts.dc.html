@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command Center — Contacts</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E4E9F2}
+a{color:#9A3412}a:hover{color:#7C2D12}
+</style>
+</helmet>
+<div style="min-height: 900px; background-color: #E4E9F2; background-image: radial-gradient(circle at 8% 6%, rgba(194,65,12,0.20), transparent 38%), radial-gradient(circle at 92% 14%, rgba(47,91,211,0.24), transparent 44%), radial-gradient(circle at 40% 62%, rgba(138,90,0,0.10), transparent 40%), radial-gradient(circle at 78% 96%, rgba(21,128,61,0.16), transparent 46%); color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 24px; background: rgba(22,24,29,0.78); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border-bottom: 1px solid rgba(255,255,255,0.10); color: #F4F4F1">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; color: #D4D7DE; text-decoration: none; height: 40px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+      Home
+    </a>
+    <div style="font-weight: 700; font-size: 16px; flex: 1">Contacts</div>
+    <span style="font-size: 12px; color: #B8BCC6">Lenders, partners and others · EZ Binder customers are looked up live</span>
+    <button style="height: 40px; padding: 0 14px; border-radius: 8px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-weight: 600">+ Contact</button>
+  </header>
+
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.42); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%)">
+    <div role="group" aria-label="Role" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap">
+      <span style="font-size: 12px; color: #5B606B; margin-right: 4px">Role</span>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 0; background: #16181D; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600">All</button>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Lender</button>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Partner</button>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Other</button>
+    </div>
+    <label style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.7); margin-left: auto">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B606B" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <input type="search" aria-label="Search contacts" placeholder="Search contacts" style="border: 0; background: transparent; font: inherit; outline: none; width: 180px">
+    </label>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-wrap: wrap; align-items: flex-start">
+    <main style="flex: 999 1 640px; min-width: 0; padding: 20px 24px; overflow-x: auto">
+      <div style="min-width: 760px; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 90px 1.6fr 130px 1.4fr; gap: 10px; padding: 0 14px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #5B606B">
+          <span>Name</span><span>Company</span><span>Role</span><span>Email</span><span>Phone</span><span>Deals</span>
+        </div>
+        <sc-for list="{{contacts}}" as="c" hint-placeholder-count="5">
+          <a href="#" style="display: grid; grid-template-columns: 1.2fr 1.2fr 90px 1.6fr 130px 1.4fr; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 10px; background: rgba(255,255,255,0.58); border: {{c.border}}; backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); color: #16181D; text-decoration: none">
+            <span style="font-weight: 600">{{c.name}}</span>
+            <span>{{c.company}}</span>
+            <span><span style="font-size: 11px; font-weight: 600; border-radius: 6px; padding: 2px 8px; background: {{c.roleBg}}; color: {{c.roleInk}}">{{c.role}}</span></span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">{{c.email}}</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">{{c.phone}}</span>
+            <span style="font-size: 12px; color: #3A3F49">{{c.deals}}</span>
+          </a>
+        </sc-for>
+      </div>
+    </main>
+
+    <aside aria-label="Contact detail" style="flex: 1 1 300px; max-width: 360px; margin: 20px 24px 20px 0; background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #5B606B">Contact · Lender</span>
+        <button aria-label="Close" style="width: 32px; height: 32px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B606B" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+      <div style="font-size: 18px; font-weight: 600">[Contact name]</div>
+      <div style="display: grid; grid-template-columns: 80px 1fr; gap: 8px 10px; font-size: 13px">
+        <span style="color: #5B606B">Company</span><span>[company]</span>
+        <span style="color: #5B606B">Emails</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; display: flex; flex-direction: column; gap: 2px"><span>[email 1]</span><span>[email 2]</span></span>
+        <span style="color: #5B606B">Phone</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px">[phone]</span>
+      </div>
+      <section style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <span style="font-size: 12px; font-weight: 600">Linked deals</span>
+          <button style="height: 30px; padding: 0 10px; border-radius: 6px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.75); font: inherit; font-size: 11px; font-weight: 600">+ Link deal</button>
+        </div>
+        <a href="Deals.dc.html" style="font-size: 13px; padding: 7px 10px; border-radius: 8px; background: rgba(255,255,255,0.5); color: #16181D; text-decoration: none">Ohio affordable housing</a>
+      </section>
+      <div style="font-size: 12px; color: #5B606B; background: rgba(255,255,255,0.45); border-radius: 8px; padding: 10px 12px">Emails from these addresses match this contact's deals in Awaiting reply and in Inbox suggestions.</div>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #5B606B">
+        Notes
+        <textarea rows="4" placeholder="[Contact notes]" style="font: inherit; font-size: 13px; color: #16181D; border: 1px solid rgba(22,24,29,0.14); border-radius: 8px; padding: 8px 10px; resize: vertical; background: rgba(255,255,255,0.7)"></textarea>
+      </label>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#C2410C","options":["#C2410C","#1D4ED8","#15803D","#16181D"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var lender = { role: 'Lender', roleBg: '#E7EAF1', roleInk: '#273246' };
+    var partner = { role: 'Partner', roleBg: '#E3EFE7', roleInk: '#1D4D30' };
+    var other = { role: 'Other', roleBg: 'rgba(22,24,29,0.08)', roleInk: '#3A3F49' };
+    function c(r, deals, sel) {
+      return Object.assign({ name: '[Contact name]', company: '[company]', email: '[email]', phone: '[phone]', deals: deals, border: sel ? '2px solid #16181D' : '1px solid rgba(255,255,255,0.78)' }, r);
+    }
+    return {
+      accent: this.props.accent ?? '#C2410C',
+      contacts: [
+        c(lender, 'Ohio affordable housing', true),
+        c(partner, 'Ohio affordable housing · 33406'),
+        c(lender, '33406 · 48 units'),
+        c(partner, 'NeighborLee Living'),
+        c(other, 'Best Western Naples')
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

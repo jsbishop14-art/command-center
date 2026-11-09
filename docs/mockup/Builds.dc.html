@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command Center — Software builds</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E4E9F2}
+a{color:#9A3412}a:hover{color:#7C2D12}
+</style>
+</helmet>
+<div style="min-height: 1240px; background-color: #E4E9F2; background-image: radial-gradient(circle at 8% 6%, rgba(194,65,12,0.20), transparent 38%), radial-gradient(circle at 92% 14%, rgba(47,91,211,0.24), transparent 44%), radial-gradient(circle at 40% 62%, rgba(138,90,0,0.10), transparent 40%), radial-gradient(circle at 78% 96%, rgba(21,128,61,0.16), transparent 46%); color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 24px; background: rgba(22,24,29,0.78); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border-bottom: 1px solid rgba(255,255,255,0.10); color: #F4F4F1">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; color: #D4D7DE; text-decoration: none; height: 40px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+      Home
+    </a>
+    <div style="font-weight: 700; font-size: 16px; flex: 1">Software builds</div>
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #B8BCC6">
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #F59E0B"></span>
+      Build runner · cloud workspace · [running / stopped]
+    </div>
+  </header>
+
+  <section aria-label="Usage" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; padding: 20px 24px 0">
+    <sc-for list="{{usage}}" as="u" hint-placeholder-count="3">
+      <div style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; color: #5B606B"><span>{{u.label}}</span><span style="font-family: 'IBM Plex Mono', monospace">{{u.note}}</span></div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500">{{u.value}}</div>
+        <div style="height: 6px; border-radius: 3px; background: rgba(22,24,29,0.10); overflow: hidden"><div style="height: 6px; width: {{u.pct}}; background: {{u.bar}}"></div></div>
+      </div>
+    </sc-for>
+    <div style="background: rgba(255,255,255,0.62); border: 2px solid #DC2626; backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 10px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: #5B606B">
+        <span>Build budget · builds only</span>
+        <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.06em; border-radius: 6px; padding: 2px 8px; background: #DC2626; color: #FFFFFF">HOLD</span>
+      </div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 8px">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 500">[x]%</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: #5B606B">[used] of [limit] tokens</span>
+      </div>
+      <div style="height: 6px; border-radius: 3px; background: rgba(22,24,29,0.10); overflow: hidden"><div style="height: 6px; width: 100%; background: #DC2626"></div></div>
+      <div style="display: flex; align-items: center; gap: 8px">
+        <span style="flex: 1; font-size: 11px; color: #3A3F49">No new builds start. Running work finishes. Clears Mon 2:00 AM.</span>
+        <button style="height: 32px; padding: 0 12px; border-radius: 8px; border: 0; background: #16181D; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600">Override</button>
+      </div>
+    </div>
+  </section>
+
+  <div style="flex: 1; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 20px; padding: 20px 24px 24px">
+
+    <main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+      <sc-for list="{{builds}}" as="b" hint-placeholder-count="5">
+        <article style="background: rgba(255,255,255,0.58); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border: {{b.border}}; border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+            <h2 style="margin: 0; font-size: 17px">{{b.name}}</h2>
+            <span style="font-size: 11px; font-weight: 600; border-radius: 6px; padding: 3px 8px; background: {{b.stateBg}}; color: {{b.stateInk}}">{{b.state}}</span>
+            <span style="flex: 1"></span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5B606B">{{b.queue}}</span>
+          </div>
+          <div style="font-size: 13px; color: #3A3F49">{{b.current}}</div>
+          <ol aria-label="Build progress" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{b.stages}}" as="s" hint-placeholder-count="4">
+              <li style="display: flex; flex-direction: column; gap: 6px">
+                <div style="height: 6px; border-radius: 3px; background: {{s.bar}}"></div>
+                <div style="font-size: 12px; font-weight: {{s.weight}}; color: {{s.ink}}">{{s.name}}</div>
+              </li>
+            </sc-for>
+          </ol>
+          <sc-if value="{{b.live}}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #1D4D30">
+              <span style="width: 8px; height: 8px; border-radius: 4px; background: #15803D"></span>
+              Live on Mac mini: <span style="font-family: 'IBM Plex Mono', monospace">[merge]</span>, <span style="font-family: 'IBM Plex Mono', monospace">[time]</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{b.rolledBack}}" hint-placeholder-val="{{ false }}">
+            <div role="alert" style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 8px; background: rgba(220,38,38,0.10); border: 1px solid #DC2626; font-size: 12px; color: #7F1D1D">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2" aria-hidden="true" style="flex: none"><path d="M12 3l10 18H2L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>
+              <span style="flex: 1"><strong>Update failed, rolled back.</strong> [merge] failed its check after install at [time]. The Mac mini is back on [previous merge].</span>
+            </div>
+          </sc-if>
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid rgba(22,24,29,0.08); font-size: 12px">
+            <span style="color: #5B606B">Last activity <span style="font-family: 'IBM Plex Mono', monospace">{{b.last}}</span></span>
+            <span style="flex: 1"></span>
+            <sc-if value="{{b.needs}}" hint-placeholder-val="{{ false }}">
+              <button style="height: 34px; padding: 0 12px; border-radius: 8px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600">{{b.action}}</button>
+            </sc-if>
+          </div>
+        </article>
+      </sc-for>
+    </main>
+
+    <aside aria-label="Needs you" style="flex: 1 1 320px; max-width: 380px; display: flex; flex-direction: column; gap: 12px">
+      <section style="background: rgba(255,255,255,0.62); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); border: 2px solid #DC2626; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-size: 16px; color: #991B1B">Needs you <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">2</span></h2>
+        <div style="font-size: 11px; color: #5B606B">Answers are saved to the build's status file. The build continues after the runner restarts.</div>
+
+        <fieldset style="border: 1px solid rgba(255,255,255,0.8); background: rgba(255,255,255,0.5); border-radius: 10px; padding: 12px; margin: 0; display: flex; flex-direction: column; gap: 10px">
+          <legend style="position: absolute; width: 1px; height: 1px; overflow: hidden">Command Center question</legend>
+          <div style="display: flex; justify-content: space-between; font-size: 12px"><span style="font-weight: 700">Command Center · [build name]</span><span style="font-family: 'IBM Plex Mono', monospace; color: #5B606B">Q1 of [n]</span></div>
+          <div style="font-size: 13px; font-weight: 500">[The question in full, in plain words]</div>
+          <sc-for list="{{options}}" as="o" hint-placeholder-count="3">
+            <label style="display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: 8px; border: {{o.border}}; background: rgba(255,255,255,0.65); font-size: 13px; min-height: 44px; box-sizing: border-box">
+              <input type="radio" name="q1" style="width: 18px; height: 18px; margin: 1px 0 0; accent-color: #16181D">
+              <span style="flex: 1; display: flex; flex-direction: column; gap: 2px"><span><strong>{{o.key}})</strong> {{o.text}}</span><sc-if value="{{o.rec}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; color: #1D4D30">Recommended</span></sc-if></span>
+            </label>
+          </sc-for>
+          <div style="font-size: 12px; color: #3A3F49; background: rgba(21,128,61,0.08); border-radius: 8px; padding: 8px 10px"><strong>My recommendation:</strong> B, [why, in one line]</div>
+          <label style="display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: #5B606B">Or your own answer
+            <textarea rows="2" placeholder="[Type your answer]" style="font: inherit; font-size: 13px; color: #16181D; border: 1px solid rgba(22,24,29,0.14); border-radius: 8px; padding: 8px 10px; resize: vertical; background: rgba(255,255,255,0.7)"></textarea>
+          </label>
+          <div style="display: flex; gap: 6px; justify-content: flex-end">
+            <button style="height: 34px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.85); background: rgba(255,255,255,0.65); font: inherit; font-size: 12px">Previous</button>
+            <button style="height: 34px; padding: 0 12px; border-radius: 8px; border: 0; background: #16181D; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600">Next question</button>
+          </div>
+        </fieldset>
+
+        <div style="border: 1px solid rgba(255,255,255,0.8); background: rgba(255,255,255,0.5); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; justify-content: space-between; font-size: 12px"><span style="font-weight: 700">Blueprint Creator · [build name]</span><span style="font-family: 'IBM Plex Mono', monospace; color: #5B606B">[n] of [n] answered</span></div>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #1D4D30">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>
+            Answers saved. Restart the runner
+          </div>
+          <div style="font-size: 12px; color: #3A3F49">Paste this at the plain terminal prompt in the build workspace:</div>
+          <div style="display: flex; align-items: stretch; gap: 6px">
+            <code style="flex: 1; min-width: 0; font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: rgba(22,24,29,0.86); color: #F4F4F1; border-radius: 8px; padding: 8px 10px; overflow-x: auto; white-space: nowrap">[runner command]</code>
+            <button style="height: 36px; padding: 0 12px; border-radius: 8px; border: 0; background: #16181D; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600">Copy</button>
+          </div>
+        </div>
+      </section>
+      <section style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between">
+          <h2 style="margin: 0; font-size: 16px">Dashboard usage</h2>
+          <span style="font-size: 11px; color: #5B606B">last 30 days · tokens per day</span>
+        </div>
+        <div role="img" aria-label="Bar chart of Command Center token use per day over the last 30 days" style="display: flex; align-items: flex-end; gap: 3px; height: 90px; border-bottom: 1px solid rgba(22,24,29,0.14)">
+          <sc-for list="{{history}}" as="h" hint-placeholder-count="30">
+            <span style="flex: 1; height: {{h.h}}; background: {{h.c}}; border-radius: 2px 2px 0 0"></span>
+          </sc-for>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5B606B"><span>[30 days ago]</span><span>[today]</span></div>
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; font-size: 11px; color: #5B606B">
+          <span>Inbox notes<br><span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #16181D">[tokens]</span></span>
+          <span>Kanban updates<br><span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #16181D">[tokens]</span></span>
+          <span>Schedule proposals<br><span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #16181D">[tokens]</span></span>
+        </div>
+        <div style="font-size: 11px; color: #5B606B">Placeholder bars; real values come from each Sync run's usage log</div>
+      </section>
+      <section style="background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+        <h2 style="margin: 0; font-size: 16px">Recent activity</h2>
+        <sc-for list="{{log}}" as="l" hint-placeholder-count="5">
+          <div style="display: flex; gap: 10px; font-size: 12px; padding: 6px 0; border-top: 1px solid rgba(22,24,29,0.08)">
+            <span style="font-family: 'IBM Plex Mono', monospace; color: #5B606B; width: 52px">{{l.when}}</span>
+            <span style="flex: 1">{{l.text}}</span>
+          </div>
+        </sc-for>
+      </section>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#C2410C","options":["#C2410C","#1D4ED8","#15803D","#16181D"]},"$preview":{"width":1440,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var names = ['Queued', 'Building', 'Needs Josh', 'Landed'];
+    function stages(current, landed) {
+      return names.map(function (n, i) {
+        var done = landed ? true : i < current, now = !landed && i === current;
+        var nowBar = i === 2 ? '#DC2626' : '#C2410C';
+        return { name: n, bar: done ? '#16181D' : (now ? nowBar : 'rgba(22,24,29,0.12)'), ink: done || now ? '#16181D' : '#5B606B', weight: now ? '700' : '400' };
+      });
+    }
+    var building = { state: 'Building', stateBg: '#E3EFE7', stateInk: '#1D4D30', border: '1px solid rgba(255,255,255,0.78)' };
+    var needs = { state: 'Needs Josh', stateBg: '#DC2626', stateInk: '#FFFFFF', border: '2px solid #DC2626' };
+    var queued = { state: 'Queued', stateBg: 'rgba(22,24,29,0.08)', stateInk: '#3A3F49', border: '1px solid rgba(255,255,255,0.78)' };
+    var held = { state: 'Queued · held by budget', stateBg: '#FDE2E2', stateInk: '#7F1D1D', border: '1px solid rgba(255,255,255,0.78)' };
+    var landed = { state: 'Landed', stateBg: '#16181D', stateInk: '#FFFFFF', border: '1px solid rgba(255,255,255,0.78)' };
+    function build(st, o) { return Object.assign({ live: false, rolledBack: false, needs: false, action: '' }, st, o); }
+    var history = [];
+    for (var i = 0; i < 30; i++) {
+      var v = 20 + ((i * 37) % 60);
+      history.push({ h: v + '%', c: i === 29 ? '#1D4ED8' : 'rgba(28,38,72,0.22)' });
+    }
+    return {
+      history: history,
+      accent: this.props.accent ?? '#C2410C',
+      usage: [
+        { label: 'Weekly plan usage', note: 'resets Mon 2:00 AM', value: '[x]%', pct: '0%', bar: '#16181D' },
+        { label: 'Fable weekly limit', note: 'separate limit', value: '[x]%', pct: '0%', bar: '#16181D' },
+        { label: 'Command Center (dashboard)', note: 'this week · Sync runs only', value: '[tokens]', pct: '0%', bar: '#1D4ED8' }
+      ],
+      builds: [
+        build(needs, { name: 'Command Center', queue: '[n] of [n] builds landed', current: 'Current build: [build name] · [what it gives you]', stages: stages(2), last: '[time]', needs: true, action: 'Answer questions', live: true, rolledBack: true }),
+        build(building, { name: 'EZ Binder API', queue: '[n] of [n] builds landed', current: 'Current build: [build name] · [what it gives you]', stages: stages(1), last: '[time]' }),
+        build(needs, { name: 'Blueprint Creator', queue: '[n] of [n] builds landed', current: 'Current build: [build name] · answers saved, waiting for the runner', stages: stages(2), last: '[time]', needs: true, action: 'Copy runner command' }),
+        build(landed, { name: 'EZ Draft', queue: '[n] of [n] builds landed', current: 'Last landed: [build name] · [time]', stages: stages(3, true), last: '[time]' }),
+        build(queued, { name: 'FrameFocus', queue: '[n] queued', current: 'Next: [build name]', stages: stages(0), last: '[time]' }),
+        build(held, { name: 'Popcorn Pilot', queue: '[n] queued', current: 'Next: [build name] · not started, build budget on hold', stages: stages(0), last: '[time]' })
+      ],
+      options: [
+        { key: 'A', text: '[Option A, what it means for you]', rec: false, border: '1px solid rgba(22,24,29,0.10)' },
+        { key: 'B', text: '[Option B, what it means for you]', rec: true, border: '2px solid #15803D' },
+        { key: 'C', text: '[Option C, what it means for you]', rec: false, border: '1px solid rgba(22,24,29,0.10)' }
+      ],
+      log: [
+        { when: '[time]', text: 'Build budget · HOLD started at [x]%' },
+        { when: '[time]', text: 'Command Center · update failed its check, rolled back' },
+        { when: '[time]', text: 'EZ Draft · [build name] landed' },
+        { when: '[time]', text: 'Blueprint Creator · answers saved' },
+        { when: '[time]', text: 'Command Center · question posted' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

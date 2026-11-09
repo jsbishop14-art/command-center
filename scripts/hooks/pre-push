@@ -1,0 +1,19 @@
+#!/bin/sh
+# Refuse a push whose tip commit lacks [skip ci], unless ALLOW_CI=1 (docs/process.md section 7).
+# Install once per clone: git config core.hooksPath scripts/hooks
+zero=0000000000000000000000000000000000000000
+while read local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue            # branch delete
+  msg=$(git log -1 --format=%B "$local_sha")
+  case "$msg" in
+    *"[skip ci]"*) ;;
+    *)
+      if [ "$ALLOW_CI" != "1" ]; then
+        echo "pre-push: refused. The tip commit of $remote_ref has no [skip ci]." >&2
+        echo "This would start a CI run. For the one deliberate CI run, push with ALLOW_CI=1." >&2
+        exit 1
+      fi
+      ;;
+  esac
+done
+exit 0

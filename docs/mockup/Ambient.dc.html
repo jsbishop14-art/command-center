@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command Center — Ambient screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#FDBA74}a:hover{color:#FED7AA}
+</style>
+</helmet>
+<div style="position: relative; width: 1600px; height: 900px; box-sizing: border-box; padding: 40px 56px 56px; background-color: #0D1016; background-image: radial-gradient(circle at 12% 8%, rgba(251,146,60,0.22), transparent 40%), radial-gradient(circle at 88% 16%, rgba(96,165,250,0.24), transparent 44%), radial-gradient(circle at 50% 104%, rgba(74,222,128,0.14), transparent 52%); color: #ECEDEF; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto 1fr; gap: 28px 40px">
+
+  <div style="grid-column: 1 / 4; display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.12)">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 96px; font-weight: 500; line-height: 1">[time]</div>
+      <div style="font-size: 24px; color: #A9AEB8">Thursday, October 22</div>
+      <div style="display: flex; align-items: center; gap: 12px; margin-top: 10px">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="1.6" aria-hidden="true"><circle cx="9" cy="9" r="3.5"></circle><path d="M9 2v1.5M3.2 4.2l1 1M2 9h1.5M14.8 4.2l-1 1"></path><path d="M10 20h8a4 4 0 0 0 0-8 5 5 0 0 0-9.6 1.5A3.3 3.3 0 0 0 10 20z" stroke="#D4D7DE"></path></svg>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 30px">[temp]°</span>
+        <span style="font-size: 18px; color: #A9AEB8">[conditions] · rain [x]% · H [hi]° L [lo]°</span>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 20px">
+      <div role="group" aria-label="Viewing" style="display: flex; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.11); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%); border-radius: 12px; padding: 4px">
+        <button onClick="{{showJosh}}" style="height: 48px; min-width: 120px; padding: 0 20px; border-radius: 9px; border: 0; font: inherit; font-size: 18px; font-weight: 600; background: {{joshBg}}; color: {{joshInk}}">Josh</button>
+        <button onClick="{{showChristine}}" style="height: 48px; min-width: 120px; padding: 0 20px; border-radius: 9px; border: 0; font: inherit; font-size: 18px; font-weight: 600; background: {{chrisBg}}; color: {{chrisInk}}">Christine</button>
+        <button onClick="{{showBishops}}" style="height: 48px; min-width: 120px; padding: 0 20px; border-radius: 9px; border: 0; font: inherit; font-size: 18px; font-weight: 600; background: {{bishBg}}; color: {{bishInk}}">Bishops</button>
+      </div>
+      <div style="display: flex; gap: 40px">
+        <sc-for list="{{stats}}" as="s" hint-placeholder-count="3">
+          <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-end">
+            <div style="font-size: 16px; color: #A9AEB8">{{s.label}}</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 40px; color: {{s.ink}}">{{s.value}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <section style="display: flex; flex-direction: column; gap: 18px; min-height: 0; padding: 24px; border-radius: 18px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.11); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);">
+    <h2 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A9AEB8">Today · {{who}}</h2>
+    <sc-for list="{{today}}" as="t" hint-placeholder-count="5">
+      <div style="display: flex; gap: 16px; align-items: center">
+        <div style="width: 6px; height: 48px; border-radius: 3px; background: {{t.color}}"></div>
+        <div style="width: 96px; font-family: 'IBM Plex Mono', monospace; font-size: 20px; color: #A9AEB8">{{t.time}}</div>
+        <div style="flex: 1; font-size: 24px; font-weight: 500">{{t.title}}</div>
+      </div>
+    </sc-for>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 18px; min-height: 0; padding: 24px; border-radius: 18px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.11); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);">
+    <h2 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A9AEB8">{{who}}'s kanban · in progress</h2>
+    <sc-for list="{{doing}}" as="k" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 18px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px">
+        <div style="font-size: 22px; font-weight: 500">{{k.title}}</div>
+        <div style="display: flex; justify-content: space-between; font-size: 15px; color: #A9AEB8"><span>{{k.area}}</span><span style="font-family: 'IBM Plex Mono', monospace">{{k.due}}</span></div>
+      </div>
+    </sc-for>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 18px; min-height: 0; padding: 24px; border-radius: 18px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.11); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);">
+    <h2 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A9AEB8">Waiting on · Due this week</h2>
+    <sc-for list="{{waiting}}" as="w" hint-placeholder-count="4">
+      <div style="display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.12)">
+        <span style="font-size: 14px; font-weight: 600; border-radius: 6px; padding: 3px 10px; background: {{w.tagBg}}; color: {{w.tagInk}}">{{w.tag}}</span>
+        <span style="flex: 1; font-size: 21px">{{w.title}}</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; color: #A9AEB8">{{w.when}}</span>
+      </div>
+    </sc-for>
+    <div style="margin-top: auto; display: flex; align-items: center; gap: 10px; font-size: 14px; color: #8A8F99">
+      <span style="width: 8px; height: 8px; border-radius: 4px; background: #22C55E"></span>
+      Refreshed [time ago] · last Sync [time] · display only
+    </div>
+  </section>
+
+  <nav aria-label="Screens" style="position: absolute; left: 0; right: 0; bottom: 14px; display: flex; justify-content: center; align-items: center; gap: 14px">
+    <span aria-current="page" style="width: 28px; height: 10px; border-radius: 5px; background: #ECEDEF"></span>
+    <a href="AmbientBuilds.dc.html" aria-label="Screen 2: software builds" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: -17px -12px"><span style="width: 10px; height: 10px; border-radius: 5px; background: #4A4F5A"></span></a>
+    <span style="font-size: 13px; color: #6B7080; margin-left: 10px">Swipe for builds</span>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FB923C","options":["#FB923C","#60A5FA","#4ADE80","#ECEDEF"]},"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { who: 'josh' };
+  }
+  renderVals() {
+    var accent = this.props.accent ?? '#FB923C';
+    var josh = this.state.who !== 'christine';
+    var W = { tag: 'Waiting', tagBg: '#3A2A1C', tagInk: '#FDBA74' };
+    var D = { tag: 'Due', tagBg: '#1E2A44', tagInk: '#93C5FD' };
+    function w(base, title, when) { return Object.assign({ title: title, when: when }, base); }
+    var joshData = {
+      stats: [
+        { label: 'Open A/R', value: '$[A/R]', ink: '#ECEDEF' },
+        { label: 'Received this week', value: '$[paid]', ink: '#ECEDEF' },
+        { label: 'Inbox to file', value: '4', ink: accent }
+      ],
+      today: [
+        { time: '[time]', title: '[Work calendar event]', color: '#ECEDEF' },
+        { time: '[time]', title: '[Site visit / client meeting]', color: '#ECEDEF' },
+        { time: '[time]', title: '[Personal event]', color: '#8A8F99' },
+        { time: '[time]', title: '[Shared family event]', color: '#60A5FA' },
+        { time: 'Due', title: '[Card due today]', color: accent }
+      ],
+      doing: [
+        { title: 'BNT pool → ES order', area: 'Business', due: '[date]' },
+        { title: 'Ohio sites presentation', area: 'Business', due: '[date]' },
+        { title: 'Blueprint Creator — next phase', area: 'Business', due: '[date]' },
+        { title: '[Personal card]', area: 'Personal', due: '[date]' }
+      ],
+      waiting: [
+        w(W, '[Waiting on: person / item]', '[since]'),
+        w(W, '[Waiting on: person / item]', '[since]'),
+        w(D, '[Card due this week]', '[day]'),
+        w(D, '[Invoice due / follow-up]', '[day]')
+      ]
+    };
+    var chrisData = {
+      stats: [
+        { label: 'Her cards in progress', value: '[count]', ink: '#ECEDEF' },
+        { label: 'Due this week', value: '[count]', ink: '#ECEDEF' },
+        { label: 'Inbox to file', value: '[count]', ink: accent }
+      ],
+      today: [
+        { time: '[time]', title: '[Christine calendar event]', color: '#60A5FA' },
+        { time: '[time]', title: '[Christine calendar event]', color: '#60A5FA' },
+        { time: '[time]', title: '[Shared family event]', color: '#60A5FA' },
+        { time: '[time]', title: '[Josh event she should know about]', color: '#8A8F99' },
+        { time: 'Due', title: '[Her card due today]', color: accent }
+      ],
+      doing: [
+        { title: '[Christine card]', area: 'Personal', due: '[date]' },
+        { title: '[Christine card]', area: 'Family', due: '[date]' },
+        { title: '[Christine card]', area: 'Family', due: '[date]' },
+        { title: '[Christine card]', area: 'Personal', due: '[date]' }
+      ],
+      waiting: [
+        w(W, '[Waiting on: person / item]', '[since]'),
+        w(D, '[Her card due this week]', '[day]'),
+        w(D, '[Her card due this week]', '[day]'),
+        w(D, '[Family item due]', '[day]')
+      ]
+    };
+    var bishData = {
+      stats: [
+        { label: 'Bishops cards in progress', value: '[count]', ink: '#ECEDEF' },
+        { label: 'Due this week', value: '[count]', ink: '#ECEDEF' },
+        { label: 'Inbox to file', value: '[count]', ink: accent }
+      ],
+      today: [
+        { time: '[time]', title: '[Shared family event]', color: '#E0A84F' },
+        { time: '[time]', title: '[Christine event]', color: '#60A5FA' },
+        { time: '[time]', title: '[Josh event]', color: '#8A8F99' },
+        { time: '[time]', title: '[Shared family event]', color: '#E0A84F' },
+        { time: 'Due', title: '[Household card due today]', color: accent }
+      ],
+      doing: [
+        { title: '[Bishops card]', area: 'Family', due: '[date]' },
+        { title: '[Bishops card]', area: 'Family', due: '[date]' },
+        { title: '[Bishops card]', area: 'Family', due: '[date]' },
+        { title: '[Bishops card]', area: 'Family', due: '[date]' }
+      ],
+      waiting: [
+        w(W, '[Waiting on: person / item]', '[since]'),
+        w(D, '[Household item due]', '[day]'),
+        w(D, '[Family item due]', '[day]'),
+        w(D, '[Family item due]', '[day]')
+      ]
+    };
+    var who = this.state.who;
+    var chris = who === 'christine';
+    var bish = who === 'bishops';
+    josh = who === 'josh';
+    var d = josh ? joshData : (chris ? chrisData : bishData);
+    return {
+      accent: accent,
+      who: josh ? 'Josh' : (chris ? 'Christine' : 'Bishops'),
+      showJosh: () => this.setState({ who: 'josh' }),
+      showChristine: () => this.setState({ who: 'christine' }),
+      showBishops: () => this.setState({ who: 'bishops' }),
+      joshBg: josh ? '#ECEDEF' : 'transparent',
+      joshInk: josh ? '#111318' : '#A9AEB8',
+      chrisBg: chris ? '#60A5FA' : 'transparent',
+      chrisInk: chris ? '#0B1220' : '#A9AEB8',
+      bishBg: bish ? '#E0A84F' : 'transparent',
+      bishInk: bish ? '#1A1206' : '#A9AEB8',
+      stats: d.stats,
+      today: d.today,
+      doing: d.doing,
+      waiting: d.waiting
+    };
+  }
+}
+</script>
+</body>
+</html>

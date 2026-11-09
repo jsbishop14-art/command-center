@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command Center — Tablet screen 2, builds</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#FDBA74}a:hover{color:#FED7AA}
+</style>
+</helmet>
+<div style="position: relative; width: 1600px; height: 900px; box-sizing: border-box; padding: 32px 56px 56px; background-color: #0D1016; background-image: radial-gradient(circle at 12% 8%, rgba(251,146,60,0.22), transparent 40%), radial-gradient(circle at 88% 16%, rgba(96,165,250,0.24), transparent 44%), radial-gradient(circle at 50% 104%, rgba(74,222,128,0.14), transparent 52%); color: #ECEDEF; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto auto 1fr; gap: 20px 40px">
+
+  <div style="grid-column: 1 / 4; display: flex; align-items: center; justify-content: space-between; gap: 24px">
+    <div style="display: flex; align-items: baseline; gap: 20px">
+      <span style="font-family: 'IBM Plex Mono', monospace; font-size: 48px; font-weight: 500; line-height: 1">[time]</span>
+      <span style="font-size: 20px; color: #A9AEB8">Fri, Oct 23</span>
+      <h1 style="margin: 0 0 0 16px; font-size: 30px; font-weight: 600">Software builds</h1>
+    </div>
+    <div role="group" aria-label="Viewing" style="display: flex; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.11); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%); border-radius: 12px; padding: 4px">
+      <span aria-current="true" style="height: 48px; min-width: 120px; padding: 0 20px; border-radius: 9px; font-size: 18px; font-weight: 600; background: #ECEDEF; color: #111318; display: flex; align-items: center; justify-content: center; box-sizing: border-box">Josh</span>
+      <a href="Ambient.dc.html" style="height: 48px; min-width: 120px; padding: 0 20px; border-radius: 9px; font-size: 18px; font-weight: 600; color: #A9AEB8; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box">Christine</a>
+      <a href="Ambient.dc.html" style="height: 48px; min-width: 120px; padding: 0 20px; border-radius: 9px; font-size: 18px; font-weight: 600; color: #A9AEB8; text-decoration: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box">Bishops</a>
+    </div>
+  </div>
+
+  <div role="alert" style="grid-column: 1 / 4; display: flex; align-items: center; gap: 18px; padding: 16px 22px; border-radius: 14px; background: rgba(127,29,29,0.62); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border: 2px solid #EF4444">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" aria-hidden="true"><path d="M12 3l10 18H2L12 3z"></path><path d="M12 10v5M12 18v.5"></path></svg>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+      <div style="font-size: 24px; font-weight: 700">2 builds are waiting on you</div>
+      <div style="font-size: 17px; color: #FECACA">Command Center: answer questions · Blueprint Creator: restart the runner</div>
+    </div>
+    <span style="font-family: 'IBM Plex Mono', monospace; font-size: 16px; color: #FECACA">oldest [x] min</span>
+  </div>
+
+  <section style="grid-column: 1 / 3; display: flex; flex-direction: column; gap: 8px; min-height: 0">
+    <div style="display: grid; grid-template-columns: 330px repeat(4, minmax(0, 1fr)) 120px; gap: 10px; padding: 0 18px; font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #8A8F99">
+      <span>Build</span><span>Queued</span><span>Building</span><span>Needs Josh</span><span>Landed</span><span style="text-align: right">Done</span>
+    </div>
+    <sc-for list="{{builds}}" as="b" hint-placeholder-count="6">
+      <div style="display: grid; grid-template-columns: 330px repeat(4, minmax(0, 1fr)) 120px; gap: 10px; align-items: center; padding: 12px 18px; border-radius: 12px; background: {{b.rowBg}}; backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%); border: {{b.rowBorder}}">
+        <div style="display: flex; align-items: center; gap: 12px">
+          <span style="font-size: 21px; font-weight: 600">{{b.name}}</span>
+          <span style="font-size: 13px; font-weight: 700; border-radius: 6px; padding: 2px 10px; background: {{b.stateBg}}; color: {{b.stateInk}}">{{b.state}}</span>
+        </div>
+        <sc-for list="{{b.stages}}" as="s" hint-placeholder-count="4">
+          <div style="height: 14px; border-radius: 7px; background: {{s.bar}}"></div>
+        </sc-for>
+        <span style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 16px; color: #A9AEB8">{{b.phase}}</span>
+      </div>
+    </sc-for>
+    <div style="display: flex; gap: 22px; padding: 6px 18px 0; font-size: 14px; color: #8A8F99">
+      <span style="display: flex; align-items: center; gap: 8px"><span style="width: 22px; height: 8px; border-radius: 4px; background: #6B7080"></span>Done</span>
+      <span style="display: flex; align-items: center; gap: 8px"><span style="width: 22px; height: 8px; border-radius: 4px; background: {{accent}}"></span>Current stage</span>
+      <span style="display: flex; align-items: center; gap: 8px"><span style="width: 22px; height: 8px; border-radius: 4px; background: #EF4444"></span>Stopped, needs you</span>
+      <span style="display: flex; align-items: center; gap: 8px"><span style="width: 22px; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.12)"></span>Not started</span>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-direction: column; gap: 14px; min-height: 0; padding: 22px; border-radius: 18px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.11); backdrop-filter: blur(20px) saturate(150%); -webkit-backdrop-filter: blur(20px) saturate(150%);">
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <sc-for list="{{usage}}" as="u" hint-placeholder-count="3">
+        <div style="display: grid; grid-template-columns: 150px 1fr 90px; align-items: center; gap: 12px">
+          <span style="font-size: 15px; color: #A9AEB8">{{u.label}}</span>
+          <div style="height: 10px; border-radius: 5px; background: rgba(255,255,255,0.12); overflow: hidden"><div style="height: 10px; width: {{u.pct}}; background: {{u.bar}}"></div></div>
+          <span style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 20px">{{u.value}}</span>
+        </div>
+      </sc-for>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: rgba(239,68,68,0.16); border: 1px solid #EF4444">
+        <span style="font-size: 14px; font-weight: 700; letter-spacing: 0.06em; border-radius: 6px; padding: 2px 10px; background: #EF4444; color: #FFFFFF">HOLD</span>
+        <span style="flex: 1; font-size: 15px; color: #FECACA">Build budget reached · no new builds start</span>
+      </div>
+      <div style="font-size: 13px; color: #8A8F99">Weekly resets Mon 2:00 AM · runner [running / stopped] · cloud workspace</div>
+    </div>
+    <h2 style="margin: 6px 0 0; font-size: 17px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #A9AEB8">Recent</h2>
+    <sc-for list="{{log}}" as="l" hint-placeholder-count="4">
+      <div style="display: flex; gap: 14px; font-size: 17px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.12)">
+        <span style="font-family: 'IBM Plex Mono', monospace; color: #8A8F99; width: 64px">{{l.when}}</span>
+        <span style="flex: 1">{{l.text}}</span>
+      </div>
+    </sc-for>
+  </section>
+
+  <nav aria-label="Screens" style="position: absolute; left: 0; right: 0; bottom: 14px; display: flex; justify-content: center; align-items: center; gap: 14px">
+    <span style="font-size: 13px; color: #6B7080; margin-right: 10px">Swipe for today · returns to screen 1 when idle</span>
+    <a href="Ambient.dc.html" aria-label="Screen 1: today" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: -17px -12px"><span style="width: 10px; height: 10px; border-radius: 5px; background: #4A4F5A"></span></a>
+    <span aria-current="page" style="width: 28px; height: 10px; border-radius: 5px; background: #ECEDEF"></span>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#FB923C","options":["#FB923C","#60A5FA","#4ADE80","#ECEDEF"]},"$preview":{"width":1600,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var accent = this.props.accent ?? '#FB923C';
+    function stages(current, landed) {
+      return [0, 1, 2, 3].map(function (i) {
+        if (landed) return { bar: '#6B7080' };
+        return { bar: i < current ? '#6B7080' : (i === current ? (i === 2 ? '#EF4444' : accent) : 'rgba(255,255,255,0.12)') };
+      });
+    }
+    var calm = { rowBg: 'rgba(255,255,255,0.07)', rowBorder: '2px solid transparent' };
+    var red = { rowBg: 'rgba(239,68,68,0.16)', rowBorder: '2px solid #EF4444' };
+    var running = Object.assign({ state: 'Building', stateBg: '#163322', stateInk: '#86EFAC' }, calm);
+    var waiting = Object.assign({ state: 'Needs Josh', stateBg: '#EF4444', stateInk: '#FFFFFF' }, red);
+    var paused = Object.assign({ state: 'Queued', stateBg: 'rgba(255,255,255,0.12)', stateInk: '#C4C8D0' }, calm);
+    var done = Object.assign({ state: 'Landed', stateBg: '#ECEDEF', stateInk: '#111318' }, calm);
+    function build(st, o) { return Object.assign({}, st, o); }
+    return {
+      accent: accent,
+      usage: [
+        { label: 'Weekly plan', value: '[x]%', pct: '0%', bar: '#ECEDEF' },
+        { label: 'Fable weekly', value: '[x]%', pct: '0%', bar: '#ECEDEF' },
+        { label: 'Build budget', value: 'HOLD', pct: '100%', bar: '#EF4444' },
+        { label: 'Dashboard', value: '[x]%', pct: '0%', bar: '#60A5FA' }
+      ],
+      builds: [
+        build(waiting, { name: 'Command Center', phase: '[n]/[n]', stages: stages(2) }),
+        build(waiting, { name: 'Blueprint Creator', phase: '[n]/[n]', stages: stages(2) }),
+        build(running, { name: 'EZ Binder API', phase: '[n]/[n]', stages: stages(1) }),
+        build(done, { name: 'EZ Draft', phase: '[n]/[n]', stages: stages(3, true) }),
+        build(paused, { name: 'FrameFocus', phase: '[n]/[n]', stages: stages(0) }),
+        build(paused, { name: 'Popcorn Pilot', phase: '[n]/[n]', stages: stages(0) })
+      ],
+      log: [
+        { when: '[time]', text: 'Build budget · HOLD started' },
+        { when: '[time]', text: 'Command Center · update failed, rolled back' },
+        { when: '[time]', text: 'EZ Draft · [build name] landed' },
+        { when: '[time]', text: 'Blueprint Creator · answers saved' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

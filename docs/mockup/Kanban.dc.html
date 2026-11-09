@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command Center — Kanban</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E4E9F2}
+a{color:#9A3412}a:hover{color:#7C2D12}
+</style>
+</helmet>
+<div style="min-height: 900px; background-color: #E4E9F2; background-image: radial-gradient(circle at 8% 6%, rgba(194,65,12,0.20), transparent 38%), radial-gradient(circle at 92% 14%, rgba(47,91,211,0.24), transparent 44%), radial-gradient(circle at 40% 62%, rgba(138,90,0,0.10), transparent 40%), radial-gradient(circle at 78% 96%, rgba(21,128,61,0.16), transparent 46%); color: #16181D; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; display: flex; flex-direction: column">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 14px 24px; background: rgba(22,24,29,0.78); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border-bottom: 1px solid rgba(255,255,255,0.10); color: #F4F4F1">
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 8px; color: #D4D7DE; text-decoration: none; height: 40px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+      Home
+    </a>
+    <div style="font-weight: 700; font-size: 16px; flex: 1">Kanban</div>
+    <div role="group" aria-label="Board" style="display: flex; background: rgba(255,255,255,0.10); border-radius: 8px; padding: 3px">
+      <button style="height: 34px; padding: 0 14px; border-radius: 6px; border: 0; background: #F4F4F1; color: #16181D; font: inherit; font-weight: 600">Josh</button>
+      <button style="height: 34px; padding: 0 14px; border-radius: 6px; border: 0; background: transparent; color: #D4D7DE; font: inherit">Christine</button>
+      <button style="height: 34px; padding: 0 14px; border-radius: 6px; border: 0; background: transparent; color: #D4D7DE; font: inherit">Bishops</button>
+    </div>
+    <a href="#" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 8px; background: rgba(255,255,255,0.10); color: #F4F4F1; text-decoration: none">Problems <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: rgba(255,255,255,0.16); border-radius: 10px; padding: 1px 8px">[n]</span></a>
+    <button style="height: 40px; padding: 0 14px; border-radius: 8px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-weight: 600">+ Card</button>
+  </header>
+
+  <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 12px 24px; border-bottom: 1px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.42); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%)">
+    <div role="group" aria-label="Area" style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap">
+      <span style="font-size: 12px; color: #5B606B; margin-right: 4px">Area</span>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 0; background: #16181D; color: #FFFFFF; font: inherit; font-size: 12px; font-weight: 600">All</button>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 0; background: #E7EAF1; color: #273246; font: inherit; font-size: 12px; font-weight: 600">Business</button>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 0; background: #E3EFE7; color: #1D4D30; font: inherit; font-size: 12px; font-weight: 600">Personal</button>
+      <button style="height: 32px; padding: 0 12px; border-radius: 16px; border: 0; background: #F4E7DF; color: #7A3415; font: inherit; font-size: 12px; font-weight: 600">Family</button>
+    </div>
+    <label style="display: flex; align-items: center; gap: 8px">
+      <span style="font-size: 12px; color: #5B606B">Project</span>
+      <select style="height: 32px; border-radius: 8px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.7); font: inherit; font-size: 12px; padding: 0 8px">
+        <option>All projects</option>
+        <option>BNT / ES Windows pool</option>
+        <option>Ohio affordable housing</option>
+        <option>Blueprint Creator</option>
+      </select>
+    </label>
+    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 11px; color: #5B606B">
+      <span>Shown on:</span>
+      <span style="display: flex; align-items: center; gap: 4px"><span style="width: 18px; height: 18px; border-radius: 9px; background: #16181D; color: #FFFFFF; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">J</span>Josh</span>
+      <span style="display: flex; align-items: center; gap: 4px"><span style="width: 18px; height: 18px; border-radius: 9px; background: #2F5BD3; color: #FFFFFF; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">C</span>Christine</span>
+      <span style="display: flex; align-items: center; gap: 4px"><span style="width: 18px; height: 18px; border-radius: 9px; background: #8A5A00; color: #FFFFFF; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">B</span>Bishops</span>
+    </div>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-wrap: wrap; align-items: flex-start">
+    <main style="flex: 999 1 700px; min-width: 0; padding: 20px 24px; overflow-x: auto">
+      <div style="display: grid; grid-template-columns: repeat(5, minmax(200px, 1fr)); gap: 12px; min-width: 1060px">
+        <sc-for list="{{cols}}" as="c" hint-placeholder-count="5">
+          <section style="background: rgba(255,255,255,0.30); border: 1px solid rgba(255,255,255,0.6); backdrop-filter: blur(14px) saturate(150%); -webkit-backdrop-filter: blur(14px) saturate(150%); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 640px">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; padding: 2px 4px">
+              <h2 style="margin: 0; font-size: 14px">{{c.name}}</h2>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #5B606B">{{c.count}}</span>
+            </div>
+            <div style="font-size: 11px; color: #5B606B; padding: 0 4px">{{c.hint}}</div>
+            <sc-for list="{{c.cards}}" as="k" hint-placeholder-count="3">
+              <div style="background: rgba(255,255,255,0.72); box-shadow: 0 4px 14px rgba(28,38,72,0.08); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; border: {{k.border}}">
+                <div style="display: flex; align-items: center; gap: 4px">
+                  <span style="font-size: 11px; font-weight: 600; border-radius: 6px; padding: 2px 8px; background: {{k.chipBg}}; color: {{k.chipInk}}">{{k.area}}</span>
+                  <span style="flex: 1"></span>
+                  <sc-for list="{{k.on}}" as="o" hint-placeholder-count="2">
+                    <span style="width: 20px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #FFFFFF; background: {{o.bg}}">{{o.l}}</span>
+                  </sc-for>
+                </div>
+                <div style="font-weight: 500">{{k.title}}</div>
+                <sc-if value="{{k.claude}}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size: 11px; color: #5B606B; display: flex; align-items: center; gap: 4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="{{k.byInk}}" stroke-width="2" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"></path></svg>Added by {{k.by}} · [time]</div>
+                </sc-if>
+                <div style="display: flex; justify-content: space-between; font-size: 11px; color: #5B606B">
+                  <span>{{k.project}}</span>
+                  <span style="font-family: 'IBM Plex Mono', monospace">{{k.due}}</span>
+                </div>
+              </div>
+            </sc-for>
+          </section>
+        </sc-for>
+      </div>
+    </main>
+
+    <aside aria-label="Card detail" style="flex: 1 1 300px; max-width: 340px; margin: 20px 24px 20px 0; background: rgba(255,255,255,0.58); border: 1px solid rgba(255,255,255,0.78); backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); box-shadow: 0 10px 30px rgba(28,38,72,0.10); border-radius: 12px; padding: 18px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; align-items: center; justify-content: space-between">
+        <span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #5B606B">Card · CC-0042</span>
+        <button aria-label="Close" style="width: 32px; height: 32px; border: 0; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B606B" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      </div>
+      <div style="font-size: 18px; font-weight: 600">Ohio sites presentation</div>
+      <div style="display: grid; grid-template-columns: 80px 1fr; gap: 8px 10px; font-size: 13px">
+        <span style="color: #5B606B">Stage</span><span>In progress</span>
+        <span style="color: #5B606B">Area</span><span>Business</span>
+        <span style="color: #5B606B">Project</span><span>Ohio affordable housing</span>
+        <span style="color: #5B606B">Due</span><span style="font-family: 'IBM Plex Mono', monospace">[date]</span>
+      </div>
+      <fieldset style="border: 1px solid rgba(22,24,29,0.10); background: rgba(255,255,255,0.4); border-radius: 10px; padding: 12px 14px; margin: 0; display: flex; flex-direction: column; gap: 10px">
+        <legend style="font-size: 12px; font-weight: 600; padding: 0 6px">Show on boards</legend>
+        <label style="display: flex; align-items: center; gap: 10px; min-height: 32px"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #16181D"><span>Josh</span></label>
+        <label style="display: flex; align-items: center; gap: 10px; min-height: 32px"><input type="checkbox" style="width: 18px; height: 18px; accent-color: #2F5BD3"><span>Christine</span></label>
+        <label style="display: flex; align-items: center; gap: 10px; min-height: 32px"><input type="checkbox" style="width: 18px; height: 18px; accent-color: #8A5A00"><span>Bishops</span></label>
+      </fieldset>
+      <label style="display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #5B606B">
+        Notes
+        <textarea rows="4" placeholder="[Card notes]" style="font: inherit; font-size: 13px; color: #16181D; border: 1px solid rgba(22,24,29,0.14); border-radius: 8px; padding: 8px 10px; resize: vertical; background: rgba(255,255,255,0.7)"></textarea>
+      </label>
+      <section aria-label="History" style="display: flex; flex-direction: column; gap: 4px">
+        <div style="font-size: 12px; font-weight: 600">History</div>
+        <sc-for list="{{history}}" as="h" hint-placeholder-count="4">
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 6px 0; border-top: 1px solid rgba(22,24,29,0.08)">
+            <span style="flex: none; width: 22px; height: 22px; border-radius: 11px; background: {{h.bg}}; color: #FFFFFF; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{h.l}}</span>
+            <span style="flex: 1; display: flex; flex-direction: column; gap: 1px"><span>{{h.text}}</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5B606B">{{h.when}}</span></span>
+            <sc-if value="{{h.revert}}" hint-placeholder-val="{{ false }}">
+              <button style="height: 30px; padding: 0 10px; border-radius: 6px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.75); font: inherit; font-size: 11px; font-weight: 600">Revert</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </section>
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: #5B606B">
+        <span style="flex: 1">Context file for Claude: kanban/context/CC-0042.md</span>
+        <button style="height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(22,24,29,0.14); background: rgba(255,255,255,0.7); font: inherit; font-size: 12px">Discard</button>
+      </div>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#C2410C","options":["#C2410C","#1D4ED8","#15803D","#16181D"]},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var biz = { area: 'Business', chipBg: '#E7EAF1', chipInk: '#273246' };
+    var per = { area: 'Personal', chipBg: '#E3EFE7', chipInk: '#1D4D30' };
+    var fam = { area: 'Family', chipBg: '#F4E7DF', chipInk: '#7A3415' };
+    var J = { l: 'J', bg: '#16181D' };
+    var C = { l: 'C', bg: '#2F5BD3' };
+    var B = { l: 'B', bg: '#8A5A00' };
+    function card(a, on, title, project, due, sel, by) {
+      return Object.assign({ title: title, project: project, due: due, on: on, claude: !!by, by: by || '', byInk: by === 'Duet' ? '#6D28D9' : '#C2410C', border: sel ? '2px solid #16181D' : '1px solid rgba(255,255,255,0.9)' }, a);
+    }
+    var Jh = { l: 'J', bg: '#16181D' };
+    var Cl = { l: 'Cl', bg: '#C2410C' };
+    var Du = { l: 'D', bg: '#6D28D9' };
+    function hist(who, text, when, revert) { return Object.assign({ text: text, when: when, revert: !!revert }, who); }
+    return {
+      accent: this.props.accent ?? '#C2410C',
+      history: [
+        hist(Cl, 'Claude moved it Next → In progress', 'Sync · [date] [time]', true),
+        hist(Du, 'Duet set the due date', 'Duet · [date] [time]', true),
+        hist(Cl, 'Claude added a note', 'Chat · [date] [time]', true),
+        hist(Jh, 'Josh created the card', '[date] [time]', false)
+      ],
+      cols: [
+        { name: 'Inbox', count: '3', hint: 'Confirmed notes land here', cards: [
+          card(biz, [J], '[Filed note]', 'Blueprint Creator', '—'),
+          card(fam, [J, B], '[Filed note]', 'Bishops', '—'),
+          card(per, [J], '[Card added by Duet]', 'Personal', '—', false, 'Duet')
+        ] },
+        { name: 'Next', count: '3', hint: 'Committed, not started', cards: [
+          card(biz, [J], '[Card created from a Claude chat]', 'Best Western Naples', '[date]', false, 'Claude'),
+          card(biz, [J], '[Card]', '33406 · 48 units', '[date]'),
+          card(per, [J], '[Personal card]', 'Personal', '[date]')
+        ] },
+        { name: 'In progress', count: '5', hint: 'Shown on Home', cards: [
+          card(biz, [J], 'Pool BNT customers into ES order', 'BNT / ES Windows pool', '[date]'),
+          card(biz, [J], 'Ohio sites presentation', 'Ohio affordable housing', '[date]', true),
+          card(biz, [J], 'Next build phase', 'Blueprint Creator', '[date]'),
+          card(per, [J, C], '[Personal card]', 'Personal', '[date]'),
+          card(fam, [J, C, B], '[Family card]', 'Bishops', '[date]')
+        ] },
+        { name: 'Waiting on', count: '2', hint: 'Blocked on someone else', cards: [
+          card(biz, [J], '[Waiting on: person]', 'Riverwood', '[since]'),
+          card(fam, [J, B], '[Waiting on: person]', 'Bishops', '[since]')
+        ] },
+        { name: 'Done', count: '—', hint: 'Last 7 days', cards: [
+          card(biz, [J], '[Completed card]', 'Jolie kitchen', '[date]')
+        ] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
