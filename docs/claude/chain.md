@@ -8,7 +8,7 @@
 | 2 | CC2 | cc2-kanban | docs/specs/CC2-BUILD-SPEC.md | 3.1, 3.2, 4, 5.4 | Landed |
 | 3 | CC3 | cc3-home | docs/specs/CC3-BUILD-SPEC.md | 2 (top bar, panels), 5.2, 7.3 | Landed |
 | 4 | CC4 | cc4-inbox-email | docs/specs/CC4-BUILD-SPEC.md | 2 (Inbox, Awaiting reply), 2.1, 4.4 | Landed |
-| 5 | CC5 | cc5-deals-contacts | docs/specs/CC5-BUILD-SPEC.md | 2 (Projects), 3.3, 3.4, 4.8 | Queued |
+| 5 | CC5 | cc5-deals-contacts | docs/specs/CC5-BUILD-SPEC.md | 2 (Projects), 3.3, 3.4, 4.8 | Landed |
 | 6 | CC6 | cc6-ez-binder | docs/specs/CC6-BUILD-SPEC.md | 2 (money, schedule), 2.2, 7.2, 7.3 | Queued |
 | 7 | CC7 | cc7-sync | docs/specs/CC7-BUILD-SPEC.md | 5 | Queued |
 | 8 | CC8 | cc8-builds | docs/specs/CC8-BUILD-SPEC.md | 7.1 | Queued |
@@ -132,3 +132,19 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   objects: awaiting_dismissed, intake_seen. New waits on Josh: connect Gmail and set the intake
   address in Settings → Inbox & email, issue the iPhone Shortcut token, and build the note Shortcut
   from docs/guides/iphone_note_shortcut.md; answer CC4-ASK-1 (new intake address vs alias).
+- CC5, 2026-11-19. Merge "[Merge] CC5 (deals, contacts, Projects grid)" into main. CI green: run
+  44466065276, both jobs (Lint/types/build/unit: success; Browser tests: success). Spec §4 checks
+  all pass — check 1 cc5-deals-contacts browser (each login reaches Deals and Contacts from the
+  menu), check 2 cc5-deals-contacts browser + cc5-deals unit (Claude deal change with Revert
+  restores earlier values), check 3 cc5-deals unit (a contact's second email matches an Awaiting
+  thread to its deal; browser-unit-only, see CC5-status "Decided without asking"), check 4 cc5-deals
+  unit (five seed deals after a fresh install), check 5 cc5-deals-contacts browser (board toggle
+  filters deals by their boards list). Deal action-layer commands (update_deal, read_deal,
+  revert_deal) covered by cc5-api-deal browser. unit 103/103, browser 46/46 (evidence in
+  docs/sessions/CC5-status.md). Branch was fast-forwardable onto main (0 behind); the only commits
+  after the CI-green commit (ac40d4f) are docs (chain.md + CC5-status.md), listed in the merge
+  message, via: git merge --no-ff cc5-deals-contacts. Migration 0005_deals_contacts lands with the
+  code; the Mac mini updater applies it (handoff §7.5) — expected objects: deals, deal_estimates,
+  deal_changes, contacts, contact_emails, contact_deals, idx_deal_estimates_deal,
+  idx_deal_changes_deal, idx_contact_emails_email, idx_contact_deals_deal. New waits on Josh: none
+  (EZ Binder estimate status and GC jobs use stubs until CC6).

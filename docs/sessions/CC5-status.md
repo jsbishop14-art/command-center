@@ -115,6 +115,18 @@ migrations.test.ts.
   the Contacts screen and the matching have realistic data on a fresh install. Deal/contact names are
   Josh's and already appear in the committed spec and mockup; no customer data beyond that is stored.
 
+## Landing
+
+Landed 2026-11-19. CI green on cc5-deals-contacts: run 44466065276, both jobs (Lint/types/build/unit
+and Browser tests) success, on the CI-green commit ac40d4f. Branch was 0 behind origin/main
+(fast-forwardable); the only commits after ac40d4f are docs (chain.md + this status file), listed in
+the merge message. Merged with: git merge --no-ff cc5-deals-contacts, message starting
+"[Merge] CC5 (deals, contacts, Projects grid)". Migration 0005_deals_contacts lands with the code;
+the Mac mini updater applies it and smoke-checks after the merge (handoff §7.4, §7.5) — expected
+objects: deals, deal_estimates, deal_changes, contacts, contact_emails, contact_deals,
+idx_deal_estimates_deal, idx_deal_changes_deal, idx_contact_emails_email, idx_contact_deals_deal.
+Tallies: unit 103/103, browser 46/46; typecheck and lint clean; production build OK.
+
 ## Questions
 
 (none)
