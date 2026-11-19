@@ -37,8 +37,61 @@ Unattended run in a FRESH session, started by scripts/run_chain.py. Your job is 
 
 ## PICK UP HERE
 
-Step 1 done (this commit): status file, chain.md rulings, CC3/CC4/EZB asks marked answered. Next: step 2 (Google
-OAuth lib + migration 0010).
+LANDED 2026-11-19. Merge "[Merge] CC11 (Mac install fixes, real Google sign-in, Josh's answers)" into main. CI green:
+run 44533714010, both jobs (Lint/types/build/unit: success; Browser tests: success). Branch fast-forwardable onto
+main (0 behind; merge-base = main tip 0157472); CI-green commit c3d0089; the only commits after it are docs
+(chain.md + this file), listed in the merge message. Migration 0010_google_oauth lands with the code (expected
+objects: google_oauth_pending, feed_problems); the Mac mini updater applies it. Nothing left to do here — see
+"Waits on Josh after landing" below.
+
+## Built
+
+1. Migration 0010_google_oauth (google_oauth_pending, feed_problems); generated types. Google OAuth client
+   (src/lib/feeds/google.ts): stub + real transport chosen by liveGoogle(), token bundles in the secret store,
+   refresh, scopes (readonly + draft-create, NO send scope), pending-state CSRF, feed-problem store, calendar/Gmail
+   reads, draft-create. Connections orchestration (connections.ts), shared sample data (samples.ts), connect-url.ts.
+2. OAuth routes: GET /api/auth/google/start, /callback, /stub-consent (same-origin redirects via the Host header).
+   Settings Google sign-in (Connect/Reconnect as links), redirect URI shown, intake-mailbox connect, Google client
+   ID/secret in Keys. Problems screen lists expired/revoked connections with a Reconnect button. Disconnect server
+   action.
+3. EZ Binder: schedule-move proposals post with X-EZB-Actor claude and a note naming the real source ("moved by
+   Josh" / "moved by rule: schedule slip"); dashboard keeps the real source and original note (proposals.ts).
+4. Installer (scripts/install-mac.sh): quoted env values, PATH + log paths in both launchd jobs, cloudflared
+   tunnel-run job when ~/.cloudflared/config.yml exists, idempotent re-run keeping db/key/passwords. Updater
+   build-and-switch (scripts/updater/build.ts + core/ops): build into CC_DIST_DIR staging, activate only after a
+   successful build + read-back, restore the previous build on rollback.
+5. Docs: docs/guides/google_connect.md; docs/install-mac.md rewritten (config.yml + tunnel-run job, Cloudflare
+   Access one-time PIN with the Cloudflare IdP off, Bypass apps, logs, re-run safety, build-and-switch).
+6. Tests: cc11 unit (19), install-dryrun +2, cc11-google e2e (6); CI branch list adds cc11-mac-fixes-google.
+
+## Evidence (spec §4, against the stubs)
+
+1. Connect/refresh/disconnect each calendar, Gmail and the intake mailbox clicked from Settings, Josh and Christine:
+   cc11-google e2e (josh all targets; christine her calendar).
+2. Expired/revoked → Problem with Reconnect that restores the feed: cc11 unit (revoked stub refresh → feed_problem;
+   reconnect clears it and events return) + cc11-google e2e (seeded Problem, Reconnect button, cleared after).
+3. Today panel shows stub events on the live code path (CC_LIVE_FEEDS=1, stub Google): cc11 unit.
+4. Intake: one pending note per message; a second poll creates none: cc11 unit.
+5. Awaiting reply and nudge drafts on the live path; no send scope, no send call: cc11 unit (scopesFor + static
+   scan of google.ts/gmail.ts for send endpoints/scope).
+6. Josh and rule moves post X-EZB-Actor claude with the source note: cc11 unit (createProposal + stubProposalLog;
+   ezbOutbound mapping).
+7. Installer dry run in a spaced path: quoted env sources cleanly, both plists carry PATH + log paths, tunnel job
+   only when config.yml exists: install-dryrun unit (+2).
+8. Updater builds into staging and switches only after a successful build; a failed build leaves the served version
+   untouched: cc11 unit (stageBuild/activateBuild/restoreBuild) + updater unit (activate ordering; no activate on
+   apply failure).
+
+Totals: unit 235/235, browser 77/77 (local); CI run 44533714010 green (both jobs).
+
+## Waits on Josh after landing
+
+Create the Google Cloud project and OAuth client per docs/guides/google_connect.md; enter the Google OAuth client
+ID and secret in Settings → Keys; set CC_LIVE_FEEDS=1 in the Mac mini env; connect the three calendars, Gmail and
+evanmbishop23@gmail.com in Settings. Set up Cloudflare Access (one-time PIN, Cloudflare identity provider off,
+Bypass apps for /api/notes, /api/phone/*, /api/ezbinder/webhook) and write ~/.cloudflared/config.yml, then re-run
+the installer to add the tunnel-run launchd job (docs/install-mac.md). Whether to publish the Google consent screen
+(to avoid the 7-day Testing-mode reconnect) is Josh's choice (google_connect.md).
 
 ## Josh's rulings this build (also in chain.md)
 
