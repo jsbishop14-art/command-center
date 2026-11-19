@@ -61,6 +61,16 @@ No real outside calls (use stubs). No real email, ever. Migrations land with the
   be unit-tested; it is a build-time guard with no runtime. Also added `@/` alias to vitest.config.
 - D-4 The local `kanban/` folder at the repo root is gitignored; the real kanban folder lives on the
   Mac mini and is never committed from a build session (handoff §7.5).
+- D-5 Timestamps are stored with the America/New_York offset (e.g. 2026-11-09T13:20:00-05:00),
+  DST-aware, matching handoff §4.2. Helper src/lib/kanban/time.ts.
+- D-6 The folder watcher (handoff §4.9) is a 500 ms polling reconciler, not fs.watch. Reason:
+  polling is robust across macOS/editors and avoids missed/duplicated fs events; a sub-second poll
+  still meets the "within a second / within 2 seconds" checks (handoff §11 checks 1, 3). Because the
+  app updates its snapshot the moment it writes a file, a self-write produces no diff, so the app
+  never logs its own writes (handoff §4.9 "ignores watch events for files it just wrote").
+- D-7 App-automatic archive (30-day move) logs with actor `unknown` — no person makes it; the actor
+  enum has no "app" value. Restore re-opens the card to the Inbox stage with done/discarded stamps
+  cleared, so a restored old card is not immediately re-archived.
 
 ## Questions
 
@@ -75,6 +85,13 @@ No real outside calls (use stubs). No real email, ever. Migrations land with the
   DB-backed state (id sequence, settings, problems, snapshots). Migration 0002_kanban (5 tables).
   typecheck 0; unit 34/34 (kanban-storage 11/11 new).
 
+- Step 2: activity log (JSONL per month, sequential L-ids, before/after, actors, run ids), snapshot
+  differ (diff/classify), revert field application (applyFields). unit 39/39.
+- Step 3: reconciler (500 ms poll) — new/ pickup (id, move, log create), card validation + Problems
+  (not dropped), direct-change logging with attribution (actor unknown fallback), 30-day
+  archive + restore, source_ref dedup, git backup (commitKanban + hourly), context + AGENTS.md
+  generation, Eastern timestamps. typecheck 0; lint 0; unit 50/50 (kanban-reconciler 11/11 new).
+
 ## PICK UP HERE
 
-Step 2: activity log + snapshot differ.
+Step 4: action layer + tokens + limits + Duet switch.
