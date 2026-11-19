@@ -64,7 +64,38 @@ origin/docs/next-builds; this status file written. Building per the plan below.
 
 ## Decided without asking (log)
 
-- (recorded as the build proceeds)
+These changed none of Josh's rulings, widened no access, wrote no real data, and are reversible.
+
+- Settings beyond inbox/email tables go in app_settings (existing key/value table): the Shortcut
+  token hash, intake address, Gmail connect time, and template B. Migration 0004 adds only two
+  tables (awaiting_dismissed, intake_seen). Less surface, same behaviour.
+- The Shortcut token is stored hash-only in app_settings (like the action-layer tokens), shown once
+  at issue, with a per-process rate limit (handoff §8.7 "rate limited"). Not in the Keys list.
+- POST /api/notes accepts the Shortcut token ONLY — not the interactive login, not a Claude/Duet
+  token (handoff §8.7 wording "instead of the interactive login"; roles §7). Enforced both ways.
+- The left-menu "Inbox (count)" is a real /inbox screen showing the same pending notes as the Home
+  Inbox panel (shared component), with a plain count badge (red counts are Builds only, §2).
+- Awaiting reply and the intake poll only run once Gmail is connected; until then both panels show
+  "connect Gmail in Settings". The Inbox still lists Shortcut notes without Gmail.
+- The nudge button only acts on a thread currently in Awaiting reply; it never sends, only drafts.
+- iPhone note Shortcut guide: docs/guides/iphone_note_shortcut.md (underscores, no dashes per §5).
+
+## Tallies and checks (evidence)
+
+- unit 86/86 (`npm run test:unit`); migrations 3/3 read back (0004 expects awaiting_dismissed,
+  intake_seen). browser 38/38 (`npm run test:e2e`), 14 new in cc4-*.
+- Spec §4 check 1 (no Gmail send; drafts only): unit "the Gmail stub exposes draft creation and NO
+  send function" + source scan; e2e cc4-awaiting "Nudge … and sends nothing".
+- Spec §4 check 2 (Shortcut token refused on every other route): unit "the Shortcut token is not an
+  action-layer token, and vice versa"; e2e cc4-api-shortcut "refused on the action-layer route" and
+  permissions.e2e "POST /api/notes … refuses without a Shortcut token".
+- Handoff §11 Inbox & email: notes never file without confirmation + Dismiss (kanban-actions.test,
+  cc4-inbox.e2e); notes arrive from email, text-to-email and the Shortcut (cc4-inbox.test intake +
+  cc4-api-shortcut.e2e); Awaiting flags at 2 days / 1 day for active clients, No reply needed
+  removes only that thread (cc4-inbox-email.test, cc4-awaiting.e2e); Nudge drafts template B ending
+  "Thanks," and sends nothing (cc4-inbox-email.test, cc4-awaiting.e2e).
+- CLAUDE §4 inverted test: permissions.e2e "POST /api/notes exists in CC4 and refuses without a
+  Shortcut token" replaces the CC1 assertion that /api/notes 404s.
 
 ## Questions
 
