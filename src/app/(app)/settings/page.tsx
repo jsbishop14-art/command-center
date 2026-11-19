@@ -8,6 +8,9 @@ import { listFeeds, getZip } from "@/lib/feeds/store";
 import { gmailConnected, intakeAddress, nudgeTemplate } from "@/lib/feeds/gmail";
 import { shortcutTokenStatus } from "@/lib/shortcut";
 import InboxEmailPanel from "@/components/InboxEmailPanel";
+import BuildsSettingsPanel from "@/components/builds/BuildsSettingsPanel";
+import { listProjects } from "@/lib/builds/projects";
+import { budgetState } from "@/lib/builds/budget";
 import { connectCalendarAction, disconnectCalendarAction } from "./feed-actions";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +22,8 @@ export default function SettingsPage() {
   const feeds = listFeeds();
   const zip = getZip();
   const shortcut = shortcutTokenStatus();
+  const projects = listProjects();
+  const budget = budgetState();
   return (
     <>
       <div className="card">
@@ -108,6 +113,15 @@ export default function SettingsPage() {
           by default. Each token shows once when issued; revoke it here to cut off access.
         </p>
         <ActionLayerPanel statuses={statuses} duetOn={duetOn} />
+      </div>
+
+      <div className="card">
+        <h2>Software builds</h2>
+        <p className="subtle" style={{ marginTop: 4 }}>
+          The projects the Builds screen tracks, and the weekly build budget. The limit and warning
+          are written to build-control; a blank limit records usage with no hold.
+        </p>
+        <BuildsSettingsPanel projects={projects} limit={budget.limit} warnPct={budget.warnPct} />
       </div>
     </>
   );

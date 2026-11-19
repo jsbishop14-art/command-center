@@ -21,12 +21,14 @@ export default function TopBar({
   weather,
   zip,
   refreshAgo,
+  bellCount = 0,
 }: {
   userName: string;
   board: Board;
   weather: WeatherReading | null;
   zip: string;
   refreshAgo: string;
+  bellCount?: number;
 }) {
   return (
     <header className="topbar">
@@ -64,12 +66,16 @@ export default function TopBar({
       {/* Sync with Claude (handoff §5.1): opens the popup; Claude runs only on Run sync, no timer. */}
       <SyncButton />
 
-      {/* The bell opens Builds, which arrives in CC8. Placeholder, no count until then. */}
-      <Link href="/soon?s=Builds" className="chip" aria-label="Builds" data-testid="bell" style={{ width: 40, justifyContent: "center" }}>
+      {/* The bell opens Builds (handoff §7.1 notifications). The count covers Needs-Josh questions,
+          the budget warning and hold, and a rolled-back update. */}
+      <Link href="/builds" className="chip bell" aria-label={`Builds${bellCount ? `, ${bellCount} alerts` : ""}`} data-testid="bell" style={{ width: 40, justifyContent: "center", position: "relative" }}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F4F4F1" strokeWidth="2" aria-hidden="true">
           <path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4l2-2z" />
           <path d="M10 20a2 2 0 0 0 4 0" />
         </svg>
+        {bellCount ? (
+          <span className="bell-count" data-testid="bell-count">{bellCount}</span>
+        ) : null}
       </Link>
 
       <QuickAdd />
