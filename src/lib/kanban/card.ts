@@ -153,6 +153,53 @@ export function serializeCard(card: Card): string {
   return serialize({ data, order, body: card.notes }, order);
 }
 
+// Apply a set of meaningful field values (from a log entry's before/after) onto a card, returning
+// a new card. Used by Revert (handoff §5.4) to restore the "before" values. Unknown keys ignored.
+export function applyFields(card: Card, fields: Record<string, unknown>): Card {
+  const next: Card = { ...card, boards: [...card.boards], extra: { ...card.extra } };
+  for (const [k, v] of Object.entries(fields)) {
+    switch (k) {
+      case "title":
+        next.title = String(v);
+        break;
+      case "stage":
+        next.stage = v as Card["stage"];
+        break;
+      case "boards":
+        next.boards = (v as string[]).slice() as Card["boards"];
+        break;
+      case "area":
+        next.area = v as Card["area"];
+        break;
+      case "project":
+        next.project = (v as string | null) ?? null;
+        break;
+      case "due":
+        next.due = (v as string | null) ?? null;
+        break;
+      case "order":
+        next.order = Number(v);
+        break;
+      case "waiting_on":
+        next.waiting_on = (v as string | null) ?? null;
+        break;
+      case "waiting_since":
+        next.waiting_since = (v as string | null) ?? null;
+        break;
+      case "done_at":
+        next.done_at = (v as string | null) ?? null;
+        break;
+      case "discarded_at":
+        next.discarded_at = (v as string | null) ?? null;
+        break;
+      case "notes":
+        next.notes = String(v ?? "");
+        break;
+    }
+  }
+  return next;
+}
+
 // The frontmatter fields the activity log compares and stores for before/after (handoff §4.6).
 // The body (notes) is compared separately as a boolean "notes changed" for diffing.
 export function cardSnapshotFields(card: Card): Record<string, unknown> {
