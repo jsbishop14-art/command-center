@@ -133,6 +133,17 @@ can't be undone)
 
 Totals: unit 247/247, browser 79/79 (local).
 
+## Landing
+
+Landed 2026-11-19. Merge "[Merge] CC12 (updater fixes, daily updates, stay signed in)" into main.
+CI green: run 44633419418, both jobs success (Lint/types/build/unit; Browser tests). Branch was
+fast-forwardable onto main (0 behind; merge-base = main tip 7021005). The CI-green commit 35302e8
+added cc12-updater-sessions to the CI branch list; the only commits after it are docs (chain.md +
+this status file), listed in the merge message, via `git merge --no-ff cc12-updater-sessions`. No new
+migration in this build. unit 247/247, browser 79/79. The Mac mini updater deploys and smoke-checks
+after the merge (handoff §7.4) — but see "Waits on Josh" below: the updater is unloaded, so this
+build is installed by hand once first.
+
 ## Questions for Josh
 
 None.
