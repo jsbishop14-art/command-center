@@ -32,3 +32,40 @@ export function getBoard(userId: number, role: "josh" | "christine"): Board {
 export function setBoard(userId: number, board: Board): void {
   setPref(userId, "board", board);
 }
+
+// Home panel layout per user (handoff §2, spec check 1): panel order and which are collapsed,
+// saved per user so they survive a restart. The four panels in mockup order are the default.
+export const HOME_PANELS = ["today", "inbox", "awaiting", "kanban"] as const;
+export type HomePanelKey = (typeof HOME_PANELS)[number];
+export type HomeLayout = { order: HomePanelKey[]; collapsed: HomePanelKey[] };
+
+function isPanel(v: string): v is HomePanelKey {
+  return (HOME_PANELS as readonly string[]).includes(v);
+}
+
+export function getHomeLayout(userId: number): HomeLayout {
+  const raw = getPref(userId, "home_layout");
+  let saved: { order?: unknown; collapsed?: unknown } = {};
+  if (raw) {
+    try {
+      saved = JSON.parse(raw);
+    } catch {
+      saved = {};
+    }
+  }
+  // Keep only known panels, in the saved order, then append any panel the saved order is missing
+  // (e.g. a panel added in a later build) so the set is always complete and free of unknowns.
+  const savedOrder = Array.isArray(saved.order) ? saved.order.filter((p): p is HomePanelKey => typeof p === "string" && isPanel(p)) : [];
+  const order: HomePanelKey[] = [...new Set(savedOrder)];
+  for (const p of HOME_PANELS) if (!order.includes(p)) order.push(p);
+  const collapsed = Array.isArray(saved.collapsed)
+    ? saved.collapsed.filter((p): p is HomePanelKey => typeof p === "string" && isPanel(p))
+    : [];
+  return { order, collapsed: [...new Set(collapsed)] };
+}
+
+export function setHomeLayout(userId: number, layout: HomeLayout): void {
+  const order = layout.order.filter(isPanel);
+  const collapsed = layout.collapsed.filter(isPanel);
+  setPref(userId, "home_layout", JSON.stringify({ order, collapsed }));
+}

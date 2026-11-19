@@ -38,6 +38,28 @@ export function problemsCount(): number {
   return listProblems().length;
 }
 
+// Home "Kanban · in progress" panel (handoff §2, spec check 5): the current board's in-progress
+// cards, ordered within the column. Board-scoped, so the board toggle changes the list.
+export function inProgressCards(board: Board): Card[] {
+  return listCards()
+    .filter((c) => c.stage === "in_progress" && c.boards.includes(board))
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+}
+
+// Cards due on an Eastern date (YYYY-MM-DD) for a board, shown in the Today panel (handoff §2).
+// Done and discarded cards are not "due". Board-scoped.
+export function cardsDueOn(board: Board, dateYmd: string): Card[] {
+  return listCards()
+    .filter(
+      (c) =>
+        c.stage !== "done" &&
+        c.stage !== "discarded" &&
+        c.boards.includes(board) &&
+        (c.due ?? "").slice(0, 10) === dateYmd,
+    )
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
 // Global search across active and archived cards (handoff §4.9: search includes archived cards;
 // spec §1: search finds Done/discarded cards, restore works). Matches title, notes, id and project.
 export function searchCards(query: string): { active: Card[]; archived: Card[] } {

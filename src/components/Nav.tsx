@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { FeedStatusItem, FeedHealth } from "@/lib/feeds/status";
 
-// Left menu from the mockup (docs/mockup/Main.dc.html). Home and Settings are built in CC1; the
-// other screens arrive in later builds and their menu items show "Coming in a later build" via the
-// /soon page (spec §1). Christine sees the same menu — she sees everything (handoff 1.1).
+// Left menu from the mockup (docs/mockup/Main.dc.html). Home, Kanban and Settings are built; the
+// other screens arrive in later builds and show "Coming in a later build" via /soon. Christine
+// sees the same menu — she sees everything (handoff 1.1). The live feed list shows each feed's
+// state (handoff §2); CC3 drives Calendars and Weather, the rest name their build.
 type Item = { label: string; href?: string; soon?: string };
 
 const ITEMS: Item[] = [
@@ -23,7 +25,14 @@ const ITEMS: Item[] = [
   { label: "Problems", href: "/kanban/problems" },
 ];
 
-export default function Nav() {
+// Client-safe copy of the dot colours (the server status module imports the database).
+const DOT: Record<FeedHealth, string> = {
+  ok: "#15803D",
+  pending: "#9A9EA7",
+  error: "#DC2626",
+};
+
+export default function Nav({ feeds }: { feeds: FeedStatusItem[] }) {
   const pathname = usePathname();
   return (
     <nav className="nav" aria-label="Main">
@@ -50,8 +59,14 @@ export default function Nav() {
 
       <div className="sep" />
       <div className="section-label">Live feeds</div>
-      <div className="subtle" style={{ padding: "0 12px" }}>
-        Feeds connect in later builds.
+      <div className="feed-status" aria-label="Live feeds">
+        {feeds.map((f) => (
+          <div key={f.name} className="feed-status-row" data-testid={`feed-row-${f.name}`}>
+            <span className="feed-dot" style={{ background: DOT[f.health] }} aria-hidden="true" />
+            <span className="feed-name">{f.name}</span>
+            <span className="feed-state mono">{f.state}</span>
+          </div>
+        ))}
       </div>
 
       <Link
