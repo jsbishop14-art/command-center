@@ -4,7 +4,7 @@ import { currentUser } from "@/lib/auth";
 import { startReconciler } from "@/lib/kanban/reconciler";
 import { listProblems } from "@/lib/kanban/state";
 import { listFeedProblems } from "@/lib/feeds/google";
-import { reconnectGoogleAction } from "@/app/(app)/settings/feed-actions";
+import { googleConnectHref } from "@/lib/feeds/connect-url";
 
 export const dynamic = "force-dynamic";
 
@@ -38,12 +38,9 @@ export default function ProblemsPage() {
               <div key={p.target} className="row" data-testid={`feed-problem-${p.target}`}>
                 <div className="file">{p.label}</div>
                 <div className="subtle">{p.reason}</div>
-                <form action={reconnectGoogleAction}>
-                  <input type="hidden" name="target" value={p.target} />
-                  <button className="btn ghost" type="submit" data-testid={`reconnect-${p.target}`}>
-                    Reconnect
-                  </button>
-                </form>
+                <a className="btn ghost" href={googleConnectHref(p.target)} data-testid={`reconnect-${p.target}`}>
+                  Reconnect
+                </a>
               </div>
             ))}
           </div>

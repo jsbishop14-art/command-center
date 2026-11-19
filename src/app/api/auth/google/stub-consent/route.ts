@@ -11,9 +11,13 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const state = url.searchParams.get("state") || "";
-  // Build the callback URL on the SAME origin as this request, so the flow works on whatever port
-  // the app is served from (the configured redirect URI host may differ in dev/CI).
-  const back = new URL("/api/auth/google/callback", req.url);
+  // Build the callback URL on the SAME host the browser used (from the Host header, not req.url,
+  // which Next may normalise to localhost) so the flow stays same-origin and the session cookie is
+  // sent to the callback. Works on whatever host/port the app is served from.
+  const host = req.headers.get("host");
+  const proto = req.headers.get("x-forwarded-proto") || "http";
+  const base = host ? `${proto}://${host}` : url.origin;
+  const back = new URL("/api/auth/google/callback", base);
   back.searchParams.set("code", `stub-code-${state}`);
   back.searchParams.set("state", state);
   return NextResponse.redirect(back);

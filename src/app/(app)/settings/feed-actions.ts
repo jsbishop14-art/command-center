@@ -4,28 +4,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@/lib/auth";
 import { setZip } from "@/lib/feeds/store";
-import { resolveTarget, startConnect, disconnect } from "@/lib/feeds/connections";
-import { nowEastern } from "@/lib/kanban/time";
+import { resolveTarget, disconnect } from "@/lib/feeds/connections";
 
-// Settings actions for the Home feeds and Google connections (spec §1; handoff §7.3). "Connect"
-// opens Google's own sign-in (the stub consent screen in CI / build sessions) and the OAuth
-// callback stores the token; no real Google call is made from here or in a build session.
-
-// Begin connecting a Google target (a calendar "cal:<slug>", "gmail" or "intake"). Saves a one-time
-// state and redirects the browser to the consent screen; the callback finishes the connection.
-export async function connectGoogleAction(formData: FormData): Promise<void> {
-  const user = currentUser();
-  if (!user) redirect("/signin");
-  const t = resolveTarget(String(formData.get("target") || ""));
-  if (!t) return;
-  const url = startConnect(t, user.username, nowEastern());
-  redirect(url);
-}
-
-// Reconnect is the same flow; it exists as its own action so the Problems screen can label it.
-export async function reconnectGoogleAction(formData: FormData): Promise<void> {
-  return connectGoogleAction(formData);
-}
+// Settings actions for the Home feeds and Google connections (spec §1; handoff §7.3). Connecting a
+// Google target is started by a plain link to GET /api/auth/google/start (built with
+// googleConnectHref from @/lib/feeds/connect-url), which opens Google's own sign-in (the stub
+// consent screen in CI / build sessions); the OAuth callback stores the token. Disconnecting is
+// this server action. No real Google call is made from here or in a build session.
 
 export async function disconnectGoogleAction(formData: FormData): Promise<void> {
   const user = currentUser();

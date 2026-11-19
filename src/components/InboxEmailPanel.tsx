@@ -10,7 +10,8 @@ import {
   type SaveState,
   type ShortcutTokenState,
 } from "@/app/(app)/settings/inbox-actions";
-import { connectGoogleAction, disconnectGoogleAction } from "@/app/(app)/settings/feed-actions";
+import { disconnectGoogleAction } from "@/app/(app)/settings/feed-actions";
+import { googleConnectHref } from "@/lib/feeds/connect-url";
 
 // Settings panel for Inbox & email (handoff §2, §2.1, §8.7, spec §1): connect Gmail, set the intake
 // address, edit template B, and issue/revoke the iPhone Shortcut token. The token's plaintext is
@@ -60,12 +61,9 @@ export default function InboxEmailPanel({
             </button>
           </form>
         ) : (
-          <form action={connectGoogleAction}>
-            <input type="hidden" name="target" value="gmail" />
-            <button className="btn ghost" type="submit" data-testid="gmail-connect">
-              Connect
-            </button>
-          </form>
+          <a className="btn ghost" href={googleConnectHref("gmail")} data-testid="gmail-connect">
+            Connect
+          </a>
         )}
       </div>
 
@@ -89,12 +87,9 @@ export default function InboxEmailPanel({
             </button>
           </form>
         ) : (
-          <form action={connectGoogleAction}>
-            <input type="hidden" name="target" value="intake" />
-            <button className="btn ghost" type="submit" data-testid="intake-connect">
-              Connect
-            </button>
-          </form>
+          <a className="btn ghost" href={googleConnectHref("intake")} data-testid="intake-connect">
+            Connect
+          </a>
         )}
       </div>
 

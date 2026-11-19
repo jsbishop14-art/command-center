@@ -16,7 +16,8 @@ import TouchIdleForm from "@/components/TouchIdleForm";
 import { getTouchIdleMinutes } from "@/lib/touch/settings";
 import ScoringConfigPanel from "@/components/phone/ScoringConfigPanel";
 import { getScoringConfig, SCORING_FIELDS } from "@/lib/phone/config";
-import { connectGoogleAction, disconnectGoogleAction } from "./feed-actions";
+import { disconnectGoogleAction } from "./feed-actions";
+import { googleConnectHref } from "@/lib/feeds/connect-url";
 
 export const dynamic = "force-dynamic";
 
@@ -83,17 +84,14 @@ export default function SettingsPage() {
                   </button>
                 </form>
               ) : (
-                <form action={connectGoogleAction}>
-                  <input type="hidden" name="target" value={`cal:${f.slug}`} />
-                  <button
-                    className="btn ghost"
-                    type="submit"
-                    data-testid={`connect-${f.slug}`}
-                    style={{ height: 36 }}
-                  >
-                    Connect
-                  </button>
-                </form>
+                <a
+                  className="btn ghost"
+                  href={googleConnectHref(`cal:${f.slug}`)}
+                  data-testid={`connect-${f.slug}`}
+                  style={{ height: 36, display: "inline-flex", alignItems: "center" }}
+                >
+                  Connect
+                </a>
               )}
             </div>
           ))}

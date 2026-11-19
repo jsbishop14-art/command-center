@@ -11,11 +11,16 @@ export const dynamic = "force-dynamic";
 // and marks the target connected, then returns to Settings. No token or secret is ever logged.
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const settings = new URL("/settings", req.url);
+  // Redirect on the SAME host the browser used (from the Host header, not req.url which Next may
+  // normalise to localhost) so we stay same-origin and the session cookie is kept.
+  const host = req.headers.get("host");
+  const proto = req.headers.get("x-forwarded-proto") || "http";
+  const base = host ? `${proto}://${host}` : url.origin;
+  const settings = new URL("/settings", base);
 
   // The callback is a top-level navigation that carries the session cookie; require a signed-in
   // user so the endpoint cannot be driven by an unauthenticated request.
-  if (!currentUser()) return NextResponse.redirect(new URL("/signin", req.url));
+  if (!currentUser()) return NextResponse.redirect(new URL("/signin", base));
 
   const error = url.searchParams.get("error");
   const code = url.searchParams.get("code") || "";
