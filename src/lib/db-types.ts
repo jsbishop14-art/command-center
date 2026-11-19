@@ -222,6 +222,37 @@ export interface Sessions {
   expires_at: string;
 }
 
+export interface SyncChanges {
+  run_id: string;
+  seq: number;
+  kind: string;
+  target: string;
+  label: string;
+  sub: string;
+  action: string;
+  payload?: string | null;
+  reverted_at?: string | null;
+}
+
+export interface SyncRunItems {
+  run_id: string;
+  item: string;
+  model: string;
+  tokens: number;
+  count: number;
+  at: string;
+}
+
+export interface SyncRuns {
+  id: string;
+  items: string;
+  skipped: string;
+  by: string;
+  total_tokens: number;
+  started_at: string;
+  finished_at?: string | null;
+}
+
 export interface UserPrefs {
   user_id: number;
   key: string;

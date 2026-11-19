@@ -1,6 +1,6 @@
 import { getDb } from "@/lib/db";
 import { nowEastern, todayEastern } from "@/lib/kanban/time";
-import { postProposal } from "./client";
+import { postProposal, postWithdraw } from "./client";
 import { tasksForJob, listTasks } from "./store";
 import { addDays, daysFrom } from "./dates";
 import type { EzbTask } from "./types";
@@ -144,6 +144,17 @@ export function resolveProposal(id: number, status: "confirmed" | "rejected", op
     .prepare("UPDATE ezb_proposals SET status = ?, resolved_at = ? WHERE id = ? AND status = 'proposed'")
     .run(status, at, id);
   return getProposal(id)!;
+}
+
+// Withdraw a proposal (handoff §5.4). Used when a Sync schedule proposal is reverted: if the
+// proposal is still pending, ask EZ Binder to withdraw the reference and mark it rejected here.
+// Already-resolved proposals are left as they are (a confirmed move cannot be unmade from here).
+export async function withdrawProposal(id: number, opts?: { at?: string }): Promise<Proposal> {
+  const p = getProposal(id);
+  if (!p) throw new Error(`proposal ${id} not found`);
+  if (p.status !== "proposed") return p;
+  if (p.ezbRef) await postWithdraw(p.ezbRef, p.actor);
+  return resolveProposal(id, "rejected", opts);
 }
 
 // Has the slip rule ever raised a proposal for this task? Any status counts: a proposed one is
