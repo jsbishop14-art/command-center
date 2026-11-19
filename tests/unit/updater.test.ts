@@ -1,13 +1,23 @@
 import { describe, it, expect } from "vitest";
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { runUpdate, type UpdaterOps, type SmokeResult } from "../../scripts/updater/core";
+import { recoverToMain } from "../../scripts/updater/build";
 
-// Spec check 5: a simulated new merge is backed up, applied and smoke-checked; a simulated failing
-// smoke check restores the previous version and database and records the alert.
+// Spec checks 3 and 4 (and the CC11 build-and-switch ordering): a simulated new merge is backed up,
+// applied and smoke-checked; a failing pass restores the previous build, and rolls the database back
+// ONLY when a migration had run — copying the current database aside first and naming both in the
+// alert.
+
+type RestoreCall = { restoreDatabase: boolean };
 
 type Recorder = {
   ops: UpdaterOps;
   calls: string[];
   alerts: { message: string; log: string }[];
+  restores: RestoreCall[];
   liveAfter: () => string | null;
 };
 
@@ -16,12 +26,16 @@ function makeOps(opts: {
   latest: string | null;
   syncInProgress?: boolean;
   applyThrows?: boolean;
+  migrated?: boolean; // did the pass apply a migration?
   readBackOk?: boolean;
   smoke?: SmokeResult;
+  asidePath?: string | null;
 }): Recorder {
   const calls: string[] = [];
   const alerts: { message: string; log: string }[] = [];
+  const restores: RestoreCall[] = [];
   let live = opts.live;
+  const migrated = !!opts.migrated;
   const ops: UpdaterOps = {
     log: (m) => calls.push(`log:${m}`),
     liveMerge: () => live,
@@ -34,7 +48,9 @@ function makeOps(opts: {
     apply: (sha) => {
       calls.push(`apply:${sha}`);
       if (opts.applyThrows) throw new Error("npm build failed");
+      return { migrated };
     },
+    migrationApplied: () => migrated,
     readBack: () => {
       calls.push("readBack");
       return opts.readBackOk === false
@@ -47,7 +63,13 @@ function makeOps(opts: {
       calls.push("smoke");
       return opts.smoke ?? { ok: true, detail: "ok" };
     },
-    restore: (h) => calls.push(`restore:${h.id}`),
+    restore: (h, o) => {
+      calls.push(`restore:${h.id}`);
+      restores.push({ restoreDatabase: o.restoreDatabase });
+      return {
+        databaseCopiedAside: o.restoreDatabase ? opts.asidePath ?? "/backups/backup-1/db-aside.db" : null,
+      };
+    },
     raiseAlert: (message, log) => {
       calls.push("raiseAlert");
       alerts.push({ message, log });
@@ -57,7 +79,7 @@ function makeOps(opts: {
       live = sha;
     },
   };
-  return { ops, calls, alerts, liveAfter: () => live };
+  return { ops, calls, alerts, restores, liveAfter: () => live };
 }
 
 describe("Mac mini updater", () => {
@@ -95,8 +117,6 @@ describe("Mac mini updater", () => {
   });
 
   it("switches the staged build in only after a successful build and read-back (CC11 build-and-switch)", () => {
-    // apply (the build) and read-back both run BEFORE activate (the switch), so the served build is
-    // never replaced while the new one is building or if the read-back fails.
     const r = makeOps({ live: "old111", latest: "new222" });
     runUpdate(r.ops);
     const applyAt = r.calls.indexOf("apply:new222");
@@ -116,7 +136,7 @@ describe("Mac mini updater", () => {
     expect(r.calls).not.toContain("activate");
   });
 
-  it("rolls back and alerts when the smoke check fails, restoring the previous version and database", () => {
+  it("rolls back and alerts when the smoke check fails, restoring the previous build", () => {
     const r = makeOps({
       live: "old111",
       latest: "new222",
@@ -130,18 +150,50 @@ describe("Mac mini updater", () => {
     });
     expect(r.calls).toContain("restore:backup-1");
     expect(r.calls).toContain("raiseAlert");
-    // It did NOT record the broken merge as live.
     expect(r.calls.some((c) => c.startsWith("recordLive"))).toBe(false);
     expect(r.liveAfter()).toBe("old111");
     expect(r.alerts[0].message).toBe("Update failed, rolled back");
   });
 
-  it("rolls back when apply throws (build/migrate failure)", () => {
-    const r = makeOps({ live: "old111", latest: "new222", applyThrows: true });
+  // CC12 check 3: a failed smoke with NO migration leaves the database untouched.
+  it("does NOT roll the database back when no migration ran (keys/sessions kept)", () => {
+    const r = makeOps({
+      live: "old111",
+      latest: "new222",
+      migrated: false,
+      smoke: { ok: false, detail: "Home did not load" },
+    });
+    const out = runUpdate(r.ops);
+    expect(out.status).toBe("rolled-back");
+    expect(r.restores).toEqual([{ restoreDatabase: false }]);
+    expect(r.alerts[0].log).toContain("No migration ran");
+    expect(r.alerts[0].log).toContain("kept");
+  });
+
+  // CC12 check 4: a failed update AFTER a migration rolls the database back, copying the current one
+  // aside first, and the alert names both.
+  it("rolls the database back when a migration ran, copying the current database aside and naming both", () => {
+    const r = makeOps({
+      live: "old111",
+      latest: "new222",
+      migrated: true,
+      smoke: { ok: false, detail: "Home did not load" },
+      asidePath: "/backups/backup-1/db-before-rollback.db",
+    });
+    const out = runUpdate(r.ops);
+    expect(out.status).toBe("rolled-back");
+    expect(r.restores).toEqual([{ restoreDatabase: true }]);
+    expect(r.alerts[0].log).toContain("a migration ran");
+    expect(r.alerts[0].log).toContain("/backups/backup-1/db-before-rollback.db");
+  });
+
+  it("rolls back when apply throws, consulting migrationApplied() for the database (none ran here)", () => {
+    const r = makeOps({ live: "old111", latest: "new222", applyThrows: true, migrated: false });
     const out = runUpdate(r.ops);
     expect(out.status).toBe("rolled-back");
     if (out.status === "rolled-back") expect(out.failedStep).toBe("apply");
     expect(r.calls).toContain("restore:backup-1");
+    expect(r.restores).toEqual([{ restoreDatabase: false }]);
   });
 
   it("rolls back when the read-back of migration objects fails", () => {
@@ -150,5 +202,39 @@ describe("Mac mini updater", () => {
     expect(out.status).toBe("rolled-back");
     if (out.status === "rolled-back") expect(out.failedStep).toBe("read-back");
     expect(r.calls).toContain("restore:backup-1");
+  });
+});
+
+// CC12 check 6: after a rollback the repo is on `main` (never a detached HEAD), so the next
+// `git checkout main` + `pull --ff-only` fast-forwards cleanly. Run against a real temporary git
+// repo so the actual git behaviour is proven, not mocked.
+describe("recoverToMain leaves the repo on main (check 6)", () => {
+  it("returns from a detached HEAD to main at the previous merge", () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "cc-git-"));
+    const git = (args: string[]) => execFileSync("git", args, { cwd: dir, encoding: "utf8" }).trim();
+    try {
+      git(["init", "-q", "-b", "main"]);
+      git(["config", "user.email", "t@t"]);
+      git(["config", "user.name", "t"]);
+      writeFileSync(path.join(dir, "a"), "1");
+      git(["add", "."]);
+      git(["commit", "-q", "-m", "[Merge] CC11 ("]);
+      const prevSha = git(["rev-parse", "HEAD"]);
+      // A newer commit on main, then detach HEAD onto it — the broken state the old updater left.
+      writeFileSync(path.join(dir, "a"), "2");
+      git(["add", "."]);
+      git(["commit", "-q", "-m", "[Merge] CC12 ("]);
+      const newSha = git(["rev-parse", "HEAD"]);
+      git(["checkout", "-q", newSha]); // detached HEAD
+      expect(() => git(["symbolic-ref", "HEAD"])).toThrow(); // confirm detached
+
+      recoverToMain(git, prevSha);
+
+      // On main again, at the previous merge.
+      expect(git(["symbolic-ref", "HEAD"])).toBe("refs/heads/main");
+      expect(git(["rev-parse", "HEAD"])).toBe(prevSha);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

@@ -87,9 +87,21 @@ say "1. Checking prerequisites (node 20, git, cloudflared)"
 run node --version
 run git --version
 
-# 2. Dependencies and production build.
+# 2. Dependencies and production build. Keep dev dependencies so the tools migrate, smoke and the
+#    updater need (tsx) stay installed — a bare `npm ci` that drops them is what made `npm run
+#    migrate` fail with "tsx: command not found" (CC12 spec §1 "Dev tools needed on the Mac stay
+#    installed"). Fail loudly, before building or changing anything else, if tsx is still missing.
 say "2. Installing dependencies and building"
-run npm ci
+run npm ci --include=dev
+if [ "$DRY" = "1" ]; then
+  echo "+ verify dev tool tsx is installed (node_modules/.bin/tsx), else stop before changing anything"
+else
+  if [ ! -x "$REPO_DIR/node_modules/.bin/tsx" ]; then
+    echo "ERROR: tsx is not installed after 'npm ci --include=dev'. migrate, smoke and the updater" >&2
+    echo "       need it. Install dev dependencies and re-run; nothing was changed." >&2
+    exit 1
+  fi
+fi
 run npm run build
 
 # 3. Config dir, secret key and logins (kept outside the repo). Values in the env file are QUOTED so
@@ -126,8 +138,15 @@ else
   fi
 fi
 
-# 4. launchd jobs: the app and the updater (start on boot, keep running). Both set PATH (so npm is
-#    found) and write logs into the config dir (CC11 spec §1 items 2, 3).
+# 3b. Record the live version so the first updater pass does nothing when the code is already
+#     current (CC12 check 1). Without this the updater saw "a new merge" every run and updated in a
+#     loop. Writes data/updater-state.json in the repo (or CC_UPDATER_STATE).
+say "3b. Recording the live version (so the first update check is a no-op when already current)"
+run npm run updater -- --record-live
+
+# 4. launchd jobs: the app (starts on boot, kept running) and the updater (once a day at 3 AM). The
+#    app job sets PATH (so npm is found) and writes logs into the config dir (CC11 spec §1 items 2,
+#    3); the updater job runs on a daily schedule, not a loop (CC12 spec §1).
 say "4. Installing launchd jobs (app + updater)"
 run mkdir -p "$LAUNCH_DIR"
 
@@ -155,6 +174,11 @@ PLIST
 )"
 emit_file "$APP_PLIST" "$APP_PLIST_CONTENT"
 
+# The updater runs ONCE A DAY at 3:00 AM (StartCalendarInterval), not in a 5-minute loop (Josh,
+# 2026-11-19 16:11). launchd uses local time, and the Mac mini is on Eastern, so Hour 3 is 3:00 AM
+# Eastern (CC12 spec §4 check 2, 8). It is a one-shot each day — no KeepAlive (that would respawn it
+# in a tight loop) and no RunAtLoad (a boot run is not wanted; "Check for updates now" covers on
+# demand). CC_SMOKE_URL points the smoke check at the running app's port.
 UPDATER_PLIST_CONTENT="$(cat <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -164,15 +188,18 @@ UPDATER_PLIST_CONTENT="$(cat <<PLIST
   <key>EnvironmentVariables</key><dict>
     <key>PATH</key><string>$JOB_PATH</string>
     <key>CC_RESTART_CMD</key><string>launchctl kickstart -k gui/\$(id -u)/com.bishop.commandcenter.app</string>
+    <key>CC_SMOKE_URL</key><string>http://127.0.0.1:$PORT</string>
   </dict>
   <key>ProgramArguments</key><array>
     <string>/bin/sh</string><string>-c</string>
-    <string>set -a; . "$ENV_FILE"; exec npm run updater -- --loop</string>
+    <string>set -a; . "$ENV_FILE"; exec npm run updater</string>
   </array>
   <key>StandardOutPath</key><string>$UPDATER_LOG</string>
   <key>StandardErrorPath</key><string>$UPDATER_LOG</string>
-  <key>RunAtLoad</key><true/>
-  <key>KeepAlive</key><true/>
+  <key>StartCalendarInterval</key><dict>
+    <key>Hour</key><integer>3</integer>
+    <key>Minute</key><integer>0</integer>
+  </dict>
 </dict></plist>
 PLIST
 )"

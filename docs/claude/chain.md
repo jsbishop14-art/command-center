@@ -15,6 +15,7 @@
 | 9 | CC9 | cc9-touch-screen | docs/specs/CC9-BUILD-SPEC.md | 6 | Landed |
 | 10 | CC10 | cc10-phone-lookup | docs/specs/CC10-BUILD-SPEC.md | 8 | Landed |
 | 11 | CC11 | cc11-mac-fixes-google | docs/specs/CC11-BUILD-SPEC.md | 2, 2.1, 2.2, 4.4, 7.2, 7.3, 7.4, 1.1 | Landed |
+| 12 | CC12 | cc12-updater-sessions | docs/specs/CC12-BUILD-SPEC.md | 7.4, 7.5, 1.1 | Landed |
 
 ## Grants
 
@@ -81,6 +82,20 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
 - 2026-11-19 05:56, on the Calendar menu item (CC3-ASK-1): "3. understood. i will test the system and see whats
   needed." Meaning: no standalone Calendar screen now; the menu item stays a later-build placeholder.
 - 2026-11-19 07:43: "im back on the windows machine. run fixes now" (go-ahead to build CC11).
+- 2026-11-19 16:11, on the updater cadence: "every 5 minutes seems excessive. it should be once a
+  day and then on command." Meaning: the updater runs once a day, plus a Check for updates now button
+  — no 5-minute polling. Built in CC12.
+- 2026-11-19 16:13, answers to the daily-update questions ("1. What time of day should the daily
+  update run? I recommend 3:00 AM" / "2. Should 'on demand' be a 'Check for updates now' button in
+  Settings that also shows when the last update ran?"): "ok" and "yes". Meaning: daily update at
+  3:00 AM Eastern; a Check for updates now button in Settings that shows when the last update ran and
+  its result. Built in CC12.
+- 2026-11-19 17:33, on being signed out: "i have all of the tokens. they didnt save again and i was
+  signed out. its running fine when signed back in but i shouldnt have to sign in so often. in fact,
+  when im in i dont want to ever have to sign in again". Meaning: sessions must be sliding (renew on
+  use) so Josh and Christine stay signed in; an update must never lose saved keys or sign anyone out.
+  Window chosen = 365 days (CC12 status D1). Built in CC12.
+- 2026-11-19 17:35: "plan and fix now" (go-ahead to build CC12).
 
 ## What waits on Josh
 
@@ -131,6 +146,30 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
 
 ## Landings
 
+- CC12, 2026-11-19. Merge "[Merge] CC12 (updater fixes, daily updates, stay signed in)" into main.
+  CI green: run 44633419418, both jobs (Lint/types/build/unit: success; Browser tests: success).
+  Spec §4 checks 1-8 all pass (evidence in docs/sessions/CC12-status.md): (1) the installer records
+  the live version at install so a pass with no new merge does nothing; (2) the updater plist uses
+  StartCalendarInterval 03:00 — once a day at 3 AM Eastern, no 5-minute loop — and Check for updates
+  now runs one pass and reports the result in Settings → Updates, reached from the menu as Josh and
+  Christine (cc12-updates e2e); (3) a failed smoke with no migration restores the previous build and
+  leaves the database untouched, so keys/sessions saved during the update survive; (4) a failed
+  update after a migration copies the current database aside first and the alert names both;
+  (5) smoke mints a short-lived session per login and reaches Home with no password supplied and none
+  stored; (6) restore leaves the repo on main via recoverToMain (checkout main + reset --hard), never
+  detached, so the next pass fast-forwards (real temp-git test); (7) sessions slide to a 365-day
+  window on use, a restart does not invalidate them, sign out still works; (8) install dry run runs
+  `npm ci --include=dev` (no bare npm ci) and schedules the updater at 03:00. unit 247/247, browser
+  79/79. No new migration in this build (nothing for the Mac mini updater to read back). Branch was
+  fast-forwardable onto main (0 behind; merge-base = main tip 7021005); the CI-green commit 35302e8
+  added cc12-updater-sessions to the CI branch list (.github/workflows/ci.yml), and the only commits
+  after it are docs (chain.md + CC12-status.md), listed in the merge message, via:
+  git merge --no-ff cc12-updater-sessions. New waits on Josh: the updater is unloaded on the Mac mini,
+  so install this build by hand once — `cd ~/command-center && git fetch origin && git checkout -B
+  main origin/main && CC_CONFIG_DIR="$HOME/.commandcenter" sh scripts/install-mac.sh` (also in
+  docs/install-mac.md under "Updating by hand"); after that, updates run themselves (daily at 3 AM
+  Eastern, or the Check for updates now button). Changing the Cloudflare Access session length (a
+  dashboard setting) is out of scope (spec §5).
 - CC1, 2026-11-19. Merge 709b076 "[Merge] CC1 (foundation, logins, Mac mini updater)" into main.
   CI green: run 44449650659, both jobs (unit, e2e). Spec §4 checks 1-7 all pass — checks 1-3 by browser
   tests (9/9), checks 4-7 by unit tests (23/23). Branch was fast-forwardable onto main b2080a4; no

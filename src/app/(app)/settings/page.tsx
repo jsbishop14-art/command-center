@@ -18,6 +18,8 @@ import ScoringConfigPanel from "@/components/phone/ScoringConfigPanel";
 import { getScoringConfig, SCORING_FIELDS } from "@/lib/phone/config";
 import { disconnectGoogleAction } from "./feed-actions";
 import { googleConnectHref } from "@/lib/feeds/connect-url";
+import UpdatesPanel from "@/components/builds/UpdatesPanel";
+import { getUpdatesStatus } from "@/lib/builds/updates";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +36,7 @@ export default function SettingsPage() {
   const redirectUri = googleRedirectUri();
   const scoring = getScoringConfig();
   const scoringFields = SCORING_FIELDS.map((f) => ({ key: f.key as string, label: f.label }));
+  const updates = getUpdatesStatus();
   return (
     <>
       <div className="card">
@@ -160,6 +163,17 @@ export default function SettingsPage() {
           token in <strong>Inbox &amp; email</strong>.
         </p>
         <ScoringConfigPanel fields={scoringFields} config={scoring as unknown as Record<string, number>} />
+      </div>
+
+      <div className="card">
+        <h2>Updates</h2>
+        <p className="subtle" style={{ marginTop: 4 }}>
+          Command Center updates itself once a day at 3:00 AM Eastern. This shows the version that is
+          live and when the last update check ran. An update never signs you out or loses saved keys;
+          a failed update rolls back on its own. Use <strong>Check for updates now</strong> to run one
+          check right away.
+        </p>
+        <UpdatesPanel status={updates} />
       </div>
     </>
   );

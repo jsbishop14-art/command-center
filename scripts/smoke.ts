@@ -1,24 +1,32 @@
 #!/usr/bin/env tsx
-// Smoke check (handoff 7.4 step 6). Lives in the repo so each build keeps it current. For CC1 it
-// verifies the app answers and both logins reach Home. The kanban check is added in CC2 and the
-// touch-screen reconnect check in CC9. Exit code is 0 only when every check passes, so the updater
-// can read a real pass/fail.
-const BASE = process.env.CC_SMOKE_URL || `http://127.0.0.1:${process.env.CC_SMOKE_PORT || 3000}`;
+// Smoke check (handoff 7.4 step 6). Lives in the repo so each build keeps it current. It verifies
+// the app answers and that BOTH logins reach Home. Exit code is 0 only when every check passes, so
+// the updater can read a real pass/fail.
+//
+// CC12 (check 5): the check proves both logins reach Home WITHOUT their passwords. The updater has
+// the database (CC_DB_PATH) but not Josh's or Christine's passwords, so for each user it mints a
+// short-lived session straight into the database, fetches /home with that session cookie, and then
+// deletes the session row. No password is supplied and none is stored anywhere new. This fixes the
+// 2026-11-19 failure where smoke used CC_JOSH_PASSWORD / CC_CHRISTINE_PASSWORD (absent from the
+// updater's environment) and failed against the real passwords, rolling every update back.
+import { getDb } from "../src/lib/db";
+import { getUserByUsername } from "../src/lib/users";
+import { mintSmokeSession, deleteSession } from "../src/lib/sessions";
+import { SESSION_COOKIE } from "../src/lib/auth-cookie";
 
-const LOGINS = [
-  { username: "josh", password: process.env.CC_JOSH_PASSWORD || "josh-dev-password" },
-  { username: "christine", password: process.env.CC_CHRISTINE_PASSWORD || "christine-dev-password" },
-];
+const BASE = process.env.CC_SMOKE_URL || `http://127.0.0.1:${process.env.CC_SMOKE_PORT || 3000}`;
 
 type Check = { name: string; ok: boolean; detail: string };
 
 async function run(): Promise<Check[]> {
   const checks: Check[] = [];
 
-  // The app answers.
+  // The app answers, and tells us who the logins are (no secrets).
+  let usernames: string[] = [];
   try {
     const res = await fetch(`${BASE}/api/health`);
-    const body = (await res.json().catch(() => ({}))) as { ok?: boolean };
+    const body = (await res.json().catch(() => ({}))) as { ok?: boolean; users?: string[] };
+    usernames = body.users ?? [];
     checks.push({
       name: "app answers",
       ok: res.ok && !!body.ok,
@@ -29,36 +37,30 @@ async function run(): Promise<Check[]> {
     return checks; // nothing else can pass if the app is down
   }
 
-  // Both logins reach Home.
-  for (const login of LOGINS) {
+  // Both logins reach Home — via a minted session, not a password.
+  const db = getDb();
+  for (const username of usernames) {
+    const user = getUserByUsername(username);
+    if (!user) {
+      checks.push({ name: `${username} reaches Home`, ok: false, detail: "user not found" });
+      continue;
+    }
+    const { token } = mintSmokeSession(db, user.id);
     try {
-      const signin = await fetch(`${BASE}/api/auth/signin`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(login),
-        redirect: "manual",
-      });
-      const cookie = signin.headers.get("set-cookie") || "";
-      if (!signin.ok || !cookie.includes("cc_session")) {
-        checks.push({
-          name: `${login.username} reaches Home`,
-          ok: false,
-          detail: `signin -> ${signin.status}, cookie ${cookie ? "set" : "missing"}`,
-        });
-        continue;
-      }
       const home = await fetch(`${BASE}/home`, {
-        headers: { cookie: cookie.split(";")[0] },
+        headers: { cookie: `${SESSION_COOKIE}=${token}` },
         redirect: "manual",
       });
       const text = await home.text();
       checks.push({
-        name: `${login.username} reaches Home`,
+        name: `${username} reaches Home`,
         ok: home.status === 200 && text.includes("Home"),
         detail: `GET /home -> ${home.status}`,
       });
     } catch (e) {
-      checks.push({ name: `${login.username} reaches Home`, ok: false, detail: String(e) });
+      checks.push({ name: `${username} reaches Home`, ok: false, detail: String(e) });
+    } finally {
+      deleteSession(db, token); // the smoke session is removed right after the check
     }
   }
 

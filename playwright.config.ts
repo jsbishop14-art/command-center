@@ -29,6 +29,9 @@ export default defineConfig({
     env: {
       CC_DB_PATH: process.env.CC_DB_PATH || ".e2e/cc.db",
       CC_KANBAN_DIR: process.env.CC_KANBAN_DIR || ".e2e/kanban",
+      // Keep the updater state file under .e2e so the "Check for updates now" button in Settings
+      // writes there, not into the repo's data/ dir (CC12).
+      CC_UPDATER_STATE: process.env.CC_UPDATER_STATE || ".e2e/updater-state.json",
       CC_SECRET_KEY:
         process.env.CC_SECRET_KEY ||
         "0000000000000000000000000000000000000000000000000000000000000000",
