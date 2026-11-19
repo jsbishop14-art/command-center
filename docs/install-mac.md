@@ -26,7 +26,7 @@ It will:
   they are not shown), then seed the database,
 - start the app so it runs at `http://localhost:3000` on the Mac mini and comes back on its own
   after a restart,
-- start the updater, which quietly puts each later build live,
+- start the updater, which once a day (3:00 AM) quietly puts the latest build live,
 - if a Cloudflare tunnel is already configured (see Step 2), start the tunnel too.
 
 Your passwords and the app's secret key are saved on the Mac mini, outside the repo, in
@@ -112,10 +112,17 @@ shows its built-in sample data on an unconnected machine.
 ## Everyday
 
 - You don't restart anything. The app, updater and tunnel run themselves.
-- When a build lands, the Mac mini backs up, builds the new version **without** interrupting the one
-  that is serving, switches to it, checks itself, and goes live. If an update fails, it rolls back
-  to the last good version and shows a red "Update failed, rolled back" alert (on the Builds screen
-  and the touch screen).
+- **You stay signed in.** Once you sign in, you stay signed in as long as you use the app at least
+  once a year. Restarting the app or an update never signs you out. Sign out still works when you
+  want it.
+- **Updates run once a day at 3:00 AM.** When there is a new build, the Mac mini backs up, builds the
+  new version **without** interrupting the one that is serving, switches to it, checks itself, and
+  goes live. An update never loses your saved keys or settings and never signs you out. If an update
+  fails, it rolls back to the last good version and shows a red "Update failed, rolled back" alert
+  (on the Builds screen and the touch screen); your data is left as it was.
+- **Check for updates now.** You don't have to wait for 3:00 AM. In **Settings → Updates** you can see
+  which version is live and when the last update check ran, and press **Check for updates now** to run
+  one check right away.
 
 ## If you ever need to stop or start things by hand
 
@@ -124,3 +131,19 @@ launchctl kickstart -k gui/$(id -u)/com.bishop.commandcenter.app      # restart 
 launchctl bootout   gui/$(id -u)/com.bishop.commandcenter.app         # stop the app
 launchctl kickstart -k gui/$(id -u)/com.bishop.commandcenter.tunnel   # restart the tunnel
 ```
+
+## Updating by hand
+
+The automatic updater is installed by running the installer. If it was ever stopped (for example
+after a fix to the updater itself), install the current version once by hand; after that, updates run
+themselves again (daily at 3:00 AM, or the **Check for updates now** button):
+
+```
+cd ~/command-center
+git fetch origin && git checkout -B main origin/main
+CC_CONFIG_DIR="$HOME/.commandcenter" sh scripts/install-mac.sh
+```
+
+Re-running the installer keeps your database, secret key and passwords, records the version now live
+(so the next 3:00 AM check does nothing when you are already current), and re-installs the daily
+updater job.

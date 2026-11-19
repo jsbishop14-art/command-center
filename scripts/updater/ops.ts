@@ -76,6 +76,11 @@ function stamp(): string {
   return new Date().toISOString().replace(/[:.]/g, "-");
 }
 
+// The current updater state (live version + last check), for the Settings Updates section (CC12).
+export function readUpdaterState(): UpdaterState {
+  return readState();
+}
+
 // Count the migrations recorded in the live database. The updater uses the change in this count
 // across a pass to tell whether the update actually changed the database (a migration ran), which
 // decides whether a rollback must touch the database at all (CC12 checks 3, 4).
