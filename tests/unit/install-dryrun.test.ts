@@ -108,3 +108,43 @@ describe("install-mac.sh --dry-run (CC11: spaced path, PATH/logs, tunnel)", () =
     rmSync(home, { recursive: true, force: true });
   });
 });
+
+// CC12 check 8: every `npm ci` keeps dev dependencies, and the updater runs once a day at 3:00 AM
+// (StartCalendarInterval), not in a 5-minute loop.
+describe("install-mac.sh --dry-run (CC12: dev deps kept, daily 3 AM updater)", () => {
+  const script = path.join(process.cwd(), "scripts", "install-mac.sh");
+
+  function dryRun(home: string): string {
+    const configDir = path.join(home, "Library", "Application Support", "CommandCenter");
+    try {
+      return execFileSync("sh", [script, "--dry-run"], {
+        encoding: "utf8",
+        env: { ...process.env, HOME: home, CC_CONFIG_DIR: configDir },
+      });
+    } catch (e) {
+      const err = e as { status?: number; stdout?: string };
+      throw new Error(`installer exited ${err.status}: ${err.stdout}`);
+    }
+  }
+
+  it("runs npm ci with --include=dev and records the live version", () => {
+    const home = mkdtempSync(path.join(tmpdir(), "cc-home-"));
+    const out = dryRun(home);
+    expect(out).toContain("npm ci --include=dev");
+    expect(out).not.toMatch(/npm ci(?! --include=dev)/); // no bare `npm ci`
+    expect(out).toContain("npm run updater -- --record-live");
+    rmSync(home, { recursive: true, force: true });
+  });
+
+  it("schedules the updater once a day at 03:00 via StartCalendarInterval, not a 5-minute loop", () => {
+    const home = mkdtempSync(path.join(tmpdir(), "cc-home-"));
+    const out = dryRun(home);
+    // The updater plist must carry StartCalendarInterval Hour 3, Minute 0.
+    expect(out).toContain("<key>StartCalendarInterval</key>");
+    expect(out).toMatch(/<key>Hour<\/key><integer>3<\/integer>/);
+    expect(out).toMatch(/<key>Minute<\/key><integer>0<\/integer>/);
+    // The old 5-minute loop is gone: the updater command has no --loop.
+    expect(out).not.toContain("npm run updater -- --loop");
+    rmSync(home, { recursive: true, force: true });
+  });
+});
