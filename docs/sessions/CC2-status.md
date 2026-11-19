@@ -92,6 +92,13 @@ No real outside calls (use stubs). No real email, ever. Migrations land with the
   archive + restore, source_ref dedup, git backup (commitKanban + hourly), context + AGENTS.md
   generation, Eastern timestamps. typecheck 0; lint 0; unit 50/50 (kanban-reconciler 11/11 new).
 
+- Step 4: action layer (add/update/move/append_note/read/list + revert), pending notes
+  (create/suggest/confirm/dismiss), per-writer tokens (sha256 stored, issue/revoke/resolve), Duet
+  switch (off by default; Duet token refused when off), Claude/Duet limits (no done/discarded, no
+  board changes, body append-only) enforced in the action layer; source_ref dedup; POST /api/action
+  route (Bearer token, command dispatch, HTTP codes). typecheck 0; lint 0; unit 65/65
+  (kanban-actions 15/15 new).
+
 ## PICK UP HERE
 
-Step 4: action layer + tokens + limits + Duet switch.
+Step 5: UI — board, card panel, quick add, Problems, settings.

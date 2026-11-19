@@ -139,6 +139,7 @@ export function logCardChange(args: {
   run?: string | null;
   at: string;
   forceAction?: Action;
+  undoes?: string;
 }): LogEntry | null {
   const d = diff(args.beforeFields, args.card);
   if (args.beforeFields && d.changed.length === 0) return null;
@@ -152,6 +153,7 @@ export function logCardChange(args: {
   };
   if (args.beforeFields) entry.before = d.before;
   entry.after = d.after;
+  if (args.undoes) entry.undoes = args.undoes;
   return appendEntry(entry);
 }
 
