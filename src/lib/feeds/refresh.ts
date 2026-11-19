@@ -1,6 +1,9 @@
 import { nowEastern, todayEastern } from "../kanban/time";
 import { fetchWeather } from "./weather";
 import { fetchCalendarEvents } from "./calendars";
+import { gmailConnected } from "./gmail";
+import { pollIntake } from "./intake";
+import { awaitingReply } from "./awaiting";
 import {
   connectedFeeds,
   replaceEvents,
@@ -19,6 +22,7 @@ export type RefreshResult = {
   at: string;
   weather: { ok: boolean; detail: string };
   calendars: { ok: boolean; detail: string; count: number };
+  gmail: { ok: boolean; detail: string; notes: number; awaiting: number };
 };
 
 function message(e: unknown): string {
@@ -60,6 +64,26 @@ export async function runRefresh(): Promise<RefreshResult> {
     calendars = { ok: false, detail, count };
   }
 
+  // Gmail: pull notes from the intake mailbox and count flagged Awaiting-reply threads. Ordinary
+  // code, no AI. Nothing happens until Josh connects Gmail (handoff §7.3; done on the Mac mini).
+  let gmail: RefreshResult["gmail"];
+  try {
+    if (!gmailConnected()) {
+      setFeedState("gmail", "ok", "not connected", at);
+      gmail = { ok: true, detail: "not connected", notes: 0, awaiting: 0 };
+    } else {
+      const intake = pollIntake(at);
+      const awaiting = awaitingReply(new Date(at)).length;
+      const detail = `${awaiting} awaiting`;
+      setFeedState("gmail", "ok", detail, at);
+      gmail = { ok: true, detail, notes: intake.created.length, awaiting };
+    }
+  } catch (e) {
+    const detail = message(e);
+    setFeedState("gmail", "error", detail, at);
+    gmail = { ok: false, detail, notes: 0, awaiting: 0 };
+  }
+
   setLastRefreshAt(at);
-  return { at, weather, calendars };
+  return { at, weather, calendars, gmail };
 }

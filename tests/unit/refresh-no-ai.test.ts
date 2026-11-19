@@ -42,7 +42,18 @@ describe("refresh makes no Claude call (spec check 4)", () => {
   it("no file on the refresh path references an AI client", () => {
     // The files runRefresh actually touches (audit by what is called, not by name). status.ts is
     // excluded on purpose: it only labels the "Claude" live-feed row, it is not on this path.
-    const onPath = ["refresh.ts", "weather.ts", "calendars.ts", "store.ts", "mode.ts"];
+    const onPath = [
+      "refresh.ts",
+      "weather.ts",
+      "calendars.ts",
+      "store.ts",
+      "mode.ts",
+      // CC4 added Gmail intake and the Awaiting-reply rule to Refresh; they are no-AI too.
+      "gmail.ts",
+      "intake.ts",
+      "awaiting.ts",
+      "clients.ts",
+    ];
     for (const f of onPath) {
       const text = fs.readFileSync(path.join(FEEDS_DIR, f), "utf8");
       expect(scanForAi(text), `${f} must not reference an AI client`).toBe(false);

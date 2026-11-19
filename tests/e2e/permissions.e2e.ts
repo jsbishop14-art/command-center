@@ -14,13 +14,22 @@ test("signed-out requests to protected pages redirect to sign-in", async ({ base
   await ctx.dispose();
 });
 
-test("token routes that arrive in later builds are absent in CC1", async ({ baseURL }) => {
+test("phone-lookup routes are still absent until CC10", async ({ baseURL }) => {
   const ctx = await request.newContext({ baseURL });
-  // Shortcut token routes (handoff §8.7, CC10) and note intake (CC4) — not built yet.
-  for (const route of ["/api/phone/lookup", "/api/phone/mark", "/api/notes"]) {
+  // Phone lookup/mark routes arrive in CC10; their entry points must still be absent.
+  for (const route of ["/api/phone/lookup", "/api/phone/mark"]) {
     const res = await ctx.post(route, { data: {}, failOnStatusCode: false });
     expect(res.status(), `${route} should not exist yet`).toBe(404);
   }
+  await ctx.dispose();
+});
+
+// Inverted from CC1 (where /api/notes 404'd): CC4 builds the note intake route. It now exists and
+// refuses a request with no Shortcut token (401), rather than 404 (handoff §8.7, spec check 2).
+test("POST /api/notes exists in CC4 and refuses without a Shortcut token", async ({ baseURL }) => {
+  const ctx = await request.newContext({ baseURL });
+  const res = await ctx.post("/api/notes", { data: { text: "hi" }, failOnStatusCode: false });
+  expect(res.status()).toBe(401);
   await ctx.dispose();
 });
 

@@ -5,6 +5,9 @@ import ZipForm from "@/components/ZipForm";
 import { tokenStatus } from "@/lib/kanban/tokens";
 import { duetEnabled } from "@/lib/kanban/state";
 import { listFeeds, getZip } from "@/lib/feeds/store";
+import { gmailConnected, intakeAddress, nudgeTemplate } from "@/lib/feeds/gmail";
+import { shortcutTokenStatus } from "@/lib/shortcut";
+import InboxEmailPanel from "@/components/InboxEmailPanel";
 import { connectCalendarAction, disconnectCalendarAction } from "./feed-actions";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +18,7 @@ export default function SettingsPage() {
   const duetOn = duetEnabled();
   const feeds = listFeeds();
   const zip = getZip();
+  const shortcut = shortcutTokenStatus();
   return (
     <>
       <div className="card">
@@ -71,6 +75,22 @@ export default function SettingsPage() {
           ))}
           <ZipForm zip={zip} />
         </div>
+      </div>
+
+      <div className="card">
+        <h2>Inbox &amp; email</h2>
+        <p className="subtle" style={{ marginTop: 4 }}>
+          Connect Gmail for Awaiting reply and nudge drafts, set the address notes are emailed or
+          texted to, edit the nudge template, and issue the iPhone Shortcut token. The app never
+          sends email — nudges are Gmail drafts only.
+        </p>
+        <InboxEmailPanel
+          gmailConnected={gmailConnected()}
+          intakeAddress={intakeAddress()}
+          template={nudgeTemplate()}
+          shortcutIssued={shortcut.issued}
+          shortcutCreatedAt={shortcut.createdAt}
+        />
       </div>
 
       <div className="card">

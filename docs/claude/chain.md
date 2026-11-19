@@ -7,7 +7,7 @@
 | 1 | CC1 | cc1-foundation | docs/specs/CC1-BUILD-SPEC.md | 1, 1.1, 1.3, 7.4, 7.5 | Landed |
 | 2 | CC2 | cc2-kanban | docs/specs/CC2-BUILD-SPEC.md | 3.1, 3.2, 4, 5.4 | Landed |
 | 3 | CC3 | cc3-home | docs/specs/CC3-BUILD-SPEC.md | 2 (top bar, panels), 5.2, 7.3 | Landed |
-| 4 | CC4 | cc4-inbox-email | docs/specs/CC4-BUILD-SPEC.md | 2 (Inbox, Awaiting reply), 2.1, 4.4 | Queued |
+| 4 | CC4 | cc4-inbox-email | docs/specs/CC4-BUILD-SPEC.md | 2 (Inbox, Awaiting reply), 2.1, 4.4 | Landed |
 | 5 | CC5 | cc5-deals-contacts | docs/specs/CC5-BUILD-SPEC.md | 2 (Projects), 3.3, 3.4, 4.8 | Queued |
 | 6 | CC6 | cc6-ez-binder | docs/specs/CC6-BUILD-SPEC.md | 2 (money, schedule), 2.2, 7.2, 7.3 | Queued |
 | 7 | CC7 | cc7-sync | docs/specs/CC7-BUILD-SPEC.md | 5 | Queued |
@@ -77,14 +77,17 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
 - Weekly build budget limit (tokens), after the first week of real usage. Until set, usage is recorded with no hold.
 - Tunnel account for remote access (CC1 guide says which and how).
 - Installing Command Center on the Mac mini once, after CC1 lands (one command from CC1's guide).
-- Connecting Google (calendars, Gmail) after CC3 and CC4 land. CC3 landed the connect flow:
-  connect the three calendars in Settings → Home feeds (Josh completes the Google sign-in on the
-  Mac mini) and set the weather zip there if it is not 33472.
+- Connecting Google (calendars, Gmail) after CC3 and CC4 land. CC3 landed the calendar connect
+  flow; CC4 landed Gmail: connect the three calendars and Gmail in Settings (Josh completes the
+  Google sign-in on the Mac mini), set the weather zip if not 33472, and set the intake address
+  (see the next line and CC4-ASK-1).
 - Whether a standalone Calendar screen is wanted, and what it should show beyond the Home Today
   panel (CC3-ASK-1 in docs/sessions/CC3-status.md). No build phase assigns one; the menu item is a
   later-build placeholder until Josh decides.
-- Intake email address for notes (CC4).
-- EZ Binder: confirming S156 is live, and the API key (CC6).
+- Intake email address for notes: set it in Settings → Inbox & email on the Mac mini, and issue the
+  iPhone Shortcut token there (CC4-ASK-1 tables new vs alias; built configurable so either works).
+- EZ Binder: confirming S156 is live, and the API key (CC6). The Awaiting-reply 1-day rule uses a
+  stub active-job client list until CC6 wires EZ Binder /customers?has_active_job=true.
 - A GitHub token for the Builds screen (CC8).
 - Twilio, api.data.gov and FCC keys, plus 15 to 20 known numbers (before CC10 goes live).
 
@@ -117,3 +120,15 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   weather_readings, feed_state, idx_calendar_events_feed. New waits on Josh: connect the three
   Google calendars and set the weather zip in Settings → Home feeds; decide on a standalone
   Calendar screen (CC3-ASK-1).
+- CC4, 2026-11-19. Merge "[Merge] CC4 (note intake, Inbox, Awaiting reply, nudges)" into main. CI
+  green: run 44462137720, both jobs (Lint/types/build/unit: success; Browser tests: success). Spec
+  §4 checks pass — check 1 (no Gmail send; drafts only) by cc4-inbox-email unit + cc4-awaiting
+  browser; check 2 (Shortcut token refused on every other route) by cc4-inbox-email unit +
+  cc4-api-shortcut and permissions browser. Handoff §11 "Inbox and email" all pass (evidence in
+  docs/sessions/CC4-status.md): unit 86/86, browser 38/38. Branch was fast-forwardable onto main
+  (0 behind); the only commits after the CI-green commit (c971679) are docs (chain.md +
+  CC4-status.md), listed in the merge message, via: git merge --no-ff cc4-inbox-email. Migration
+  0004_inbox_email lands with the code; the Mac mini updater applies it (handoff §7.5) — expected
+  objects: awaiting_dismissed, intake_seen. New waits on Josh: connect Gmail and set the intake
+  address in Settings → Inbox & email, issue the iPhone Shortcut token, and build the note Shortcut
+  from docs/guides/iphone_note_shortcut.md; answer CC4-ASK-1 (new intake address vs alias).

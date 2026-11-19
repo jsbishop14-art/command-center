@@ -183,7 +183,38 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    id: "0004_inbox_email",
+    expects: [
+      { type: "table", name: "awaiting_dismissed" },
+      { type: "table", name: "intake_seen" },
+    ],
+    up: (db) => {
+      db.exec(`
+        -- Awaiting reply threads Josh has marked "No reply needed" (handoff §2, spec §1). Hiding is
+        -- per thread only, not future emails in it; a thread id stays here until it reappears with
+        -- new activity. Rule-based, no AI. Gmail threads themselves are never stored in the app.
+        CREATE TABLE awaiting_dismissed (
+          thread_id  TEXT PRIMARY KEY,
+          at         TEXT NOT NULL
+        );
+
+        -- Intake messages already turned into a pending note (handoff §4.4, §7.3). The intake poll
+        -- (email and text-to-email) is "on arrival"; this keeps a second poll over the same message
+        -- from creating a duplicate note. source_ref is the Gmail message id; note_id is the N-id.
+        CREATE TABLE intake_seen (
+          source_ref  TEXT PRIMARY KEY,
+          note_id     TEXT NOT NULL,
+          at          TEXT NOT NULL
+        );
+      `);
+    },
+  },
 ];
+
+// Other inbox/email settings (handoff §2, §2.1, §8.7) live in app_settings (migration 0002), a
+// key/value table: the Shortcut token hash, the intake address, the Gmail connect time and the
+// editable nudge template B. No new table is needed for them.
 
 // Apply any migrations not yet recorded in schema_migrations. Returns the ids applied.
 export function runMigrations(db: Database.Database): string[] {

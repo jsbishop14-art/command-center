@@ -9,7 +9,9 @@ import { addCard } from "../../src/lib/kanban/actions-layer";
 import { issueToken } from "../../src/lib/kanban/tokens";
 import { nowEastern, todayEastern } from "../../src/lib/kanban/time";
 import { connectFeed } from "../../src/lib/feeds/store";
+import { connectGmail, setIntakeAddress } from "../../src/lib/feeds/gmail";
 import { runRefresh } from "../../src/lib/feeds/refresh";
+import { issueShortcutToken } from "../../src/lib/shortcut";
 
 // Seed a fresh database AND kanban folder for the browser tests. The app (started by Playwright's
 // webServer) reads the same CC_DB_PATH and CC_KANBAN_DIR. Passwords match tests/e2e/util.ts.
@@ -54,9 +56,14 @@ export default async function globalSetup() {
   addCard("josh", { title: "Call ES rep about pool order", stage: "next", boards: ["josh"], area: "business", due: today }, { at });
   addCard("christine", { title: "Plan weekend groceries", stage: "in_progress", boards: ["christine"], area: "family" }, { at });
 
-  // CC3 feeds: connect the three calendars and run one Refresh so the Today panel and weather are
-  // populated on first load (spec checks 1-3). Stub feeds — no real outside call.
+  // CC3 feeds: connect the three calendars so the Today panel populates. Stub feeds — no real call.
   for (const slug of ["josh_work", "josh_personal", "christine"]) connectFeed(slug, at, "josh");
+
+  // CC4 feeds: connect Gmail and set the intake address so the Inbox and Awaiting reply panels
+  // populate on first load. The one Refresh below polls the intake mailbox (stub) into pending
+  // notes and loads the Awaiting-reply threads (stub). No real outside call, no real email.
+  connectGmail(at);
+  setIntakeAddress("josh+notes@worthprop.com");
   await runRefresh();
 
   // Issue action-layer tokens for the route tests; write the plaintext to a file the tests read.
@@ -64,7 +71,11 @@ export default async function globalSetup() {
   // created by the steps above — make it here before writing.
   const artifactsDir = path.resolve(".e2e");
   mkdirSync(artifactsDir, { recursive: true });
-  const tokens = { claude: issueToken("claude", at), duet: issueToken("duet", at) };
+  const tokens = {
+    claude: issueToken("claude", at),
+    duet: issueToken("duet", at),
+    shortcut: issueShortcutToken(at),
+  };
   writeFileSync(path.join(artifactsDir, "tokens.json"), JSON.stringify(tokens));
 
   // eslint-disable-next-line no-console
