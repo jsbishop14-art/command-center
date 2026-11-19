@@ -534,6 +534,101 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    id: "0009_phone_lookup",
+    expects: [
+      { type: "table", name: "ftc_counts" },
+      { type: "table", name: "ftc_sync_state" },
+      { type: "table", name: "twilio_cache" },
+      { type: "table", name: "phone_lookups" },
+      { type: "table", name: "phone_marks" },
+      { type: "index", name: "idx_ftc_counts_phone" },
+      { type: "index", name: "idx_phone_lookups_phone" },
+      { type: "index", name: "idx_phone_lookups_created" },
+    ],
+    up: (db) => {
+      db.exec(`
+        -- Phone lookup (handoff §8). No AI anywhere in this feature. Every outside source — Twilio
+        -- Lookup v2, the FTC Do Not Call API and the FCC open-data API — is stubbed in CI, build
+        -- sessions and local dev (spec §6, CLAUDE §3); the live path runs only on the Mac mini with
+        -- CC_LIVE_PHONE=1 and the three keys set, and is never exercised by tests.
+
+        -- FTC Do Not Call complaints, stored as aggregates, never raw (handoff §8.3, §8.5): one row
+        -- per number per month. The FTC API cannot filter by number, so complaints are ingested into
+        -- here and queried locally. phone is the bare 10 digits; month is the first of the month
+        -- (YYYY-MM-01). complaints and robocalls are the monthly totals; last_seen is the most recent
+        -- complaint date that month; top_subject is the most common subject that month.
+        CREATE TABLE ftc_counts (
+          phone        TEXT NOT NULL,        -- 10 digits
+          month        TEXT NOT NULL,        -- YYYY-MM-01
+          complaints   INTEGER NOT NULL DEFAULT 0,
+          robocalls    INTEGER NOT NULL DEFAULT 0,
+          last_seen    TEXT,                 -- YYYY-MM-DD
+          top_subject  TEXT NOT NULL DEFAULT '',
+          PRIMARY KEY (phone, month)
+        );
+        CREATE INDEX idx_ftc_counts_phone ON ftc_counts(phone);
+
+        -- A single row (id = 1) tracking the FTC ingest (handoff §8.3). synced_through is the last
+        -- day the daily ingest has fully pulled. The 12-month backfill walks backwards from
+        -- backfill_cursor (the next day to pull, newest-first) down to backfill_target (today minus
+        -- 12 months); it saves the cursor after every page, so a restart resumes where it stopped.
+        -- backfill_done flips to 1 once the cursor passes the target.
+        CREATE TABLE ftc_sync_state (
+          id               INTEGER PRIMARY KEY CHECK (id = 1),
+          synced_through   TEXT,             -- YYYY-MM-DD, last fully-synced day (daily ingest)
+          backfill_cursor  TEXT,             -- YYYY-MM-DD, next day to backfill (newest-first)
+          backfill_target  TEXT,             -- YYYY-MM-DD, earliest day the backfill will reach
+          backfill_done    INTEGER NOT NULL DEFAULT 0,
+          updated_at       TEXT
+        );
+
+        -- Twilio Lookup v2 cache (handoff §8.3): one row per number, kept 30 days. A lookup within 30
+        -- days reads here and makes no paid Twilio call (spec §3); Refresh forces a new call and
+        -- overwrites the row. caller_type is BUSINESS / CONSUMER (or empty); line_type is Twilio's
+        -- raw value (mobile, landline, fixedVoip, nonFixedVoip, tollFree, …).
+        CREATE TABLE twilio_cache (
+          phone        TEXT PRIMARY KEY,     -- 10 digits
+          caller_name  TEXT NOT NULL DEFAULT '',
+          caller_type  TEXT NOT NULL DEFAULT '',
+          line_type    TEXT NOT NULL DEFAULT '',
+          carrier      TEXT NOT NULL DEFAULT '',
+          fetched_at   TEXT NOT NULL
+        );
+
+        -- Lookup history (handoff §8.5, §8.6): 90 days, then the daily job deletes older rows. source
+        -- is 'desktop' or 'shortcut'; user is the login it is attributed to ('josh' / 'christine').
+        -- reasons is the JSON list of plain-words reasons; detail is a JSON snapshot of the Twilio,
+        -- FTC and FCC data as shown, so re-opening a row from history re-renders the card without a
+        -- new lookup. verdict/score are as scored at lookup time; a later mark overrides the verdict
+        -- on display (handoff §8.4).
+        CREATE TABLE phone_lookups (
+          id          INTEGER PRIMARY KEY,
+          phone       TEXT NOT NULL,         -- 10 digits
+          verdict     TEXT NOT NULL,         -- 'telemarketer' | 'unclear' | 'real'
+          score       INTEGER NOT NULL,
+          reasons     TEXT NOT NULL DEFAULT '[]',
+          detail      TEXT NOT NULL DEFAULT '{}',
+          source      TEXT NOT NULL CHECK (source IN ('desktop', 'shortcut')),
+          user        TEXT NOT NULL,         -- 'josh' | 'christine'
+          created_at  TEXT NOT NULL
+        );
+        CREATE INDEX idx_phone_lookups_phone ON phone_lookups(phone);
+        CREATE INDEX idx_phone_lookups_created ON phone_lookups(created_at);
+
+        -- Shared spam/real marks (handoff §8.4, §8.6): one active mark per number, visible to both
+        -- Josh and Christine. A mark sets the verdict on every future lookup until removed (the row
+        -- is deleted). user is who set it; it shows as "Marked spam by Josh".
+        CREATE TABLE phone_marks (
+          phone       TEXT PRIMARY KEY,      -- 10 digits
+          label       TEXT NOT NULL CHECK (label IN ('spam', 'real')),
+          note        TEXT NOT NULL DEFAULT '',
+          user        TEXT NOT NULL,         -- 'josh' | 'christine'
+          created_at  TEXT NOT NULL
+        );
+      `);
+    },
+  },
 ];
 
 // Other inbox/email settings (handoff §2, §2.1, §8.7) live in app_settings (migration 0002), a
