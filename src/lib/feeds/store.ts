@@ -69,6 +69,13 @@ export function disconnectFeed(slug: string): void {
   getDb().prepare("DELETE FROM calendar_events WHERE feed = ?").run(slug);
 }
 
+// Mark a calendar connected without touching its token (the OAuth callback stores the token bundle
+// separately, in the secret store, via the Google client). Used by the CC11 connect flow.
+export function setFeedConnectedAt(slug: string, at: string): void {
+  if (!getFeed(slug)) throw new Error(`unknown calendar ${slug}`);
+  getDb().prepare("UPDATE calendar_feeds SET connected_at = ? WHERE slug = ?").run(at, slug);
+}
+
 export function feedToken(slug: string): string | null {
   return getSecret(calendarTokenName(slug));
 }

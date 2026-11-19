@@ -2,6 +2,7 @@ import { nowEastern, todayEastern } from "../kanban/time";
 import { fetchWeather } from "./weather";
 import { fetchCalendarEvents } from "./calendars";
 import { gmailConnected } from "./gmail";
+import { prefetchGmailLive } from "./google";
 import { pollIntake } from "./intake";
 import { awaitingReply } from "./awaiting";
 import { ezbSync } from "../ezbinder/sync";
@@ -75,6 +76,9 @@ export async function runRefresh(): Promise<RefreshResult> {
       setFeedState("gmail", "ok", "not connected", at);
       gmail = { ok: true, detail: "not connected", notes: 0, awaiting: 0 };
     } else {
+      // On the live path pull Gmail (threads, intake) into the client caches before reading them;
+      // a no-op in CI / build sessions where the Google transport is the stub.
+      await prefetchGmailLive(new Date(at));
       const intake = pollIntake(at);
       const awaiting = awaitingReply(new Date(at)).length;
       const detail = `${awaiting} awaiting`;

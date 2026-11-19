@@ -629,6 +629,45 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    id: "0010_google_oauth",
+    expects: [
+      { type: "table", name: "google_oauth_pending" },
+      { type: "table", name: "feed_problems" },
+    ],
+    up: (db) => {
+      db.exec(`
+        -- Real Google sign-in (CC11 spec §1, §3, handoff §7.3). The OAuth flow, token refresh and
+        -- the Calendar/Gmail API calls run only on the live path (CC_LIVE_FEEDS=1 with the Google
+        -- client id and secret set). In CI, build sessions and local dev the transport is a stub
+        -- Google that issues tokens, refreshes them and returns events, threads and messages — no
+        -- real Google call is ever made there (spec §3, CLAUDE §3). Tokens and the client secret
+        -- live only in the secret store, never here.
+
+        -- In-flight OAuth state (CSRF): one row per "Connect" click, deleted when the callback
+        -- consumes it. state is the opaque value sent to Google and echoed back; target is what is
+        -- being connected (cal:<slug> | gmail | intake); by is the login that started it; a stale
+        -- row (never completed) is harmless and cleaned up on the next consume for the same target.
+        CREATE TABLE google_oauth_pending (
+          state       TEXT PRIMARY KEY,
+          target      TEXT NOT NULL,
+          by          TEXT NOT NULL,
+          created_at  TEXT NOT NULL
+        );
+
+        -- A connection that expired or was revoked (spec §1, check 2). Instead of failing quietly,
+        -- the feed that could not refresh its token raises a row here; the Problems screen shows it
+        -- with a Reconnect button. Cleared when the connection is restored or disconnected. target
+        -- matches google_oauth_pending.target; label is the human name shown ("Gmail", a calendar).
+        CREATE TABLE feed_problems (
+          target      TEXT PRIMARY KEY,
+          label       TEXT NOT NULL,
+          reason      TEXT NOT NULL,
+          at          TEXT NOT NULL
+        );
+      `);
+    },
+  },
 ];
 
 // Other inbox/email settings (handoff §2, §2.1, §8.7) live in app_settings (migration 0002), a
