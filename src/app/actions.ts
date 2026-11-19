@@ -1,26 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { signIn, signOut } from "@/lib/auth";
+import { signOut, currentUser } from "@/lib/auth";
 import { setBoard, isBoard } from "@/lib/prefs";
-import { currentUser } from "@/lib/auth";
 import { setSecret } from "@/lib/secrets";
 import { revalidatePath } from "next/cache";
-
-export type SignInState = { error?: string };
-
-export async function signInAction(_prev: SignInState, formData: FormData): Promise<SignInState> {
-  const username = String(formData.get("username") || "").trim().toLowerCase();
-  const password = String(formData.get("password") || "");
-  if (!username || !password) {
-    return { error: "Enter your username and password." };
-  }
-  const user = signIn(username, password);
-  if (!user) {
-    return { error: "That username or password is not right." };
-  }
-  redirect("/home");
-}
 
 export async function signOutAction(): Promise<void> {
   signOut();
