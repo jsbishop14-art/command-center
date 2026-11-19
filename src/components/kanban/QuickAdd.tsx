@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useFormState, useFormStatus } from "react-dom";
 import { quickAddAction, type ActionResult } from "@/app/(app)/kanban/actions";
+import { lookupAction } from "@/app/(app)/phone/actions";
+import { looksLikePhone } from "@/lib/phone/normalize";
 
 const initial: ActionResult = { ok: false };
 
@@ -21,9 +23,13 @@ function AddButton() {
 export default function QuickAdd() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [title, setTitle] = useState("");
   const [state, formAction] = useFormState(quickAddAction, initial);
   const inputRef = useRef<HTMLInputElement>(null);
   const wasOpen = useRef(false);
+
+  // Quick add recognizes a pasted phone number and offers to look it up (handoff §8.2, spec §1).
+  const phoneCandidate = looksLikePhone(title);
 
   // Only render the portal after mount (document.body exists on the client).
   useEffect(() => setMounted(true), []);
@@ -72,7 +78,15 @@ export default function QuickAdd() {
                 <form action={formAction} className="qa-form">
                   <label className="field">
                     Title
-                    <input ref={inputRef} type="text" name="title" aria-label="Card title" required />
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      name="title"
+                      aria-label="Card title"
+                      required
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
                   </label>
                   <label className="field">
                     Area
@@ -94,6 +108,15 @@ export default function QuickAdd() {
                     <AddButton />
                   </div>
                 </form>
+                {phoneCandidate ? (
+                  <form action={lookupAction} className="qa-phone-offer" data-testid="qa-lookup-offer">
+                    <span className="subtle">Looks like a phone number.</span>
+                    <input type="hidden" name="phone" value={title} />
+                    <button className="btn ghost" type="submit" data-testid="qa-lookup">
+                      Look up number
+                    </button>
+                  </form>
+                ) : null}
               </div>
             </div>,
             document.body,
