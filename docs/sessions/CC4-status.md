@@ -41,8 +41,23 @@ Run prompt (verbatim):
 
 ## PICK UP HERE
 
+LANDED 2026-11-19. CC4 is complete and merged to main. Nothing more to do in this session; the Mac
+mini updater deploys and smoke-checks after the merge (handoff §7.4). See "Landing" below.
+
 Step 0 done: branch cc4-inbox-email created from origin/main; CC4 spec brought from
 origin/docs/next-builds; this status file written. Building per the plan below.
+
+## Landing
+
+- CI green: run 44462137720, both jobs (Lint/types/build/unit: success; Browser tests: success).
+- Branch fast-forwardable onto main (0 behind). After the CI-green commit c971679 the only commits
+  are docs (chain.md + CC4-status.md), listed in the merge message, via git merge --no-ff.
+- Merge into main with a message starting "[Merge] CC4 (". Landing recorded in chain.md.
+- Migration 0004_inbox_email lands with the code; the Mac mini updater applies it — expected
+  objects: awaiting_dismissed, intake_seen.
+- Waits on Josh (also in chain.md): connect Gmail and set the intake address in Settings → Inbox &
+  email, issue the iPhone Shortcut token, build the note Shortcut from
+  docs/guides/iphone_note_shortcut.md, and answer CC4-ASK-1 below.
 
 ## Plan (spec §2 scope)
 
