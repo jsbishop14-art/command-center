@@ -57,3 +57,19 @@ export function restoreBuild(ops: BuildOps, repo: string): void {
   if (ops.exists(live)) ops.rm(live);
   ops.rename(prev, live);
 }
+
+export type GitRunner = (args: string[]) => string;
+
+// Leave the repo on the `main` branch at the previous merge after a rollback — never a detached
+// HEAD (CC12 check 6, fixing the 2026-11-19 failure where `git checkout --force <sha>` left the repo
+// detached and blocked the next update). The next pass does `git checkout main` + `pull --ff-only`,
+// which now fast-forwards cleanly. Pure over an injected git runner so it can be tested against a
+// real temporary repo without the rest of the updater.
+export function recoverToMain(git: GitRunner, prevSha: string): void {
+  try {
+    git(["checkout", "main"]);
+  } catch {
+    // `main` is missing (unexpected); the reset below still repositions the current branch.
+  }
+  git(["reset", "--hard", prevSha]);
+}
