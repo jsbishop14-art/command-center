@@ -57,7 +57,23 @@ Step 1 done: branch cc7-sync created from origin/main; CC7 spec brought from ori
 - "Dashboard tokens this week" = rolling 7-day sum of Sync run tokens (deterministic for tests). Weekly plan % is an estimate against app_setting ai_weekly_plan_tokens; unset shows "—" (Max plan has no hard cap, §5.6). Josh can set the figure later (see Questions — not a blocker).
 - Single Revert follows §5.4 (asks when the card/deal changed again); Revert all forces, undoing the whole run in reverse order and logging each.
 
-## Checks (spec §4 + handoff §11 "AI usage") — filled at the CI run
+## Checks (spec §4 + handoff §11 "AI usage")
+
+Evidence local: unit 139/139, browser 52/52 (CC7 adds unit 18, browser 2). CI run recorded at landing.
+
+Handoff §11 "AI usage":
+1. Nothing calls Claude except the Sync button — cc7-sync unit static scan "only the sync module references the Claude client" (no file outside src/lib/sync imports claude.ts); "the Sync engine starts no timer" (no setInterval/setTimeout/cron in engine.ts); refresh-no-ai unit still green (Refresh imports no Claude client).
+2. Unchecked Sync items do not run; an item with nothing new is skipped without a Claude call — cc7-sync unit "an unchecked item does not run" and "an item with nothing new is skipped without a Claude usage row" (skipped item gets no sync_run_items row, totalTokens 0; the engine decides emptiness in ordinary code before any client call).
+3. Refresh makes no Claude call — refresh-no-ai unit (unchanged; runRefresh imports no Claude/sync client).
+4. Revert restores a Claude/Duet change and is logged; Revert all undoes a whole Sync run — cc7-sync unit "Revert all undoes every change from a run and is logged" (spec check 1: every change reverted_at set; kanban cards discarded, schedule proposals rejected, inbox suggestions cleared; a josh-actor log line exists), "a single Revert of a schedule proposal withdraws it", "reverting a Sync kanban add discards the card as the reverter"; cc7-sync browser (Josh reverts one change then Revert all; Christine Revert all withdraws proposals).
+5. Claude and Duet cannot move a card to Done/discarded, change boards or rewrite a body unless Josh asks in a chat — cc7-sync unit "Kanban adds respect the Claude limits" (added cards never done/discarded; actor claude); existing kanban-tokens browser + permissions unit still green (enforceLimits unchanged).
+6. With the Duet switch off, Duet's token is refused — existing kanban-tokens/cc5-api-deal browser + permissions unit (unchanged by CC7).
+
+Spec §4:
+1. Revert all undoes every change from one run, and is logged — cc7-sync unit (above) + browser.
+2. A Sync run's usage line matches the run's own usage report — cc7-sync unit "a run's usage line equals the sum of its per-item usage" (run.totalTokens == Σ sync_run_items.tokens == getRun().totalTokens) and "the dashboard-this-week and last-run tiles reflect the run".
+
+Each login reaches Sync from the top bar (no direct URL) — cc7-sync browser (josh + christine open the dialog by clicking the top-bar button). The 30-day usage panel shows on the popup — cc7-sync browser (sync-usage-chart visible for both logins).
 
 ## Questions
 (none blocking landing)
