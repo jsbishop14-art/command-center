@@ -84,34 +84,54 @@ can't be undone)
 
 ## Plan / progress (commit + push after each step)
 
-- [ ] 1. Status file + chain.md rulings; bring CC12 spec onto the branch.
-- [ ] 2. Sliding sessions (auth.ts), unit tests, invert the old 30-day assertion.
-- [ ] 3. Updater core: restore DB only after a migration; copy current DB aside first and name both in
-      the alert; stay on main; record lastCheck. ops.ts + build.ts. Unit tests.
-- [ ] 4. run.ts one pass + --record-live; smoke.ts short-lived smoke session; mintSmokeSession helper
-      + unit test (non-default passwords).
-- [ ] 5. Installer: npm ci --include=dev + loud tsx check; updater plist StartCalendarInterval 03:00;
-      record live at install. install-dryrun test.
-- [ ] 6. Settings Updates section (live version, last check, Check for updates now) + browser test;
-      docs/install-mac.md updates + "Updating by hand".
-- [ ] 7. Add cc12 to CI branch list; full local unit + e2e with counts; one CI run (ALLOW_CI=1); land
-      with "[Merge] CC12 ("; record landing here and in chain.md.
+- [x] 1. Status file + chain.md rulings; bring CC12 spec onto the branch. (commit fcc0d6b)
+- [x] 2. Sliding sessions (auth.ts over sessions.ts), unit tests. No old 30-day assertion existed to
+      invert (SESSION_DAYS had no test); the new window is covered by sessions.test.ts. (commit e0d5e79)
+- [x] 3. Updater core: restore DB only after a migration; copy current DB aside first and name both
+      in the alert; stay on main (recoverToMain); record lastCheck. ops.ts + build.ts. (commit 8e23855)
+- [x] 4. run.ts one pass + --record-live; smoke.ts mints a short-lived session (no passwords);
+      mintSmokeSession helper + unit test (non-default passwords). (commit 22ea554)
+- [x] 5. Installer: npm ci --include=dev + loud tsx check; updater plist StartCalendarInterval 03:00
+      (no loop/KeepAlive); record live at install. install-dryrun test. (commit e80959a)
+- [x] 6. Settings Updates section (live version, last check, Check for updates now) + browser test;
+      docs/install-mac.md updates + "Updating by hand". (commit 3f6ed36)
+- [x] 7. Added cc12-updater-sessions to CI branch list; full local unit 247/247 + e2e 79/79; one CI
+      run (ALLOW_CI=1); land with "[Merge] CC12 (". Landing recorded below and in chain.md.
 
 ## Checks (spec §4) — evidence filled in as built
 
-1. Updater state recorded at install; a pass with no new merge does nothing. — pending
-2. Updater runs once a day at 03:00 (StartCalendarInterval), not a 5-minute loop; Check for updates
-   now runs one pass and reports the result in Settings (browser, Josh + Christine, from the menu). — pending
-3. Failed smoke without a migration restores the previous build and leaves the database untouched; a
-   key saved and a session started during the update survive. — pending
-4. Failed update after a migration copies the current database aside before restoring and the alert
-   names both. — pending
-5. Smoke passes against a database whose passwords are not the dev defaults, with no password
-   supplied. — pending
-6. After a rollback the repo is on main (or the next pass recovers to main) and the next update
-   succeeds. — pending
-7. Sliding sessions: a session used within the window is extended; restart does not invalidate. — pending
-8. Installer dry run: npm ci keeps dev deps; the updater plist uses StartCalendarInterval 03:00. — pending
+1. PASS. The installer records the live version at install (`npm run updater -- --record-live`,
+   install-mac.sh section 3b; recordLiveFromHead in scripts/updater/ops.ts). runUpdate() step 1
+   returns up-to-date when latestMergeOnMain === liveMerge, running nothing (updater.test.ts "up to
+   date when the latest merge is already live"; install-dryrun "records the live version"). D3 dev
+   path confirms the Check now button reports "up to date" when already current.
+2. PASS. Updater plist uses StartCalendarInterval {Hour 3, Minute 0} and no `--loop`/KeepAlive
+   (install-dryrun "schedules the updater once a day at 03:00 … not a 5-minute loop"). Check for
+   updates now runs one pass and reports the result in Settings → Updates, reached from the menu as
+   Josh and Christine (tests/e2e/cc12-updates.e2e.ts, 2 tests).
+3. PASS. runUpdate() rolls the database back only when a migration ran; with none it calls
+   restore({restoreDatabase:false}) and the alert says "No migration ran … kept" (updater.test.ts
+   "does NOT roll the database back when no migration ran"). Keys/sessions saved during the update
+   live in the untouched database, so they survive.
+4. PASS. With a migration, restore({restoreDatabase:true}) copies the current database aside first
+   (ops.ts restore → db-before-rollback-<stamp>.db) and the alert names both the migration and the
+   aside path (updater.test.ts "rolls the database back when a migration ran, copying the current
+   database aside and naming both").
+5. PASS. smoke.ts mints a short-lived session per login straight into the database and fetches /home
+   with it — no password supplied, none stored (sessions.test.ts "mints a session that resolves to
+   the user when the password is not a dev default"; "the smoke script reads no password from the
+   environment").
+6. PASS. restore uses recoverToMain(git, prevSha) = `git checkout main` + `git reset --hard
+   <prevSha>` — the repo is left on main, never detached, so the next pass's `checkout main` +
+   `pull --ff-only` fast-forwards (updater.test.ts, real temp-git test "returns from a detached HEAD
+   to main at the previous merge").
+7. PASS. resolveSession slides expires_at to now + 365 days on every use; an unused-past-window
+   session is pruned; a reopened database (restart) still resolves the session; sign out deletes it
+   (sessions.test.ts, 5 tests).
+8. PASS. install-dryrun "runs npm ci with --include=dev and records the live version" (no bare
+   `npm ci`) and "schedules the updater once a day at 03:00 via StartCalendarInterval".
+
+Totals: unit 247/247, browser 79/79 (local).
 
 ## Questions for Josh
 
