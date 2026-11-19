@@ -7,8 +7,10 @@ import {
   createSession,
   resolveSession,
   deleteSession,
+  mintSmokeSession,
   SESSION_WINDOW_DAYS,
 } from "../../src/lib/sessions";
+import { readFileSync } from "node:fs";
 
 // CC12 spec §1 "Stay signed in", check 7: sessions slide forward on use so Josh and Christine stay
 // signed in; a restart does not invalidate a session; sign out still works. The window is long
@@ -92,5 +94,30 @@ describe("sliding sessions", () => {
     const { token } = createSession(db, userId, new Date("2026-01-01T00:00:00.000Z"));
     deleteSession(db, token);
     expect(resolveSession(db, token)).toBeNull();
+  });
+});
+
+// CC12 check 5: the smoke check proves both logins reach Home against a database whose passwords are
+// NOT the dev defaults, with no password supplied. A minted smoke session resolves to the user; no
+// password is read or needed.
+describe("smoke session (reach Home without a password)", () => {
+  it("mints a session that resolves to the user when the password is not a dev default", () => {
+    const sdb = freshDb();
+    const uid = createUser({
+      username: "christine",
+      display_name: "Christine",
+      role: "christine",
+      password: "a-password-the-updater-does-not-know-12345",
+    });
+    const { token } = mintSmokeSession(sdb, uid);
+    const resolved = resolveSession(sdb, token);
+    expect(resolved?.userId).toBe(uid);
+  });
+
+  it("the smoke script reads no password from the environment", () => {
+    const src = readFileSync("scripts/smoke.ts", "utf8");
+    // It may mention the old password vars in the comment explaining the fix, but it must not read
+    // any *_PASSWORD from the environment.
+    expect(src).not.toMatch(/process\.env\.[A-Za-z_]*PASSWORD/);
   });
 });

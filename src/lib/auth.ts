@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import { getDb } from "./db";
 import { authenticate, getUserById, type User } from "./users";
 import { createSession, resolveSession, deleteSession, SESSION_WINDOW_DAYS } from "./sessions";
+import { SESSION_COOKIE } from "./auth-cookie";
 
-export const SESSION_COOKIE = "cc_session";
-export { SESSION_WINDOW_DAYS };
+export { SESSION_COOKIE, SESSION_WINDOW_DAYS };
 
 function cookieOptions(expires: Date) {
   return {

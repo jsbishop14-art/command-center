@@ -62,3 +62,26 @@ export function resolveSession(
 export function deleteSession(db: Database.Database, token: string): void {
   db.prepare("DELETE FROM sessions WHERE id = ?").run(hashToken(token));
 }
+
+// Mint a short-lived session for the updater's smoke check (CC12 check 5). This proves a login can
+// reach Home WITHOUT knowing the password — the updater has the database, not the passwords, so it
+// mints a session straight into it, fetches /home with it, then deletes the row (smoke.ts). No
+// password is read and none is stored anywhere new. ttl is short because the row is removed right
+// after the check; a leftover row (if the check crashes) lapses on its own.
+export function mintSmokeSession(
+  db: Database.Database,
+  userId: number,
+  now: Date = new Date(),
+  ttlMs = 60_000,
+): { token: string } {
+  const token = newSessionToken();
+  const id = hashToken(token);
+  const expires = new Date(now.getTime() + ttlMs);
+  db.prepare("INSERT INTO sessions (id, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)").run(
+    id,
+    userId,
+    now.toISOString(),
+    expires.toISOString(),
+  );
+  return { token };
+}
