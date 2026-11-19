@@ -4,7 +4,7 @@
 
 | # | Name | Branch | Spec | Handoff sections | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | CC1 | cc1-foundation | docs/specs/CC1-BUILD-SPEC.md | 1, 1.1, 1.3, 7.4, 7.5 | Queued |
+| 1 | CC1 | cc1-foundation | docs/specs/CC1-BUILD-SPEC.md | 1, 1.1, 1.3, 7.4, 7.5 | Landed |
 | 2 | CC2 | cc2-kanban | docs/specs/CC2-BUILD-SPEC.md | 3.1, 3.2, 4, 5.4 | Queued |
 | 3 | CC3 | cc3-home | docs/specs/CC3-BUILD-SPEC.md | 2 (top bar, panels), 5.2, 7.3 | Queued |
 | 4 | CC4 | cc4-inbox-email | docs/specs/CC4-BUILD-SPEC.md | 2 (Inbox, Awaiting reply), 2.1, 4.4 | Queued |
@@ -85,4 +85,9 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
 
 ## Landings
 
-(none yet)
+- CC1, 2026-11-19. Merge 709b076 "[Merge] CC1 (foundation, logins, Mac mini updater)" into main.
+  CI green: run 44449650659, both jobs (unit, e2e). Spec §4 checks 1-7 all pass — checks 1-3 by browser
+  tests (9/9), checks 4-7 by unit tests (23/23). Branch was fast-forwardable onto main b2080a4; no
+  migrations on production (handoff 7.5: the Mac mini updater applies them). Deploy and smoke after merge
+  are the Mac mini updater's job (handoff 7.4). Waits on Josh: install Command Center on the Mac mini once
+  (docs/install-mac.md), and the Cloudflare tunnel account step in that guide.

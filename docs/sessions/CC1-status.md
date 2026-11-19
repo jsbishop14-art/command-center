@@ -90,8 +90,35 @@ the Mac mini updater (handoff 7.4) applies them.
 - Step 6 (this step): tests + CI. unit 23/23; browser 9/9 (checks 1,2,3 + route permission map + health).
   Local CI sequence each read on its own line: LINT=0 TYPECHECK=0 GENTYPES=0 TYPES_IN_SYNC=0 BUILD=0 UNIT=0.
 
+## Landing
+
+CC1 landed 2026-11-19.
+
+- Merge commit 709b076 on main, message starts "[Merge] CC1 (foundation, logins, Mac mini updater)".
+- One deliberate CI run: 44449650659, conclusion success — job "Lint, types, build, unit tests": success;
+  job "Browser tests": success. (Budget used: 1 of 1 + 2 + 2.)
+- Landing rule (CLAUDE §3 / handoff 7.5): (1) CI green on the branch, which was fast-forwardable onto
+  current main b2080a4 — met. (2) Every agreed check passed with its number:
+  - Check 1 — each login signs in and reaches Home and Settings from the menus: PASS (e2e check1, josh +
+    christine, + "Coming in a later build" on a not-built item).
+  - Check 2 — wrong password refused; signed-out reach nothing but sign-in: PASS (e2e check2).
+  - Check 3 — board toggle survives a restart, per user: PASS (e2e check3).
+  - Check 4 — a written secret appears in no log line: PASS (unit secret-no-log; also masked, ciphertext).
+  - Check 5 — updater backs up/applies/smoke-checks; a failing smoke restores prior version + database and
+    records the alert: PASS (unit updater, 6 cases incl. apply/read-back/smoke rollback).
+  - Check 6 — install script dry-run tested in CI: PASS (unit install-dryrun; changes nothing, exit 0).
+  - Check 7 — pre-push hook refuses a push without [skip ci] unless ALLOW_CI=1: PASS (unit prepush-hook,
+    temporary repo).
+  - Migrations: handoff 7.5 removes landing condition 3; migrations land with the code and the Mac mini
+    updater applies them.
+- After merge: deploy and smoke are the Mac mini updater's job (handoff 7.4), not this build session.
+
+## Waits on Josh
+
+- Install Command Center on the Mac mini once: `cd command-center && sh scripts/install-mac.sh`
+  (docs/install-mac.md). It sets Josh's and Christine's passwords and starts the app + updater.
+- The one account step for remote access: the Cloudflare tunnel, steps in docs/install-mac.md.
+
 ## PICK UP HERE
 
-Tests and CI are committed with [skip ci]. Next: do the ONE deliberate CI run (push with ALLOW_CI=1), then
-land per the landing rule (merge message starts "[Merge] CC1 ("), record the landing in chain.md and here,
-and STOP.
+CC1 is landed. Nothing more to do for CC1. STOP (do not start CC2).
