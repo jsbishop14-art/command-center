@@ -150,6 +150,27 @@ export function suggestNote(
   return note;
 }
 
+// Restore a pending note's suggestion fields to the given prior state (handoff §5.4 Revert of a
+// Sort-Inbox suggestion). Writes the fields verbatim — including a null suggested_at to undo a
+// suggestion entirely — and logs a note_suggested line for the actor who reverted. Throws if the
+// note no longer exists (it was confirmed or dismissed since).
+export function restoreNoteSuggestion(
+  noteId: string,
+  prior: { project: string | null; boards: Board[]; suggested_at: string | null; suggested_by: Actor | null },
+  actor: Actor,
+  at: string = nowEastern(),
+): PendingNote {
+  const note = readPending(noteId);
+  if (!note) throw new Error(`pending note ${noteId} not found`);
+  note.suggested_project = prior.project;
+  note.boards = prior.boards.length ? prior.boards : (["josh"] as Board[]);
+  note.suggested_at = prior.suggested_at;
+  note.suggested_by = prior.suggested_by;
+  atomicWrite(pendingFile(noteId), serializePending(note));
+  appendEntry({ at, actor, card: noteId, action: "note_suggested" });
+  return note;
+}
+
 // Confirm a pending note into a card (handoff §4.4): create a card in cards/ at stage inbox, move
 // attachments to the card's folder, log confirm_note, then delete the pending file. Josh picks the
 // project and boards before confirming (Change).

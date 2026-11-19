@@ -95,6 +95,14 @@ export async function postProposal(req: ProposalRequest): Promise<ProposalReceip
   });
 }
 
+// Withdraw a still-pending proposal (handoff §5.4: "A reverted schedule proposal is withdrawn in EZ
+// Binder if it is still pending"). The stub makes no call; the live path asks S156 to withdraw the
+// reference it returned on the 202. The actor stays the proposer (josh, rule or claude).
+export async function postWithdraw(ref: string, actor: string): Promise<void> {
+  if (!liveMode()) return;
+  await live<unknown>("POST", `/schedule/proposals/${encodeURIComponent(ref)}/withdraw`, actor);
+}
+
 // The dashboard reads EZ Binder's as_of in stub mode as the current instant (ISO). Kept here so the
 // stub does not depend on kanban/time directly in its signature.
 function nowStamp(): string {
