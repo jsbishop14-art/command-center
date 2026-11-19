@@ -18,6 +18,25 @@ export interface AwaitingDismissed {
   at: string;
 }
 
+export interface BuildsCommits {
+  id: number;
+  repo: string;
+  branch: string;
+  sha: string;
+  message: string;
+  author: string;
+  committed_at: string;
+  paths: string;
+}
+
+export interface BuildsFiles {
+  repo: string;
+  branch: string;
+  path: string;
+  content: string;
+  updated_at: string;
+}
+
 export interface CalendarEvents {
   id: string;
   feed: string;
