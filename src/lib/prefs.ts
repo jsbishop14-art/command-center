@@ -1,13 +1,10 @@
 import { getDb } from "./db";
+import { isBoard, type Board } from "./boards";
+
+export { BOARDS, isBoard, type Board } from "./boards";
 
 // Per-user preferences (handoff 1.3: the board toggle choice is remembered per user). Later builds
 // also store panel order and collapsed state here.
-export const BOARDS = ["josh", "christine", "bishops"] as const;
-export type Board = (typeof BOARDS)[number];
-
-export function isBoard(value: string): value is Board {
-  return (BOARDS as readonly string[]).includes(value);
-}
 
 export function getPref(userId: number, key: string): string | null {
   const row = getDb()
