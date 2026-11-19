@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { nowEastern } from "@/lib/kanban/time";
 import { claimEvent, recordBadSignature } from "@/lib/ezbinder/events";
 import { verifySignature, applyEvent, noteWebhookAt, type WebhookEvent } from "@/lib/ezbinder/webhook";
+import { startEzbSync } from "@/lib/ezbinder/sync";
 import { getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,7 @@ function claimedId(raw: string, at: string): string {
 }
 
 export async function POST(req: Request) {
+  startEzbSync(); // ensure the 90-minute safety-net poll is armed
   const at = nowEastern();
   const raw = await req.text();
   const signature = req.headers.get("x-ezb-signature");

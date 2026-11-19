@@ -3,6 +3,7 @@ import { currentUser } from "@/lib/auth";
 import { todayEastern } from "@/lib/kanban/time";
 import { scheduleGrid, proposalLines } from "@/lib/ezbinder/view";
 import { listTasks } from "@/lib/ezbinder/store";
+import { startEzbSync } from "@/lib/ezbinder/sync";
 import ScheduleGridView from "@/components/ezbinder/ScheduleGrid";
 import ScheduleMove, { type MoveTask } from "@/components/ezbinder/ScheduleMove";
 import { rejectProposalAction, syncScheduleAction } from "./actions";
@@ -16,6 +17,7 @@ export const dynamic = "force-dynamic";
 export default function SchedulePage() {
   const user = currentUser();
   if (!user) redirect("/signin");
+  startEzbSync(); // arm the 90-minute safety-net poll (no-op in CI/dev where no sync is due)
 
   const today = todayEastern();
   const grid = scheduleGrid({ today });

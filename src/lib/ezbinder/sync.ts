@@ -1,5 +1,5 @@
 import { nowEastern } from "@/lib/kanban/time";
-import { getArSummary, getSchedule, getChanges } from "./client";
+import { getArSummary, getSchedule, getChanges, ezbShouldSync } from "./client";
 import { saveArSummary, saveJob, saveTask, setSyncCursor, getSyncState } from "./store";
 import { runSlipRule } from "./proposals";
 
@@ -37,4 +37,31 @@ export async function ezbSync(opts?: { at?: string }): Promise<SyncResult> {
   const proposals = (await runSlipRule({ at })).length;
 
   return { at, money, jobs, tasks, proposals };
+}
+
+// ---- The 90-minute safety-net poll (handoff §7.3) ---------------------------------------------
+// Ordinary code, NO AI — the same singleton-poll pattern the kanban reconciler uses. Webhooks keep
+// the cache current within about 10 seconds; this interval catches anything a missed webhook left
+// behind. It only arms where a sync is appropriate (ezbShouldSync): in production once EZ Binder is
+// connected, never on an unconnected Mac mini. It is not started in CI or tests (90 minutes never
+// elapses there, and nothing calls startEzbSync from the test path).
+
+const SYNC_MS = 90 * 60 * 1000;
+const g = globalThis as unknown as { __ccEzbTimer?: ReturnType<typeof setInterval> };
+
+export function startEzbSync(): void {
+  if (g.__ccEzbTimer || !ezbShouldSync()) return;
+  g.__ccEzbTimer = setInterval(() => {
+    void ezbSync().catch(() => {
+      // a failed pass must not crash the server; the next pass retries
+    });
+  }, SYNC_MS);
+  if (typeof g.__ccEzbTimer.unref === "function") g.__ccEzbTimer.unref();
+}
+
+export function stopEzbSync(): void {
+  if (g.__ccEzbTimer) {
+    clearInterval(g.__ccEzbTimer);
+    g.__ccEzbTimer = undefined;
+  }
 }

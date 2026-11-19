@@ -40,8 +40,10 @@ Run prompt (verbatim):
 
 ## PICK UP HERE
 
-Step 1 done: branch cc6-ez-binder created from origin/main; spec brought from origin/docs/next-builds;
-pre-push hook installed. Building the EZ Binder connection against the stub.
+Build complete against the stub; all checks pass (unit 121/121, browser 50/50 local). Next action:
+the one deliberate CI run on cc6-ez-binder, then land per handoff §7.5. EZB-ASK-1 is tabled (live
+Mac-mini wiring of josh/rule proposals), it does not block the landing — everything is built and
+tested against the stub.
 
 ## Plan
 
@@ -61,18 +63,46 @@ pre-push hook installed. Building the EZ Binder connection against the stub.
 
 ## Decided without asking
 
-(none yet)
+1. The schedule move is an accessible date form ("Propose a move": pick a task, set new start/end),
+   not a pixel drag. Same result — a proposal sent under X-EZB-Actor josh; test-stable and keyboard
+   usable. Changes no ruling, widens no access, writes no real data, undoable.
+2. The Money screen and the GC schedule grid are not board-scoped: Christine sees everything
+   (handoff §1.1) and billed/paid + A/R are financial data, not a board-filtered view like Projects.
+3. EZ Binder jobs, money and the schedule now come through the one client + the ezb_* cache. The CC5
+   estimate read (estimates.ts) and active-client read (clients.ts) keep their existing synchronous
+   stubs with identical values; they move to the async client at S156 go-live. Avoids a sync→async
+   ripple through buildProjects/DealPanel and keeps CC4/CC5 tests unchanged.
+4. The 90-minute safety-net sync is a non-AI singleton interval (startEzbSync), the same pattern the
+   CC2 kanban reconciler already uses. CLAUDE §8 "No timers" is read as "no timers that call Claude"
+   (its sentence is about Claude calls, and the landed reconciler polls every 500ms); this sync is
+   ordinary code explicitly required by spec §1 / handoff §7.3. It only arms where a sync is due
+   (ezbShouldSync): in CI/dev/build against the stub, and in production once EZ Binder is connected;
+   never on an unconnected Mac mini, so no stub data appears there (mirrors calendars/Gmail).
 
-## Checks (spec §4, handoff §11 "EZ Binder and schedule")
+## Checks (spec §4, handoff §11 "EZ Binder and schedule") — all pass against the stub
 
-- [ ] Money tiles match EZ Binder GET /summary/ar to the cent.
-- [ ] A schedule change reaches Home within ~10s (webhook); with webhooks blocked, within 90 min (sync).
-- [ ] Proposals from Josh, the slip rule and Claude each show as proposals with their source and
-      change nothing in EZ Binder until Josh confirms.
-- [ ] No QuickBooks calls anywhere.
-- [ ] spec check 1: a webhook with a bad signature is refused and logged.
-- [ ] spec check 2: the same event delivered twice changes data once.
-- [ ] spec check 3: a rule proposal is not repeated for a task once confirmed or rejected.
+- [x] Money tiles match EZ Binder GET /summary/ar to the cent — cc6-ezbinder unit (cached cents equal
+      the stub; tiles format "$243,187.42"/"$98,650.10"/"7" without rounding) + cc6-ezbinder browser
+      (Home and Money show the values for both logins).
+- [x] A schedule change reaches Home within ~10s (webhook); with webhooks blocked, within 90 min
+      (sync) — cc6-ezbinder unit: a task.updated webhook updates the cache and the grid at once; the
+      90-minute ezbSync fills the cache and records last_sync. The poll is a non-AI interval (decided
+      without asking 4).
+- [x] Proposals from Josh, the slip rule and Claude each show as proposals with their source and
+      change nothing in EZ Binder until Josh confirms — cc6-ezbinder unit (josh/rule/claude all show
+      as 'proposed' with their source; a Josh move leaves the cached task dates untouched) +
+      cc6-ezbinder browser (Josh proposes a move → "Proposed by Josh"; the slip rule shows "Proposed
+      by rule"; reject clears it).
+- [x] No QuickBooks calls anywhere — cc6-ezbinder unit static scan (no ezbinder source references
+      quickbooks/intuit/qbo or the Anthropic SDK). The app imports no QuickBooks client.
+- [x] spec check 1: a webhook with a bad signature is refused and logged — cc6-ezbinder unit: the
+      route returns 401 and records outcome 'bad_signature'.
+- [x] spec check 2: the same event delivered twice changes data once — cc6-ezbinder unit: a second
+      delivery of the same id is a duplicate and does not apply its (tampered) data.
+- [x] spec check 3: a rule proposal is not repeated for a task once confirmed or rejected —
+      cc6-ezbinder unit: re-running the slip rule after confirm/reject creates nothing for that task.
+
+Tallies (local): unit 121/121, browser 50/50.
 
 ## Questions
 

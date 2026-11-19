@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { currentUser } from "@/lib/auth";
-import { getBoard, type Board } from "@/lib/prefs";
 import { moneyTiles, jobMoney } from "@/lib/ezbinder/view";
 import { listJobs, getArSummary } from "@/lib/ezbinder/store";
+import { startEzbSync } from "@/lib/ezbinder/sync";
 import MoneyTiles from "@/components/ezbinder/MoneyTiles";
 
 export const dynamic = "force-dynamic";
@@ -21,10 +21,12 @@ const PHASE_LABEL: Record<string, string> = {
 export default function MoneyPage() {
   const user = currentUser();
   if (!user) redirect("/signin");
-  const board = getBoard(user.id, user.role) as Board;
+  startEzbSync(); // arm the 90-minute safety-net poll (no-op in CI/dev where no sync is due)
+  // Not board-scoped: Christine sees everything (handoff §1.1), and billed/paid is financial data,
+  // not a board-filtered view like Projects. The A/R tiles are likewise global.
   const tiles = moneyTiles();
   const summary = getArSummary();
-  const jobs = listJobs().filter((j) => j.boards.includes(board));
+  const jobs = listJobs();
 
   return (
     <>
