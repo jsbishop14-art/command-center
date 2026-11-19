@@ -99,6 +99,14 @@ No real outside calls (use stubs). No real email, ever. Migrations land with the
   route (Bearer token, command dispatch, HTTP codes). typecheck 0; lint 0; unit 65/65
   (kanban-actions 15/15 new).
 
+- Step 5: UI — /kanban board (5 columns, area + project filters, J/C/B badges, "Added by Claude/
+  Duet", board from the global toggle), card detail panel (stage select, area/project/due, Show on
+  boards checkboxes, notes save, history with Revert on Claude/Duet lines + changed-again confirm,
+  Discard, context path), Quick add (Ctrl+K + "+ Card"), /kanban/problems page, Settings "Kanban
+  action layer" (Duet switch, per-writer token issue/revoke shown once). Nav: Kanban + Problems now
+  real links. Column defs moved to client-safe types.ts. typecheck 0; lint 0; build 0 (10 routes);
+  unit 65/65.
+
 ## PICK UP HERE
 
-Step 5: UI — board, card panel, quick add, Problems, settings.
+Step 6: tests (e2e check 4 + hand-edit/new reload), CI branches, deliberate CI run, land.

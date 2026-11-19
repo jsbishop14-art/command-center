@@ -4,6 +4,25 @@
 export const STAGES = ["inbox", "next", "in_progress", "waiting_on", "done", "discarded"] as const;
 export type Stage = (typeof STAGES)[number];
 
+// Display names and column hints (handoff §3.1). Client-safe (no server-only imports) so both the
+// board page and the client StageSelect can use them.
+export const STAGE_LABEL: Record<Stage, string> = {
+  inbox: "Inbox",
+  next: "Next",
+  in_progress: "In progress",
+  waiting_on: "Waiting on",
+  done: "Done",
+  discarded: "Discarded",
+};
+
+export const COLUMN_DEFS: { stage: Stage; name: string; hint: string }[] = [
+  { stage: "inbox", name: "Inbox", hint: "Confirmed notes land here" },
+  { stage: "next", name: "Next", hint: "Committed, not started" },
+  { stage: "in_progress", name: "In progress", hint: "Shown on Home" },
+  { stage: "waiting_on", name: "Waiting on", hint: "Blocked on someone else" },
+  { stage: "done", name: "Done", hint: "Last 7 days" },
+];
+
 export const AREAS = ["business", "personal", "family"] as const;
 export type Area = (typeof AREAS)[number];
 
