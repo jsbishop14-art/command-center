@@ -39,8 +39,36 @@ Run prompt (verbatim):
 
 ## PICK UP HERE
 
+Steps 1-5 built, committed and pushed. Local: unit 103/103, browser 46/46; typecheck and lint
+clean; production build OK. Branch 0 behind origin/main (fast-forwardable). Next: one deliberate CI
+run, then land. If resuming after the CI run, check the run result and land per the rule below.
+
 Fresh start: branch created from origin/main; origin/cc5-deals-contacts did not exist. Spec brought
-from origin/docs/next-builds in the first commit. Building the steps below in order.
+from origin/docs/next-builds in the first commit.
+
+## Check evidence (spec §4)
+
+1. Each login reaches Deals and Contacts from the menu — browser cc5-deals-contacts.e2e.ts
+   "check 1: josh/christine reaches Deals and Contacts from the menu" (clicks the left-menu links;
+   no direct URL).
+2. Deal history shows Claude/Duet changes with Revert; Revert restores earlier values — browser
+   cc5-deals-contacts.e2e.ts "check 2" (reverts a seeded Claude change on BNT, restores the seed
+   next action) + unit cc5-deals.test.ts "history and Revert" (before/after, revert line attributed,
+   not-revertable for Josh, changed_again path).
+3. A contact's second email matches an Awaiting reply thread to the right deal — unit
+   cc5-deals.test.ts "Awaiting reply matches a thread to the right deal by a contact's second email"
+   (joe@sparkelectric.com is Joe Abrams' second address → BNT) and "email matching" tests. See
+   Decided-without-asking on why this check is unit-only in the browser.
+4. Seed deals present after a fresh install — unit cc5-deals.test.ts "the five seed deals are
+   present" + browser reach in check 1 (Josh's board shows them).
+5. Board toggle filters deals by their boards list — browser cc5-deals-contacts.e2e.ts "check 5"
+   (Bishops shows only Ohio + 33406; Christine shows none).
+
+Action-layer deal commands (handoff §4.8, CLAUDE §7 token map): browser cc5-api-deal.e2e.ts — Claude
+token can read_deal/update_deal (allow), invalid stage rejected (400), Duet token refused while the
+switch is off (403 duet_off). No-token/Shortcut refusal on /api/action covered by existing
+kanban-tokens + permissions e2e. Migration 0005_deals_contacts expected objects verified by unit
+migrations.test.ts.
 
 ## Plan (commit + push after each step; one deliberate CI run near the end)
 
@@ -69,7 +97,23 @@ from origin/docs/next-builds in the first commit. Building the steps below in or
 
 ## Decided without asking
 
-(none yet)
+- Spec check 3 (contact second email → deal match) is proven by unit tests, not a browser test. The
+  only deal-matchable flagged Awaiting-reply thread in the stub is t-spark (joe@sparkelectric.com →
+  Joe Abrams → BNT); the CC4 browser test cc4-awaiting dismisses t-spark ("No reply needed") in the
+  shared e2e database, and the CC4 unit test pins the flagged set to exactly [t-spark, t-riverwood],
+  so neither aging a thread nor adding one can give CC5 its own browser-visible deal-matched thread
+  without inverting a landed CC4 check. The matching is a label on the existing Awaiting panel (not a
+  new screen or button), so CLAUDE §4's browser-test rule does not require it; the unit test is the
+  authoritative evidence for check 3. Changes none of Josh's rulings, widens no access, writes no
+  real data, reversible.
+- Deals store boards as a JSON array column and are filtered in code (like kanban cards), rather than
+  a join table. GC jobs and EZ Binder estimate status use local stubs until CC6 (spec §2); the live
+  path returns nothing until EZ Binder is wired, so no real outside call happens in CI or a build
+  session. Software projects show "Coming in CC8"; Personal/Family is a present but empty filter in
+  CC5.
+- Seeded three/four contacts (Joe Abrams, Marcus Reed, Priya Shah, Tile Warehouse) linked to deals so
+  the Contacts screen and the matching have realistic data on a fresh install. Deal/contact names are
+  Josh's and already appear in the committed spec and mockup; no customer data beyond that is stored.
 
 ## Questions
 
