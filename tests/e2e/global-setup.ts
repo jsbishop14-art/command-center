@@ -44,8 +44,12 @@ export default async function globalSetup() {
   addCard("josh", { title: "Family calendar sync", stage: "inbox", boards: ["christine", "bishops"], area: "family" }, { at });
 
   // Issue action-layer tokens for the route tests; write the plaintext to a file the tests read.
+  // CC_DB_PATH/CC_KANBAN_DIR may live under RUNNER_TEMP in CI, so the repo-root .e2e/ folder is not
+  // created by the steps above — make it here before writing.
+  const artifactsDir = path.resolve(".e2e");
+  mkdirSync(artifactsDir, { recursive: true });
   const tokens = { claude: issueToken("claude", at), duet: issueToken("duet", at) };
-  writeFileSync(path.resolve(".e2e/tokens.json"), JSON.stringify(tokens));
+  writeFileSync(path.join(artifactsDir, "tokens.json"), JSON.stringify(tokens));
 
   // eslint-disable-next-line no-console
   console.log(`e2e: seeded ${dbPath} and ${kanbanDir}`);
