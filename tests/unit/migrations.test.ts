@@ -34,4 +34,29 @@ describe("migrations", () => {
     expect(check.ok).toBe(false);
     expect(check.missing[0].name).toBe("does_not_exist");
   });
+
+  it("applies the CC5 deals/contacts migration and its objects read back", () => {
+    const db = getDb();
+    const applied = runMigrations(db);
+    expect(applied).toContain("0005_deals_contacts");
+    for (const name of [
+      "deals",
+      "deal_estimates",
+      "deal_changes",
+      "contacts",
+      "contact_emails",
+      "contact_deals",
+    ]) {
+      const check = verifyObjects(db, [{ type: "table", name }]);
+      expect(check.ok, `${name} should exist`).toBe(true);
+    }
+    // The deal type check constraint is in force.
+    expect(() =>
+      db
+        .prepare(
+          "INSERT INTO deals (name, type, stage, created_at, updated_at) VALUES ('x', 'bogus', 'Lead', 'a', 'a')",
+        )
+        .run(),
+    ).toThrow();
+  });
 });

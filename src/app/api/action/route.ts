@@ -12,15 +12,17 @@ import {
 } from "@/lib/kanban/actions-layer";
 import { listCards } from "@/lib/kanban/store";
 import { suggestNote } from "@/lib/kanban/pending";
+import { updateDeal, readDeal, revertDeal } from "@/lib/deals/actions";
 import { nowEastern } from "@/lib/kanban/time";
 import type { TokenWriter } from "@/lib/kanban/types";
 
 export const dynamic = "force-dynamic";
 
 // The action layer endpoint (handoff §4.8). Reached through the tunnel with a per-writer token:
-// Claude and Duet each have their own. Duet's token is refused when the Duet switch is off. For
-// CC2 the commands are card commands, note suggest, and reads (handoff §4.8; spec §2). Deals and
-// schedule proposals arrive in CC5/CC6.
+// Claude and Duet each have their own. Duet's token is refused when the Duet switch is off. The
+// commands are the card commands, note suggest, reads, and the deal commands (update_deal,
+// read_deal, revert) — deals always go through the action layer (handoff §4.8, spec §3). Schedule
+// proposals arrive in CC6.
 
 function bearer(req: Request): string | null {
   const auth = req.headers.get("authorization") || "";
@@ -98,6 +100,17 @@ export async function POST(req: Request) {
       }
       case "revert": {
         const result = revertChange(writer, String(body.log_id), { force: body.force === true, at });
+        return NextResponse.json({ ok: true, result });
+      }
+      case "update_deal": {
+        const deal = updateDeal(writer, Number(body.id), body.changes as never, { at, run });
+        return NextResponse.json({ ok: true, deal });
+      }
+      case "read_deal": {
+        return NextResponse.json({ ok: true, deal: readDeal(Number(body.id)) });
+      }
+      case "revert_deal": {
+        const result = revertDeal(writer, Number(body.change_id), { force: body.force === true, at });
         return NextResponse.json({ ok: true, result });
       }
       default:

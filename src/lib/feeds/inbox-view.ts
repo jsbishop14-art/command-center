@@ -25,6 +25,7 @@ export function awaitingItems(now: Date): AwaitingView[] {
     firstName: i.firstName,
     subject: i.subject,
     snippet: i.snippet,
+    matchKind: i.matchKind,
     matchLabel: i.matchLabel,
     daysWaiting: i.daysWaiting,
     threshold: i.threshold,

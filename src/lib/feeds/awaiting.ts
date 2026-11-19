@@ -1,12 +1,13 @@
 import { getDb } from "../db";
 import { sentThreads, type SentThread } from "./gmail";
 import { activeClientFor } from "./clients";
+import { contactByEmail } from "../deals/store";
 
 // Awaiting reply (handoff §2, spec §1): Gmail threads where Josh sent the last message and got no
 // answer. Flag after 2 days, or 1 day if the recipient is a client with an active job. Rule-based,
-// NO AI. The thread is matched to a project or deal by recipient email (EZ Binder customers come in
-// CC6; until then a client match is the only label, else the bare address). "No reply needed"
-// hides one thread without affecting future emails in it.
+// NO AI. The thread is matched to a project or deal by recipient email: EZ Binder active-job clients
+// (stub until CC6), then the Contacts list and its linked deals (handoff §3.4, spec check 3), else
+// the bare address. "No reply needed" hides one thread without affecting future emails in it.
 
 export const FLAG_DAYS_DEFAULT = 2;
 export const FLAG_DAYS_ACTIVE_CLIENT = 1;
@@ -33,6 +34,8 @@ function dismissedSet(): Set<string> {
 
 // ---- The rule ---------------------------------------------------------------------------------
 
+export type MatchKind = "client" | "deal" | "none";
+
 export type AwaitingItem = {
   id: string;
   to: string;
@@ -43,8 +46,23 @@ export type AwaitingItem = {
   daysWaiting: number;
   threshold: number;
   isClient: boolean;
-  matchLabel: string; // client name when matched, else the bare recipient address
+  matchKind: MatchKind;
+  matchLabel: string; // client name, matched deal name, else the bare recipient address
 };
+
+// Resolve a recipient to its display label and match kind (handoff §2, §3.4). Order: an EZ Binder
+// active-job client (stub until CC6), then a Contacts match to its linked deal (spec check 3), else
+// the bare address. Only a deal match names a deal; a contact with no linked deal falls through.
+export function matchRecipient(to: string): { kind: MatchKind; label: string } {
+  const client = activeClientFor(to);
+  if (client) return { kind: "client", label: `${client.name} (active job)` };
+  const contact = contactByEmail(to);
+  if (contact && contact.deals.length) {
+    const names = contact.deals.map((d) => d.name);
+    return { kind: "deal", label: names.join(" · ") };
+  }
+  return { kind: "none", label: to };
+}
 
 function firstNameOf(toName: string, to: string): string {
   const n = (toName || "").trim();
@@ -72,7 +90,7 @@ export function awaitingReply(now: Date): AwaitingItem[] {
     if (dismissed.has(t.id)) continue;
     const r = flagThread(t, now);
     if (!r.flagged) continue;
-    const client = activeClientFor(t.to);
+    const match = matchRecipient(t.to);
     out.push({
       id: t.id,
       to: t.to,
@@ -83,7 +101,8 @@ export function awaitingReply(now: Date): AwaitingItem[] {
       daysWaiting: r.daysWaiting,
       threshold: r.threshold,
       isClient: r.isClient,
-      matchLabel: client ? `${client.name} (active job)` : t.to,
+      matchKind: match.kind,
+      matchLabel: match.label,
     });
   }
   return out.sort((a, b) => a.lastMessageAt.localeCompare(b.lastMessageAt));

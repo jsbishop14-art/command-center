@@ -13,6 +13,7 @@ export type AwaitingView = {
   firstName: string;
   subject: string;
   snippet: string;
+  matchKind: "client" | "deal" | "none";
   matchLabel: string;
   daysWaiting: number;
   threshold: number;
@@ -35,7 +36,14 @@ function Item({ item }: { item: AwaitingView }) {
         </span>
       </div>
       <div className="sub">
-        To {item.matchLabel}
+        To{" "}
+        {item.matchKind === "deal" ? (
+          <span className="deal-match" data-testid={`deal-${item.id}`}>
+            {item.matchLabel}
+          </span>
+        ) : (
+          item.matchLabel
+        )}
         {item.isClient ? " · active job, 1-day rule" : " · 2-day rule"}
       </div>
       <div className="snippet subtle">{item.snippet}</div>
