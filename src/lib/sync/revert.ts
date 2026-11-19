@@ -1,5 +1,5 @@
 import { nowEastern } from "@/lib/kanban/time";
-import { revertChange } from "@/lib/kanban/actions-layer";
+import { revertChange, moveCard } from "@/lib/kanban/actions-layer";
 import { restoreNoteSuggestion } from "@/lib/kanban/pending";
 import { withdrawProposal } from "@/lib/ezbinder/proposals";
 import { getChange, getRun, markReverted, type SyncChangeRow } from "./store";
@@ -40,8 +40,20 @@ function revertOne(actor: Actor, change: SyncChangeRow, opts: { force?: boolean;
       return { status: "reverted", seq: change.seq };
     }
     case "kanban": {
-      if (!change.target) return { status: "missing" };
-      const r = revertChange(actor, change.target, { force: opts.force, at: opts.at });
+      const p = (change.payload ?? {}) as { op?: string; logId?: string };
+      if (p.op === "add") {
+        // Reverting a Sync-created card discards it (soft delete, §4.7 rule 3). The reverter is
+        // the login (josh/christine), not a token writer, so the discard is allowed.
+        try {
+          moveCard(actor, change.target, "discarded", undefined, { at: opts.at });
+        } catch {
+          return { status: "missing" };
+        }
+        return { status: "reverted", seq: change.seq };
+      }
+      // A moved/edited card: restore the prior values from its log entry.
+      if (!p.logId) return { status: "missing" };
+      const r = revertChange(actor, p.logId, { force: opts.force, at: opts.at });
       if (r.status === "changed_again") {
         return { status: "changed_again", before: r.before, after: r.after, current: r.current };
       }

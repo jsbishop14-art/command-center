@@ -188,10 +188,13 @@ export async function runSync(opts: RunSyncOptions): Promise<SyncRun> {
         runId,
         seq: seq++,
         kind: "kanban",
-        target: logIdForCard(card.id, runId),
+        target: card.id,
         label: `Added "${card.title}" to ${stageName(card.stage)}`,
         sub: `${card.id} · source ${d.source}`,
         action: "Revert",
+        // op "add": reverting a creation discards the card (soft delete, §4.7 rule 3), since a
+        // create has no "before" values to restore. logId is kept for the audit trail.
+        payload: { op: "add", logId: logIdForCard(card.id, runId) },
       });
       count++;
     }
