@@ -13,3 +13,10 @@ export function useTempDb(): string {
 }
 
 export const TEST_SECRET_KEY = "11111111111111111111111111111111111111111111111111111111111111ab";
+
+// Point the app at a fresh, isolated kanban folder for a test. Returns the folder path.
+export function useTempKanban(): string {
+  const dir = mkdtempSync(path.join(tmpdir(), "cc-kanban-"));
+  process.env.CC_KANBAN_DIR = path.join(dir, "kanban");
+  return process.env.CC_KANBAN_DIR;
+}

@@ -11,7 +11,7 @@ type Item = { label: string; href?: string; soon?: string };
 const ITEMS: Item[] = [
   { label: "Home", href: "/home" },
   { label: "Projects", soon: "CC5" },
-  { label: "Kanban", soon: "CC2" },
+  { label: "Kanban", href: "/kanban" },
   { label: "Inbox", soon: "CC4" },
   { label: "Calendar", soon: "CC3" },
   { label: "Schedule", soon: "CC6" },
@@ -20,7 +20,7 @@ const ITEMS: Item[] = [
   { label: "Builds", soon: "CC8" },
   { label: "Money", soon: "CC6" },
   { label: "Phone lookup", soon: "CC10" },
-  { label: "Problems", soon: "CC2" },
+  { label: "Problems", href: "/kanban/problems" },
 ];
 
 export default function Nav() {

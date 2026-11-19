@@ -65,6 +65,59 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    id: "0002_kanban",
+    expects: [
+      { type: "table", name: "kanban_snapshots" },
+      { type: "table", name: "app_settings" },
+      { type: "table", name: "action_tokens" },
+      { type: "table", name: "kanban_problems" },
+      { type: "table", name: "card_seq" },
+    ],
+    up: (db) => {
+      db.exec(`
+        -- The app's snapshot of the last version of every card file it has seen (handoff §4.6).
+        -- A cache for computing before/after when a file changes directly, not the source of truth.
+        CREATE TABLE kanban_snapshots (
+          card_id    TEXT PRIMARY KEY,
+          fields     TEXT NOT NULL,   -- JSON of the snapshot fields (card.ts cardSnapshotFields)
+          updated    TEXT NOT NULL,   -- the card's updated timestamp when last snapshotted
+          seen_at    TEXT NOT NULL
+        );
+
+        -- Global app settings for a single household (handoff §4.8 Duet switch, and others later).
+        CREATE TABLE app_settings (
+          key    TEXT PRIMARY KEY,
+          value  TEXT NOT NULL
+        );
+
+        -- Action-layer tokens, one row per writer (handoff §4.8). Only the sha256 of the token is
+        -- stored; the plaintext is shown once at issue and never again. Revocable in Settings.
+        CREATE TABLE action_tokens (
+          writer      TEXT PRIMARY KEY CHECK (writer IN ('claude', 'duet')),
+          token_hash  TEXT NOT NULL,
+          created_at  TEXT NOT NULL,
+          revoked_at  TEXT
+        );
+
+        -- Files that failed frontmatter validation on load (handoff §4.9 Problems view). A failing
+        -- file is never dropped; it is listed here with the reason until it validates or is removed.
+        CREATE TABLE kanban_problems (
+          file     TEXT PRIMARY KEY,   -- path relative to the kanban folder, e.g. cards/CC-0007.md
+          reason   TEXT NOT NULL,
+          at       TEXT NOT NULL
+        );
+
+        -- Monotonic card id counter. Only the app assigns ids, in sequence (handoff §4.3). A single
+        -- row holds the last number used; it never goes backwards even if a card is discarded.
+        CREATE TABLE card_seq (
+          id    INTEGER PRIMARY KEY CHECK (id = 1),
+          last  INTEGER NOT NULL
+        );
+        INSERT INTO card_seq (id, last) VALUES (1, 0);
+      `);
+    },
+  },
 ];
 
 // Apply any migrations not yet recorded in schema_migrations. Returns the ids applied.

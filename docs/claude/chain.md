@@ -5,7 +5,7 @@
 | # | Name | Branch | Spec | Handoff sections | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | CC1 | cc1-foundation | docs/specs/CC1-BUILD-SPEC.md | 1, 1.1, 1.3, 7.4, 7.5 | Landed |
-| 2 | CC2 | cc2-kanban | docs/specs/CC2-BUILD-SPEC.md | 3.1, 3.2, 4, 5.4 | Queued |
+| 2 | CC2 | cc2-kanban | docs/specs/CC2-BUILD-SPEC.md | 3.1, 3.2, 4, 5.4 | Landed |
 | 3 | CC3 | cc3-home | docs/specs/CC3-BUILD-SPEC.md | 2 (top bar, panels), 5.2, 7.3 | Queued |
 | 4 | CC4 | cc4-inbox-email | docs/specs/CC4-BUILD-SPEC.md | 2 (Inbox, Awaiting reply), 2.1, 4.4 | Queued |
 | 5 | CC5 | cc5-deals-contacts | docs/specs/CC5-BUILD-SPEC.md | 2 (Projects), 3.3, 3.4, 4.8 | Queued |
@@ -91,3 +91,13 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   migrations on production (handoff 7.5: the Mac mini updater applies them). Deploy and smoke after merge
   are the Mac mini updater's job (handoff 7.4). Waits on Josh: install Command Center on the Mac mini once
   (docs/install-mac.md), and the Cloudflare tunnel account step in that guide.
+- CC2, 2026-11-19. Merge "[Merge] CC2 (kanban storage and board)" into main. CI green: run
+  44455624341, both jobs (Lint/types/build/unit: success; Browser tests: success). Spec §4 checks all
+  pass — handoff §11 "Kanban storage" checks 1-11 and spec §4 checks 1-4 (evidence in
+  docs/sessions/CC2-status.md): unit 65/65, browser 18/18. Branch was fast-forwardable onto main
+  dc32000; the only commits after the CI-green commit (a747852) are docs (chain.md + CC2-status.md),
+  listed in the merge message. Migration 0002_kanban lands with the code; the Mac mini updater applies
+  it (handoff 7.5) — expected objects: kanban_snapshots, app_settings, action_tokens, kanban_problems,
+  card_seq. New waits on Josh: issue the Claude/Duet action-layer tokens in Settings when he wants
+  Claude or Duet to edit cards over the tunnel (Duet stays off until he turns it on). The kanban folder
+  path is set in Settings on the Mac mini (handoff §4.1: outside iCloud/Dropbox/OneDrive).
