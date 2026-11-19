@@ -115,10 +115,22 @@ export function stubActiveClients(): ActiveClient[] {
   ];
 }
 
-// A proposal POST. The stub accepts every actor (app, claude, josh, rule) and returns 202 with a
-// reference — whether the real S156 API accepts josh and rule is tabled for Josh (EZB-ASK-1). The
-// reference is derived from the request so it is stable without a clock or random source.
+// The proposal POSTs the stub has received, so a test can assert what was sent to EZ Binder — the
+// X-EZB-Actor and the note (check 6). In-process; cleared between tests via clearStubProposalLog.
+const STUB_PROPOSALS: ProposalRequest[] = [];
+export function stubProposalLog(): readonly ProposalRequest[] {
+  return STUB_PROPOSALS;
+}
+export function clearStubProposalLog(): void {
+  STUB_PROPOSALS.length = 0;
+}
+
+// A proposal POST. The stub records the request and returns 202 with a reference. Every outbound
+// proposal is posted under X-EZB-Actor `claude` (EZB-ASK-1); a Josh or rule move carries a note
+// naming the real source. The reference is derived from the request so it is stable without a clock
+// or random source.
 export function stubProposal(req: ProposalRequest): ProposalReceipt {
+  STUB_PROPOSALS.push(req);
   const key = `${req.jobId}:${req.taskId ?? "job"}:${req.toStart}:${req.actor}`;
   return { accepted: true, ref: `prop_${Buffer.from(key).toString("hex").slice(0, 12)}`, status: 202 };
 }
