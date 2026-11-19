@@ -14,6 +14,7 @@
 | 8 | CC8 | cc8-builds | docs/specs/CC8-BUILD-SPEC.md | 7.1 | Landed |
 | 9 | CC9 | cc9-touch-screen | docs/specs/CC9-BUILD-SPEC.md | 6 | Landed |
 | 10 | CC10 | cc10-phone-lookup | docs/specs/CC10-BUILD-SPEC.md | 8 | Landed |
+| 11 | CC11 | cc11-mac-fixes-google | docs/specs/CC11-BUILD-SPEC.md | 2, 2.1, 2.2, 4.4, 7.2, 7.3, 7.4, 1.1 | Building |
 
 ## Grants
 
@@ -70,6 +71,16 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   2. No weekly build budget limit for the first week; usage is recorded with no hold, then Josh sets a limit.
   3. The 15:37 ruling covers the setup work only; Command Center still opens on the Windows PC over the tunnel.
   4. Keep the build budget and the build-control repo.
+- 2026-11-19 05:52, answers to the open asks: "1. a new address. evanmbishop23@gmail.com" (CC4-ASK-1 — the intake
+  mailbox is a new Google account, evanmbishop23@gmail.com) and "2. i think claude can change the schedule"
+  (EZB-ASK-1 — Claude may change the EZ Binder schedule).
+- 2026-11-19 05:56, on how Josh/rule schedule moves are labeled in EZ Binder: "2a- yes if it is already built into
+  the system." Meaning: Josh and slip-rule schedule-move proposals go to EZ Binder with X-EZB-Actor `claude` and a
+  note naming the real source ("moved by Josh" / "moved by rule: <rule name>"); they stay proposals until Josh
+  confirms them in EZ Binder (handoff §2.2, §7.2). Built in CC11.
+- 2026-11-19 05:56, on the Calendar menu item (CC3-ASK-1): "3. understood. i will test the system and see whats
+  needed." Meaning: no standalone Calendar screen now; the menu item stays a later-build placeholder.
+- 2026-11-19 07:43: "im back on the windows machine. run fixes now" (go-ahead to build CC11).
 
 ## What waits on Josh
 

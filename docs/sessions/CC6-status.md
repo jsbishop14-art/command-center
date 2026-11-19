@@ -122,6 +122,11 @@ Tallies (local): unit 121/121, browser 50/50.
 See EZB-ASK-1 below (tabled per spec §5; does not block the build — everything else is built first
 against the stub).
 
+ANSWERED 2026-11-19 (CC11): Josh — "2. i think claude can change the schedule" and "2a- yes if it
+is already built into the system." Chosen: B. Josh and slip-rule schedule-move proposals go to EZ
+Binder with X-EZB-Actor `claude` and a note naming the real source ("moved by Josh" / "moved by
+rule: <rule name>"); they stay proposals until Josh confirms them in EZ Binder. Built in CC11.
+
 Qn. [EZB-ASK-1] The S156 contract ("EZ Binder API for Command Center: handoff") is not in
 docs/specs/, so I cannot confirm from it whether the real EZ Binder API accepts schedule-move
 proposals sent with X-EZB-Actor values `josh` and `rule` (handoff §2.2 notes v2 accepted only

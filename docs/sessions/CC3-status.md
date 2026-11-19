@@ -86,6 +86,10 @@ Tallies: unit 75/75, browser 24/24 (local and CI). CI green: run 44459153324, bo
 
 For Josh (not blocking CC3; the build is landed):
 
+ANSWERED 2026-11-19 (CC11): Josh — "3. understood. i will test the system and see whats needed."
+Chosen: A. No standalone Calendar screen now; the "Calendar" menu item stays a later-build
+placeholder until Josh decides what it should show.
+
 Q1. [CC3-ASK-1] No build phase in the plan (handoff §12) assigns a standalone "Calendar" screen,
 though the left menu lists one. CC3 delivers calendars through the Home Today panel and the
 Settings connect flow, which is what the CC3 spec's "What Josh gets" describes. Where should a full
