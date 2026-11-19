@@ -1,5 +1,6 @@
 import { getDb } from "./db";
 import { openSecret, sealSecret, type SealedSecret } from "./crypto";
+import { registerSensitive } from "./log";
 
 // The keys the app needs a secret store for (handoff 1.1). Each is entered and replaced in
 // Settings; values are never shown back in full. The feature that uses each key arrives in a later
@@ -56,6 +57,7 @@ export function setSecret(name: string, plaintext: string, updatedBy: string): v
   if (plaintext.length === 0) {
     throw new Error("A secret value cannot be empty.");
   }
+  registerSensitive(plaintext); // so any later accidental log of this value is scrubbed
   const sealed = sealSecret(plaintext);
   getDb()
     .prepare(
@@ -81,5 +83,7 @@ export function getSecret(name: string): string | null {
     .prepare("SELECT iv, ciphertext, tag FROM secrets WHERE name = ?")
     .get(name) as SealedSecret | undefined;
   if (!row) return null;
-  return openSecret(row);
+  const plaintext = openSecret(row);
+  registerSensitive(plaintext);
+  return plaintext;
 }
