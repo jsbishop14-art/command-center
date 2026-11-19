@@ -4,6 +4,8 @@ import { fetchCalendarEvents } from "./calendars";
 import { gmailConnected } from "./gmail";
 import { pollIntake } from "./intake";
 import { awaitingReply } from "./awaiting";
+import { ezbSync } from "../ezbinder/sync";
+import { ezbShouldSync } from "../ezbinder/client";
 import {
   connectedFeeds,
   replaceEvents,
@@ -23,6 +25,7 @@ export type RefreshResult = {
   weather: { ok: boolean; detail: string };
   calendars: { ok: boolean; detail: string; count: number };
   gmail: { ok: boolean; detail: string; notes: number; awaiting: number };
+  ezbinder: { ok: boolean; detail: string };
 };
 
 function message(e: unknown): string {
@@ -84,6 +87,26 @@ export async function runRefresh(): Promise<RefreshResult> {
     gmail = { ok: false, detail, notes: 0, awaiting: 0 };
   }
 
+  // EZ Binder (handoff §7.3): the on-demand pull of money, jobs and the schedule, with the slip
+  // rule run over the result. Ordinary code, no AI. Skipped on an unconnected Mac mini so no stub
+  // data appears there; always runs in CI, build sessions and dev (ezbShouldSync).
+  let ezbinder: RefreshResult["ezbinder"];
+  try {
+    if (!ezbShouldSync()) {
+      setFeedState("ezbinder", "ok", "not connected", at);
+      ezbinder = { ok: true, detail: "not connected" };
+    } else {
+      const r = await ezbSync({ at });
+      const detail = `${r.jobs} jobs · ${r.tasks} tasks${r.proposals ? ` · ${r.proposals} proposed` : ""}`;
+      setFeedState("ezbinder", "ok", detail, at);
+      ezbinder = { ok: true, detail };
+    }
+  } catch (e) {
+    const detail = message(e);
+    setFeedState("ezbinder", "error", detail, at);
+    ezbinder = { ok: false, detail };
+  }
+
   setLastRefreshAt(at);
-  return { at, weather, calendars, gmail };
+  return { at, weather, calendars, gmail, ezbinder };
 }

@@ -104,3 +104,11 @@ function nowStamp(): string {
 export function ezbIsLive(): boolean {
   return liveMode();
 }
+
+// Whether Refresh and the background timer should sync EZ Binder. In CI, build sessions and local
+// dev (not liveFeeds) the stub always stands in, so a sync is safe and expected. On the Mac mini
+// (liveFeeds) a sync runs only once EZ Binder is actually connected (ezbIsLive), so an unconnected
+// Mac mini shows no EZ Binder data rather than stub data — matching calendars and Gmail (spec §2).
+export function ezbShouldSync(): boolean {
+  return !liveFeeds() || liveMode();
+}

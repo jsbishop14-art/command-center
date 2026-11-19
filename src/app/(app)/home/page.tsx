@@ -13,16 +13,11 @@ import InboxNotes from "@/components/home/InboxNotes";
 import AwaitingReply from "@/components/home/AwaitingReply";
 import ProjectsGrid from "@/components/home/ProjectsGrid";
 import { buildProjects } from "@/lib/deals/projects";
+import MoneyTiles from "@/components/ezbinder/MoneyTiles";
+import ScheduleGridView from "@/components/ezbinder/ScheduleGrid";
+import { moneyTiles, scheduleGrid } from "@/lib/ezbinder/view";
 
 export const dynamic = "force-dynamic";
-
-// The four money tiles and the GC schedule wait on EZ Binder until CC6 (spec §1).
-const MONEY_TILES = [
-  { label: "Open A/R", src: "EZ Binder · invoices" },
-  { label: "Received this week", src: "EZ Binder · payments" },
-  { label: "Open invoices", src: "EZ Binder · invoices" },
-  { label: "Over 30 days", src: "EZ Binder · invoices" },
-];
 
 // Time of day from an ISO string, shown as-is (the stub stores Eastern-offset times).
 function fmtTime(iso: string): string {
@@ -130,6 +125,8 @@ export default function HomePage() {
   const awaiting = awaitingItems(new Date(nowEastern()));
   const gmailOn = gmailConnected();
   const projects = buildProjects(board);
+  const tiles = moneyTiles();
+  const grid = scheduleGrid({ today: date });
 
   const panels: PanelSpec[] = [
     { key: "today", title: "Today", body: <TodayPanel events={events} due={due} anyConnected={anyConnected} /> },
@@ -159,27 +156,31 @@ export default function HomePage() {
     <>
       <h1 className="sr-only">Home</h1>
 
-      <section aria-label="Money" className="money-tiles">
-        {MONEY_TILES.map((m) => (
-          <div key={m.label} className="money-tile">
-            <div className="label">{m.label}</div>
-            <div className="value mono" data-testid="money-waiting">
-              Waiting on EZ Binder
-            </div>
-            <div className="src">{m.src} · CC6</div>
-          </div>
-        ))}
-      </section>
+      <MoneyTiles tiles={tiles} />
 
       <HomePanels panels={panels} initialOrder={layout.order} initialCollapsed={layout.collapsed} />
 
       <ProjectsGrid cards={projects} />
 
       <section className="card gc-schedule">
-        <h2>GC schedule · next 2 weeks</h2>
-        <p className="subtle" data-testid="schedule-waiting">
-          Waiting on EZ Binder. The schedule and proposals arrive in CC6.
-        </p>
+        <div className="gc-head">
+          <h2>GC schedule · next 2 weeks</h2>
+          <Link href="/schedule" className="subtle">
+            Open schedule
+          </Link>
+        </div>
+        <div className="gc-legend">
+          <span>
+            <span className="sw" style={{ background: "#15803D" }} /> Active
+          </span>
+          <span>
+            <span className="sw" style={{ background: "#B45309" }} /> Sold, not started
+          </span>
+          <span>
+            <span className="sw dashed" /> Proposal (you, rule or Claude)
+          </span>
+        </div>
+        <ScheduleGridView grid={grid} />
       </section>
     </>
   );
