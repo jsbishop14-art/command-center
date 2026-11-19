@@ -2,8 +2,6 @@
 
 import { useFormState } from "react-dom";
 import {
-  connectGmailAction,
-  disconnectGmailAction,
   saveIntakeAddressAction,
   saveTemplateAction,
   resetTemplateAction,
@@ -12,6 +10,7 @@ import {
   type SaveState,
   type ShortcutTokenState,
 } from "@/app/(app)/settings/inbox-actions";
+import { connectGoogleAction, disconnectGoogleAction } from "@/app/(app)/settings/feed-actions";
 
 // Settings panel for Inbox & email (handoff §2, §2.1, §8.7, spec §1): connect Gmail, set the intake
 // address, edit template B, and issue/revoke the iPhone Shortcut token. The token's plaintext is
@@ -22,12 +21,14 @@ const tokenInitial: ShortcutTokenState = {};
 
 export default function InboxEmailPanel({
   gmailConnected,
+  intakeConnected,
   intakeAddress,
   template,
   shortcutIssued,
   shortcutCreatedAt,
 }: {
   gmailConnected: boolean;
+  intakeConnected: boolean;
   intakeAddress: string;
   template: string;
   shortcutIssued: boolean;
@@ -39,27 +40,58 @@ export default function InboxEmailPanel({
 
   return (
     <div className="settings-grid">
-      {/* Gmail connection */}
+      {/* Gmail connection — Josh's mailbox (Awaiting reply + nudge drafts) */}
       <div className="secret-row">
         <div className="label">
           Gmail
           <span className="subtle" style={{ display: "block", fontWeight: 400 }}>
-            Powers Awaiting reply and nudge drafts, and the note intake. Josh completes the Google
-            sign-in on the Mac mini; the app never sends email.
+            Powers Awaiting reply and nudge drafts. Connect opens Google&rsquo;s own sign-in; the app
+            reads mail and creates drafts only — it never sends email.
           </span>
         </div>
         <div className="status" data-testid="gmail-status">
           {gmailConnected ? "connected" : "not connected"}
         </div>
         {gmailConnected ? (
-          <form action={disconnectGmailAction}>
+          <form action={disconnectGoogleAction}>
+            <input type="hidden" name="target" value="gmail" />
             <button className="btn ghost" type="submit" data-testid="gmail-disconnect">
               Disconnect
             </button>
           </form>
         ) : (
-          <form action={connectGmailAction}>
+          <form action={connectGoogleAction}>
+            <input type="hidden" name="target" value="gmail" />
             <button className="btn ghost" type="submit" data-testid="gmail-connect">
+              Connect
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* Intake mailbox connection — a separate Google account (evanmbishop23@gmail.com) */}
+      <div className="secret-row">
+        <div className="label">
+          Intake mailbox
+          <span className="subtle" style={{ display: "block", fontWeight: 400 }}>
+            The Google account notes are emailed or texted to (evanmbishop23@gmail.com). Connect it
+            separately; its messages become pending notes in the Inbox.
+          </span>
+        </div>
+        <div className="status" data-testid="intake-status">
+          {intakeConnected ? "connected" : "not connected"}
+        </div>
+        {intakeConnected ? (
+          <form action={disconnectGoogleAction}>
+            <input type="hidden" name="target" value="intake" />
+            <button className="btn ghost" type="submit" data-testid="intake-disconnect">
+              Disconnect
+            </button>
+          </form>
+        ) : (
+          <form action={connectGoogleAction}>
+            <input type="hidden" name="target" value="intake" />
+            <button className="btn ghost" type="submit" data-testid="intake-connect">
               Connect
             </button>
           </form>

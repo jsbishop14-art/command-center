@@ -3,14 +3,14 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@/lib/auth";
-import { connectGmail, disconnectGmail, setIntakeAddress, setNudgeTemplate, DEFAULT_TEMPLATE_B } from "@/lib/feeds/gmail";
+import { setIntakeAddress, setNudgeTemplate, DEFAULT_TEMPLATE_B } from "@/lib/feeds/gmail";
 import { issueShortcutToken, revokeShortcutToken } from "@/lib/shortcut";
 import { nowEastern } from "@/lib/kanban/time";
 
-// Settings actions for Inbox & email (handoff §2, §2.1, §7.3, §8.7, spec §1). Connect Gmail, set
-// the intake address, edit template B, and issue/revoke the iPhone Shortcut token. No real outside
-// call here: connecting Gmail only records the connection (the real sign-in is done on the Mac
-// mini, handoff "What waits on Josh"). The app never sends email.
+// Settings actions for Inbox & email (handoff §2, §2.1, §7.3, §8.7, spec §1). Set the intake
+// address, edit template B, and issue/revoke the iPhone Shortcut token. Connecting Gmail and the
+// intake mailbox is the Google OAuth flow (connectGoogleAction in feed-actions.ts); the app never
+// sends email.
 
 function requireUser() {
   const user = currentUser();
@@ -22,18 +22,6 @@ function revalidate() {
   revalidatePath("/", "layout");
   revalidatePath("/settings");
   revalidatePath("/home");
-}
-
-export async function connectGmailAction(): Promise<void> {
-  requireUser();
-  connectGmail(nowEastern());
-  revalidate();
-}
-
-export async function disconnectGmailAction(): Promise<void> {
-  requireUser();
-  disconnectGmail();
-  revalidate();
 }
 
 export type SaveState = { ok?: boolean; error?: string };
