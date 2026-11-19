@@ -13,6 +13,11 @@ export interface AppSettings {
   value: string;
 }
 
+export interface AwaitingDismissed {
+  thread_id: string;
+  at: string;
+}
+
 export interface CalendarEvents {
   id: string;
   feed: string;
@@ -42,6 +47,12 @@ export interface FeedState {
   feed: string;
   status: string;
   detail: string;
+  at: string;
+}
+
+export interface IntakeSeen {
+  source_ref: string;
+  note_id: string;
   at: string;
 }
 
