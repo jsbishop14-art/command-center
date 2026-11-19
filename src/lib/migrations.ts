@@ -428,6 +428,67 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    id: "0007_sync",
+    expects: [
+      { type: "table", name: "sync_runs" },
+      { type: "table", name: "sync_run_items" },
+      { type: "table", name: "sync_changes" },
+      { type: "index", name: "idx_sync_run_items_at" },
+      { type: "index", name: "idx_sync_changes_run" },
+    ],
+    up: (db) => {
+      db.exec(`
+        -- One row per Sync-with-Claude run (handoff §5.1, §5.5). Claude runs only when Josh presses
+        -- Run sync; there is no timer (handoff §8). items is the JSON list of item keys the run
+        -- actually ran (an item with nothing new is skipped and left out). total_tokens is the sum
+        -- of the per-item usage, so a run's usage line matches its own report (spec check 2). by is
+        -- the login who pressed the button; the changes themselves are attributed to actor claude.
+        CREATE TABLE sync_runs (
+          id            TEXT PRIMARY KEY,   -- sync-YYYYMMDD-HHMMSS
+          items         TEXT NOT NULL,      -- JSON array of item keys run
+          skipped       TEXT NOT NULL,      -- JSON array of item keys skipped (nothing new)
+          by            TEXT NOT NULL,      -- 'josh' | 'christine'
+          total_tokens  INTEGER NOT NULL DEFAULT 0,
+          started_at    TEXT NOT NULL,
+          finished_at   TEXT
+        );
+
+        -- Per-item usage for a run (handoff §5.5: "type, items run, tokens and time"; the 30-day
+        -- chart "split by Sync item"). One row per item that actually ran. model records which model
+        -- the item used (§5.6 "the smallest that does the job well"). Skipped items get no row.
+        CREATE TABLE sync_run_items (
+          run_id  TEXT NOT NULL REFERENCES sync_runs(id),
+          item    TEXT NOT NULL CHECK (item IN ('inbox', 'kanban', 'schedule')),
+          model   TEXT NOT NULL,
+          tokens  INTEGER NOT NULL DEFAULT 0,
+          count   INTEGER NOT NULL DEFAULT 0,   -- number of changes this item made
+          at      TEXT NOT NULL,
+          PRIMARY KEY (run_id, item)
+        );
+        CREATE INDEX idx_sync_run_items_at ON sync_run_items(at);
+
+        -- Every change a run made, for the results list and Revert / Revert all (handoff §5.1,
+        -- §5.4). kind picks the revert path: an inbox suggestion is un-suggested, a kanban change is
+        -- reverted by its log id, a schedule proposal is withdrawn in EZ Binder if still pending.
+        -- target is the id that path needs (note id / log id / proposal id). payload is JSON the
+        -- revert needs (e.g. an inbox note's pre-suggestion state). reverted_at is set once undone.
+        CREATE TABLE sync_changes (
+          run_id      TEXT NOT NULL REFERENCES sync_runs(id),
+          seq         INTEGER NOT NULL,
+          kind        TEXT NOT NULL CHECK (kind IN ('inbox', 'kanban', 'schedule')),
+          target      TEXT NOT NULL,
+          label       TEXT NOT NULL,
+          sub         TEXT NOT NULL DEFAULT '',
+          action      TEXT NOT NULL,          -- button label: 'Revert' or 'Withdraw'
+          payload     TEXT,
+          reverted_at TEXT,
+          PRIMARY KEY (run_id, seq)
+        );
+        CREATE INDEX idx_sync_changes_run ON sync_changes(run_id);
+      `);
+    },
+  },
 ];
 
 // Other inbox/email settings (handoff §2, §2.1, §8.7) live in app_settings (migration 0002), a
