@@ -151,4 +151,19 @@ Local run: unit 163/163, browser 57/57; lint clean; typecheck clean; generated t
 
 ## Landing
 
-(pending)
+LANDED 2026-11-19. Merge "[Merge] CC8 (Builds screen, build questions, build budget)" into main. CI
+green: run 44478042639, both jobs (Lint/types/build/unit: success; Browser tests: success). Spec §4 =
+handoff §11 "Builds" checks (minus the touch-screen ones, which are CC9) all pass against the GitHub
+stub — see the Checks section above for the per-check evidence. unit 163/163, browser 57/57.
+
+Branch was fast-forwardable onto main (0 behind; merge-base = main tip d241f21). The only commits
+after the CI-green commit (f7f827a) are docs (chain.md + CC8-status.md), listed in the merge message,
+via: git merge --no-ff cc8-builds. Migration 0008_builds lands with the code; the Mac mini updater
+applies it (handoff §7.5) — expected objects: builds_files, builds_commits, idx_builds_commits_repo.
+Deploy and smoke after merge are the Mac mini updater's job (handoff §7.4), not this build session.
+
+New waits on Josh (also in chain.md): set the github_token in Settings → Keys
+(docs/guides/github_token.md) and CC_LIVE_GITHUB=1 on the Mac mini to read/write real GitHub (the stub
+stands in until then); create the private build-control repo, point each runner at it
+(BUILD_BUDGET_REPO) and set the weekly build limit in Settings → Software builds (until set, usage is
+recorded with no hold). Tracked projects are editable there too.

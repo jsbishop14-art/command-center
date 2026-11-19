@@ -11,7 +11,7 @@
 | 5 | CC5 | cc5-deals-contacts | docs/specs/CC5-BUILD-SPEC.md | 2 (Projects), 3.3, 3.4, 4.8 | Landed |
 | 6 | CC6 | cc6-ez-binder | docs/specs/CC6-BUILD-SPEC.md | 2 (money, schedule), 2.2, 7.2, 7.3 | Landed |
 | 7 | CC7 | cc7-sync | docs/specs/CC7-BUILD-SPEC.md | 5 | Landed |
-| 8 | CC8 | cc8-builds | docs/specs/CC8-BUILD-SPEC.md | 7.1 | Queued |
+| 8 | CC8 | cc8-builds | docs/specs/CC8-BUILD-SPEC.md | 7.1 | Landed |
 | 9 | CC9 | cc9-touch-screen | docs/specs/CC9-BUILD-SPEC.md | 6 | Queued |
 | 10 | CC10 | cc10-phone-lookup | docs/specs/CC10-BUILD-SPEC.md | 8 | Queued |
 
@@ -99,7 +99,13 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   no API key, the same way the build runner does). Until then the stub stands in, with deterministic
   output and token counts. Optional: set app setting ai_weekly_plan_tokens for the Sync popup's
   "weekly plan %" tile (unset shows "—"; the Max plan has no hard cap on Sync, handoff §5.6).
-- A GitHub token for the Builds screen (CC8).
+- Builds screen live wiring (CC8 landed against the GitHub stub): on the Mac mini set the
+  github_token in Settings → Keys (see docs/guides/github_token.md) and CC_LIVE_GITHUB=1 so the
+  Builds screen reads the real repos and build-control, and writes answers and the budget to GitHub.
+  Until then the stub stands in. Josh also creates the private build-control repo once and points
+  each runner at it (BUILD_BUDGET_REPO), then sets the weekly build limit in Settings → Software
+  builds (until set, usage is recorded with no hold — chain.md 2026-11-09 16:39). Tracked projects
+  are editable in the same place.
 - Twilio, api.data.gov and FCC keys, plus 15 to 20 known numbers (before CC10 goes live).
 
 ## Landings
@@ -198,3 +204,28 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   idx_sync_run_items_at, idx_sync_changes_run. New waits on Josh: set CC_LIVE_AI=1 on the Mac mini to
   run Sync through the Claude Code command line (the stub stands in until then); optionally set app
   setting ai_weekly_plan_tokens for the Sync popup's weekly-plan % tile.
+- CC8, 2026-11-19. Merge "[Merge] CC8 (Builds screen, build questions, build budget)" into main. CI
+  green: run 44478042639, both jobs (Lint/types/build/unit: success; Browser tests: success). Spec §4
+  = handoff §11 "Builds" checks (minus the touch-screen ones, which are CC9) all pass against the
+  GitHub stub (evidence in docs/sessions/CC8-status.md): check 1 right stage from GitHub (cc8-builds
+  unit state derivation + "Josh reaches Builds" browser); check 2 the bell count and red Builds badge
+  update on a new unanswered question — the touch-screen jump is CC9 (cc8-builds unit alerts +
+  browser nav-count-builds=1/bell-count=2 and the badge dropping to 0 after an answer); check 3 an
+  answer appears in the status file verbatim with the time, chain.md changed in the same [skip ci]
+  commit, then the card shows the runner command (cc8-builds unit "writes the answer verbatim" +
+  browser "Josh answers a build question"); check 4 the app writes to GitHub only status files +
+  chain.md on build branches and budget.json — enforced in github.commit() (DisallowedWriteError),
+  not just asserted (cc8-builds unit write-allowlist); check 5 the budget tile matches this week's
+  usage.jsonl, HOLD shows when the runner would hold, Override writes override_until and the next
+  start proceeds (cc8-builds unit budget + browser "Override clears the build-budget hold"). Checks 6
+  & 7 (Mac-mini live / rollback) are the §7.4 updater's mechanics, built and tested in CC1; CC8 only
+  displays their state (cc8-builds unit updater display). Each login reaches Builds from the left
+  menu / the top-bar bell and the Software builds settings card from the menu (cc8-builds browser,
+  josh + christine). unit 163/163, browser 57/57. Branch was fast-forwardable onto main (0 behind;
+  merge-base = main tip d241f21); the only commits after the CI-green commit (f7f827a) are docs
+  (chain.md + CC8-status.md), listed in the merge message, via: git merge --no-ff cc8-builds.
+  Migration 0008_builds lands with the code; the Mac mini updater applies it (handoff §7.5) —
+  expected objects: builds_files, builds_commits, idx_builds_commits_repo. New waits on Josh: set the
+  github_token in Settings → Keys (docs/guides/github_token.md) and CC_LIVE_GITHUB=1 on the Mac mini
+  to read/write real GitHub (the stub stands in until then); create the private build-control repo
+  and set the weekly build limit in Settings → Software builds.
