@@ -19,7 +19,7 @@ const ITEMS: Item[] = [
   { label: "Schedule", href: "/schedule" },
   { label: "Deals", href: "/deals" },
   { label: "Contacts", href: "/contacts" },
-  { label: "Builds", soon: "CC8" },
+  { label: "Builds", href: "/builds" },
   { label: "Money", href: "/money" },
   { label: "Phone lookup", soon: "CC10" },
   { label: "Problems", href: "/kanban/problems" },
@@ -32,9 +32,23 @@ const DOT: Record<FeedHealth, string> = {
   error: "#DC2626",
 };
 
-export default function Nav({ feeds, inboxCount }: { feeds: FeedStatusItem[]; inboxCount: number }) {
+export default function Nav({
+  feeds,
+  inboxCount,
+  buildsBadge = 0,
+}: {
+  feeds: FeedStatusItem[];
+  inboxCount: number;
+  buildsBadge?: number;
+}) {
   const pathname = usePathname();
-  const items = ITEMS.map((it) => (it.label === "Inbox" ? { ...it, count: inboxCount } : it));
+  const items = ITEMS.map((it) =>
+    it.label === "Inbox"
+      ? { ...it, count: inboxCount }
+      : it.label === "Builds"
+        ? { ...it, count: buildsBadge }
+        : it,
+  );
   return (
     <nav className="nav" aria-label="Main">
       {items.map((it) =>
@@ -46,7 +60,10 @@ export default function Nav({ feeds, inboxCount }: { feeds: FeedStatusItem[]; in
           >
             <span>{it.label}</span>
             {it.count ? (
-              <span className="nav-count" data-testid={`nav-count-${it.label.toLowerCase()}`}>
+              <span
+                className={`nav-count${it.label === "Builds" ? " danger" : ""}`}
+                data-testid={`nav-count-${it.label.toLowerCase()}`}
+              >
                 {it.count}
               </span>
             ) : null}

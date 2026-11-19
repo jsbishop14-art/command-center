@@ -7,7 +7,7 @@ name: CI
 # not a real secret.
 on:
   push:
-    branches: [cc1-foundation, cc2-kanban, cc3-home, cc4-inbox-email, cc5-deals-contacts, cc6-ez-binder, cc7-sync, main]
+    branches: [cc1-foundation, cc2-kanban, cc3-home, cc4-inbox-email, cc5-deals-contacts, cc6-ez-binder, cc7-sync, cc8-builds, main]
   pull_request:
     branches: [main]
 

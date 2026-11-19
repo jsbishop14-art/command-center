@@ -489,6 +489,51 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    id: "0008_builds",
+    expects: [
+      { type: "table", name: "builds_files" },
+      { type: "table", name: "builds_commits" },
+      { type: "index", name: "idx_builds_commits_repo" },
+    ],
+    up: (db) => {
+      db.exec(`
+        -- The Builds screen reads everything from GitHub (handoff §7.1); GitHub is stubbed like every
+        -- other outside source (handoff §7.5, spec §6: no real GitHub reads/writes from CI). In the
+        -- stub the modelled GitHub lives in these two tables so the UI reflects the app's own writes
+        -- across requests and the checks can verify them; CC_LIVE_GITHUB=1 on the Mac mini uses the
+        -- real GitHub API instead (never exercised by tests). The current content of each file on each
+        -- repo/branch. The app reads status files, chain.md, budget.json and usage.jsonl from here and
+        -- writes only status files + chain.md on build branches and budget.json (spec §3, check 4).
+        CREATE TABLE builds_files (
+          repo        TEXT NOT NULL,
+          branch      TEXT NOT NULL,
+          path        TEXT NOT NULL,
+          content     TEXT NOT NULL,
+          updated_at  TEXT NOT NULL,
+          PRIMARY KEY (repo, branch, path)
+        );
+
+        -- One row per commit the modelled GitHub holds: the seeded history (merge commits on main for
+        -- landed builds, the newest commit on each build branch for "last activity") and every commit
+        -- the app makes (an answer commit on a build branch, a budget commit on build-control). A
+        -- Landed build is a commit on main whose message starts "[Merge] <NAME> (" (handoff §7.1);
+        -- an answer commit carries [skip ci] (check 3); paths is the JSON list of files it touched,
+        -- so check 4 can audit that the app only ever writes the three allowed kinds of file.
+        CREATE TABLE builds_commits (
+          id            INTEGER PRIMARY KEY,
+          repo          TEXT NOT NULL,
+          branch        TEXT NOT NULL,
+          sha           TEXT NOT NULL,
+          message       TEXT NOT NULL,
+          author        TEXT NOT NULL,
+          committed_at  TEXT NOT NULL,
+          paths         TEXT NOT NULL DEFAULT '[]'
+        );
+        CREATE INDEX idx_builds_commits_repo ON builds_commits(repo, branch);
+      `);
+    },
+  },
 ];
 
 // Other inbox/email settings (handoff §2, §2.1, §8.7) live in app_settings (migration 0002), a
