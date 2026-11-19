@@ -16,6 +16,9 @@ next-env.d.ts.timestamp
 *.db-wal
 /backups/
 
+# local kanban folder (lives on the Mac mini; never committed from a build session — handoff 7.5)
+/kanban/
+
 # local secrets and env (never commit)
 .env
 .env.local

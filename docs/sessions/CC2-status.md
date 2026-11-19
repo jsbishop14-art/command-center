@@ -48,7 +48,19 @@ No real outside calls (use stubs). No real email, ever. Migrations land with the
 
 ## Decided without asking
 
-(filled in as the build proceeds)
+- D-1 Kanban DB-side state (snapshot cache, app_settings, action_tokens, kanban_problems, card id
+  sequence) lives in SQLite migration 0002_kanban; the cards themselves stay as files (handoff §4:
+  no database table for cards). Reason: handoff §4.6 says the app keeps a snapshot of each card to
+  compute before/after; persisting it means hand-edit diffs survive a restart. Changes no ruling,
+  writes no real data, undoable.
+- D-2 No third-party YAML dependency. A small flat frontmatter parser (src/lib/kanban/frontmatter.ts)
+  for card and pending files, and a constrained board.yaml reader/writer the app fully controls.
+  Reason: card frontmatter is flat key/value with flow lists; keeps the Mac mini self-contained and
+  CI free of surprises; unknown fields are preserved (handoff §4.7 rule 6).
+- D-3 `server-only` is stubbed under Vitest (tests/unit/stubs/server-only.ts) so server modules can
+  be unit-tested; it is a build-time guard with no runtime. Also added `@/` alias to vitest.config.
+- D-4 The local `kanban/` folder at the repo root is gitignored; the real kanban folder lives on the
+  Mac mini and is never committed from a build session (handoff §7.5).
 
 ## Questions
 
@@ -58,7 +70,11 @@ No real outside calls (use stubs). No real email, ever. Migrations land with the
 
 - Step 0: branch cc2-kanban from origin/main; brought CC2-BUILD-SPEC.md from origin/docs/next-builds; wrote this
   status file. hooks path set to scripts/hooks.
+- Step 1: kanban storage core — paths, frontmatter parse/serialize (unknown fields survive), card
+  parse/validate + serialize, board.yaml read/write, atomic write + re-read-before-write store,
+  DB-backed state (id sequence, settings, problems, snapshots). Migration 0002_kanban (5 tables).
+  typecheck 0; unit 34/34 (kanban-storage 11/11 new).
 
 ## PICK UP HERE
 
-Step 1: kanban storage core + migration 0002.
+Step 2: activity log + snapshot differ.
