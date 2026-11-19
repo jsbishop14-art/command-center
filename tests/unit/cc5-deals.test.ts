@@ -164,7 +164,7 @@ describe("CC5 contacts — email matching (spec check 3)", () => {
   });
 
   it("contacts list and search work", () => {
-    expect(listContacts().length).toBe(3);
+    expect(listContacts().length).toBe(4);
     expect(searchContacts("keystone").map((c) => c.name)).toEqual(["Marcus Reed"]);
   });
 
@@ -180,7 +180,7 @@ describe("CC5 contacts — email matching (spec check 3)", () => {
     const riverwood = items.find((i) => i.to === "dana@riverwoodbuild.com")!;
     expect(riverwood.matchKind).toBe("client");
     // An address that is neither a client nor a contact stays the bare address.
-    expect(matchRecipient("sales@tilewarehouse.com")).toEqual({ kind: "none", label: "sales@tilewarehouse.com" });
+    expect(matchRecipient("stranger@example.com")).toEqual({ kind: "none", label: "stranger@example.com" });
   });
 
   it("linking an estimate is reflected on the deal", () => {

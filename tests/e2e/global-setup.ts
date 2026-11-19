@@ -12,6 +12,7 @@ import { connectFeed } from "../../src/lib/feeds/store";
 import { connectGmail, setIntakeAddress } from "../../src/lib/feeds/gmail";
 import { runRefresh } from "../../src/lib/feeds/refresh";
 import { issueShortcutToken } from "../../src/lib/shortcut";
+import { listDeals, updateDeal } from "../../src/lib/deals/actions";
 
 // Seed a fresh database AND kanban folder for the browser tests. The app (started by Playwright's
 // webServer) reads the same CC_DB_PATH and CC_KANBAN_DIR. Passwords match tests/e2e/util.ts.
@@ -65,6 +66,12 @@ export default async function globalSetup() {
   connectGmail(at);
   setIntakeAddress("josh+notes@worthprop.com");
   await runRefresh();
+
+  // CC5: the five seed deals and their contacts come from seed() above. Make one Claude change to a
+  // deal through the action layer so the Deals history shows a revertable Claude entry (spec check
+  // 2). Change the next action; the browser test reverts it back to the seeded value.
+  const bnt = listDeals().find((d) => d.name === "BNT / ES Windows pool");
+  if (bnt) updateDeal("claude", bnt.id, { nextAction: "Claude: chase the ES window count" }, { at, run: "chat-seed" });
 
   // Issue action-layer tokens for the route tests; write the plaintext to a file the tests read.
   // CC_DB_PATH/CC_KANBAN_DIR may live under RUNNER_TEMP in CI, so the repo-root .e2e/ folder is not

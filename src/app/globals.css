@@ -928,3 +928,309 @@ select:focus {
   justify-content: flex-end;
   gap: 10px;
 }
+
+/* Deals and Contacts (CC5) — mockup Deals.dc.html, Contacts.dc.html */
+.deal-layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+}
+.deal-table {
+  flex: 999 1 640px;
+  min-width: 0;
+  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.deal-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 110px 70px 1.4fr 90px 72px;
+  gap: 10px;
+  align-items: center;
+  min-width: 760px;
+}
+.contact-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr 90px 1.6fr 130px 1.4fr;
+  gap: 10px;
+  align-items: center;
+  min-width: 760px;
+}
+.deal-head {
+  padding: 0 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.deal-item {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  color: var(--ink);
+  text-decoration: none;
+}
+.deal-item.selected {
+  border: 2px solid #16181d;
+}
+.deal-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.deal-stage-chip {
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: inline-block;
+}
+.deal-stage-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  padding: 10px 14px 0;
+  font-size: 12px;
+}
+.deal-panel {
+  flex: 1 1 320px;
+  max-width: 380px;
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: 0 10px 30px rgba(28, 38, 72, 0.1);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.deal-fields {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 10px;
+  font-size: 13px;
+  align-items: center;
+}
+.deal-fields input,
+.deal-fields select {
+  font: inherit;
+  font-size: 13px;
+  border: 1px solid rgba(22, 24, 29, 0.14);
+  border-radius: 8px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.7);
+}
+.deal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.deal-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+}
+.deal-estimate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+}
+.deal-inline-form {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.deal-inline-form input,
+.deal-inline-form select {
+  font: inherit;
+  font-size: 12px;
+  border: 1px solid rgba(22, 24, 29, 0.14);
+  border-radius: 8px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.7);
+  flex: 1;
+  min-width: 0;
+}
+.deal-contact-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.deal-contact-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.7);
+}
+.deal-contact-chip a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.chip-x {
+  border: 0;
+  background: transparent;
+  color: var(--ink-mute);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+}
+.deal-boards {
+  border: 1px solid rgba(22, 24, 29, 0.1);
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.deal-boards legend {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 6px;
+}
+.deal-hist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.deal-hist-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 6px 0;
+  border-top: 1px solid rgba(22, 24, 29, 0.08);
+}
+.deal-hist-row .when {
+  font-size: 10px;
+  color: var(--ink-mute);
+}
+.deal-match-note {
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.add-deal-form,
+.add-contact-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.add-deal-form input,
+.add-deal-form select,
+.add-contact-form input,
+.add-contact-form select {
+  font: inherit;
+  border: 1px solid rgba(22, 24, 29, 0.14);
+  border-radius: 8px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+/* Awaiting reply deal match */
+.deal-match {
+  font-weight: 600;
+  color: #7c2d12;
+}
+
+/* Projects grid (CC5) — mockup Main.dc.html */
+.projects-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-margin-top: 80px;
+}
+.projects-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.projects-head h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.projects-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.project-card {
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: 0 10px 30px rgba(28, 38, 72, 0.1);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.project-card .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.project-card .group {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.project-card .src {
+  font-size: 11px;
+}
+.project-card .name {
+  font-weight: 600;
+  font-size: 15px;
+}
+.project-card .status {
+  font-size: 13px;
+}
+.proj-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(22, 24, 29, 0.08);
+  font-size: 12px;
+}
+.proj-meta > div {
+  display: flex;
+  gap: 6px;
+}
+.proj-meta .k {
+  color: var(--ink-mute);
+  width: 44px;
+}
+.proj-meta .v {
+  flex: 1;
+}

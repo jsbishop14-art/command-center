@@ -12,13 +12,13 @@ type Item = { label: string; href?: string; soon?: string; count?: number };
 
 const ITEMS: Item[] = [
   { label: "Home", href: "/home" },
-  { label: "Projects", soon: "CC5" },
+  { label: "Projects", href: "/home#projects" },
   { label: "Kanban", href: "/kanban" },
   { label: "Inbox", href: "/inbox" },
   { label: "Calendar", soon: "CC3" },
   { label: "Schedule", soon: "CC6" },
-  { label: "Deals", soon: "CC5" },
-  { label: "Contacts", soon: "CC5" },
+  { label: "Deals", href: "/deals" },
+  { label: "Contacts", href: "/contacts" },
   { label: "Builds", soon: "CC8" },
   { label: "Money", soon: "CC6" },
   { label: "Phone lookup", soon: "CC10" },

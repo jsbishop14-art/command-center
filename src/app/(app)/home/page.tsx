@@ -11,6 +11,8 @@ import type { Card } from "@/lib/kanban/types";
 import HomePanels, { type PanelSpec } from "@/components/home/HomePanels";
 import InboxNotes from "@/components/home/InboxNotes";
 import AwaitingReply from "@/components/home/AwaitingReply";
+import ProjectsGrid from "@/components/home/ProjectsGrid";
+import { buildProjects } from "@/lib/deals/projects";
 
 export const dynamic = "force-dynamic";
 
@@ -127,6 +129,7 @@ export default function HomePage() {
   const notes = inboxNotes();
   const awaiting = awaitingItems(new Date(nowEastern()));
   const gmailOn = gmailConnected();
+  const projects = buildProjects(board);
 
   const panels: PanelSpec[] = [
     { key: "today", title: "Today", body: <TodayPanel events={events} due={due} anyConnected={anyConnected} /> },
@@ -169,6 +172,8 @@ export default function HomePage() {
       </section>
 
       <HomePanels panels={panels} initialOrder={layout.order} initialCollapsed={layout.collapsed} />
+
+      <ProjectsGrid cards={projects} />
 
       <section className="card gc-schedule">
         <h2>GC schedule · next 2 weeks</h2>

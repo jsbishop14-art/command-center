@@ -112,6 +112,15 @@ const CONTACTS: (NewContact & { dealNames: string[] })[] = [
     emails: ["priya@neighborleepartners.com"],
     dealNames: ["NeighborLee Living"],
   },
+  {
+    name: "Tile Warehouse",
+    company: "Tile Warehouse",
+    role: "other",
+    phone: "(239) 555-0133",
+    notes: "Porcelain and tile supplier for the Naples job.",
+    emails: ["orders@tilewarehouse.com", "sales@tilewarehouse.com"],
+    dealNames: ["Best Western Naples"],
+  },
 ];
 
 export function seedDeals(at: string = nowEastern()): { deals: number; contacts: number } {
