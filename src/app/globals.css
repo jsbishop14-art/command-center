@@ -334,6 +334,14 @@ select:focus {
   font-size: 12px;
   color: var(--ink-mute);
 }
+.feed-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
 .badge-set {
   color: #15803d;
 }
