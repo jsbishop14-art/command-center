@@ -20,7 +20,9 @@ export default function QuestionPanel({ item }: { item: Extract<NeedsYouItem, { 
   const [pending, start] = useTransition();
   const router = useRouter();
 
-  const questions = item.questions;
+  // Snapshot the unanswered questions once. A submit revalidates the page, which shrinks item.questions
+  // as answers land; walking a fixed snapshot keeps the one-at-a-time flow stable (next/previous).
+  const [questions] = useState(() => item.questions);
   const q = questions[idx];
   const answeredSoFar = item.totalQuestions - questions.length;
 

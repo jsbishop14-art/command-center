@@ -39,8 +39,20 @@ main; brought from origin/docs/next-builds in the first commit.
 
 ## PICK UP HERE
 
-Step 0 done: branch cc8-builds created from origin/main; CC8 spec brought from
-origin/docs/next-builds; this status file written. Building per the plan below.
+BUILT, pending the deliberate CI run and landing. All code, tests and docs are in; local checks are
+green (lint, typecheck, generated types in sync, unit 163/163, browser 57/57). Next in this session:
+one deliberate CI run (ALLOW_CI=1) on cc8-builds, then land onto main per the landing rule with a
+"[Merge] CC8 (" message, then record the landing here and in chain.md.
+
+Done:
+- lib/builds/: mode, types, github (stub + facade + write allowlist), stub (fixture), projects,
+  budget, state (parse + derive), writer (commitAnswer/commitBudget), updater (reads §7.4 files),
+  view. Migration 0008_builds (builds_files, builds_commits, idx_builds_commits_repo).
+- Screen /builds + server actions (submitAnswerAction, overrideBudgetAction); QuestionPanel,
+  OverrideButton, CopyCommand. Settings → Software builds (BuildsSettingsPanel) + settings actions.
+  Nav "Builds" and the top-bar bell are real links with the red badge / bell count. CI branch
+  trigger added. Guide docs/guides/github_token.md.
+- Tests: tests/unit/cc8-builds.test.ts (24), tests/e2e/cc8-builds.e2e.ts (5).
 
 ## Plan (decided; from spec, handoff §7.1, §7.3 GitHub rows, mockup Builds.dc.html)
 
@@ -93,10 +105,45 @@ Checks (spec §4 = handoff §11 "Builds", minus the touch-screen ones which are 
    (checks 6 & 7 — Mac-mini live/rollback — are the §7.4 updater's mechanics, built in CC1; CC8
    displays their state from the local updater files and seeds them for the display test.)
 
+## Checks (spec §4 = handoff §11 "Builds", minus the touch-screen ones which are CC9)
+
+Evidence (unit = tests/unit/cc8-builds.test.ts; browser = tests/e2e/cc8-builds.e2e.ts):
+1. Right stage within 2 min of the GitHub change — the 2-minute poll is handoff §7.3; the derivation
+   is state.ts. unit "gives each project the right stage", "Needs Josh when … unanswered",
+   "landed count / place in chain", "amber after 3h"; browser "Josh reaches Builds … cards … HOLD".
+2. The bell count and the red Builds badge update on a new unanswered question (the touch-screen jump
+   is CC9) — unit "the red Builds badge counts Needs-Josh projects; the bell adds the hold"; browser
+   test 1 asserts nav-count-builds=1 and bell-count=2, test 4 asserts the badge drops to 0 after the
+   answer.
+3. An answer appears in the status file verbatim with the time, chain.md changed in the same commit,
+   pushed [skip ci], then the card shows the runner command — unit "writes the answer verbatim …
+   same [skip ci] commit", "runner command once the last question is answered", "refuses twice",
+   "inserts under the recommendation"; browser "Josh answers a build question …".
+4. The app writes to GitHub only status files + chain.md on build branches and budget.json — unit
+   "allows only …", "commit() throws on any disallowed path", "every commit the app records touches
+   only allowed paths". Enforced in github.commit() (DisallowedWriteError), not just asserted.
+5. The budget tile matches this week's usage.jsonl; HOLD shows when the runner would hold; Override
+   writes override_until and the next runner start proceeds — unit "sums this week's usage.jsonl and
+   holds", "an override clears the hold", "warns but does not hold", "Budget not set up", "only
+   counts usage since the Monday 2:00 AM reset"; browser "Override clears the build-budget hold".
+   Checks 6 & 7 (Mac-mini live / rollback) are the §7.4 updater's mechanics, built and tested in CC1
+   (updater.test.ts); CC8 only displays their state — unit "shows Live on Mac mini and a rollback
+   alert from the local updater files". The deliberately-broken-rollback itself is a CC1/updater
+   behaviour, not re-run here.
+
+Local run: unit 163/163, browser 57/57; lint clean; typecheck clean; generated types in sync.
+
 ## Decided without asking
 
 - GitHub stubbed with CC_LIVE_GITHUB=1 as the live switch, mirroring CC_LIVE_AI / CC_LIVE_FEEDS. No
   new ruling, widens no access, writes no real data, undoable.
+- When the budget hold is on, every queued project reads "Queued · held by budget", not only one
+  (process.md §12: "no new build session starts" — nothing queued can start). The mockup shows one
+  held card illustratively. Changes no ruling; undoable.
+- The answer timestamp is written in the chain-ruling style "YYYY-MM-DD HH:MM" Eastern (as the
+  existing rulings in chain.md), not raw ISO. Matches handoff §7.1 "<date time>".
+- Christine may also answer build questions (handoff §1.1: she uses the app and sees everything); the
+  answer records the acting login's display name. Handoff §7.1's example names Josh.
 
 ## Questions
 

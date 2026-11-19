@@ -217,12 +217,12 @@ export default function BuildsPage() {
                 n.kind === "questions" ? (
                   <QuestionPanel key={n.repo} item={n} />
                 ) : (
-                  <div key={n.project} className="builds-answered" data-testid={`needsyou-${n.project}`}>
+                  <div key={n.repo} className="builds-answered" data-testid={`needsyou-${n.repo}`}>
                     <div className="builds-needs-head">
                       <strong>{n.project} · {n.buildName}</strong>
                       <span className="mono subtle">{n.answeredCount} of {n.answeredCount} answered</span>
                     </div>
-                    <div className="builds-saved">✓ Answers saved. Restart the runner</div>
+                    <div className="builds-saved" data-testid="answers-saved">✓ Answers saved. Restart the runner</div>
                     <div className="subtle">Paste this at the plain terminal prompt in the build workspace:</div>
                     <CopyCommand command={n.runnerCommand} />
                   </div>

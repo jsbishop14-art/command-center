@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useFormState, useFormStatus } from "react-dom";
 import {
   saveBuildProjectsAction,
   saveBuildBudgetAction,
@@ -11,6 +12,16 @@ import type { Project } from "@/lib/builds/types";
 // Settings → Software builds (handoff §7.1): edit the tracked projects (name + repo) and the build
 // budget limit and warning percentage. The projects list is a local setting; the limit and warning
 // are written to build-control/budget.json.
+
+function SaveButton({ label, testid }: { label: string; testid: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" className="btn accent" data-testid={testid} disabled={pending}>
+      {pending ? "Saving…" : label}
+    </button>
+  );
+}
+
 export default function BuildsSettingsPanel({
   projects,
   limit,
@@ -21,8 +32,8 @@ export default function BuildsSettingsPanel({
   warnPct: number;
 }) {
   const [rows, setRows] = useState<Project[]>(projects.length ? projects : [{ name: "", repo: "" }]);
-  const [, saveProjects, savingProjects] = useActionState(saveBuildProjectsAction, null);
-  const [budgetState, saveBudget, savingBudget] = useActionState<BudgetSettingsResult | null, FormData>(
+  const [, saveProjects] = useFormState(saveBuildProjectsAction, { ok: false });
+  const [budgetResult, saveBudget] = useFormState<BudgetSettingsResult | null, FormData>(
     saveBuildBudgetAction,
     null,
   );
@@ -64,9 +75,7 @@ export default function BuildsSettingsPanel({
           <button type="button" className="btn ghost" data-testid="proj-add" onClick={() => setRows((rs) => [...rs, { name: "", repo: "" }])}>
             Add project
           </button>
-          <button type="submit" className="btn accent" data-testid="proj-save" disabled={savingProjects}>
-            {savingProjects ? "Saving…" : "Save projects"}
-          </button>
+          <SaveButton label="Save projects" testid="proj-save" />
         </div>
       </form>
 
@@ -82,14 +91,12 @@ export default function BuildsSettingsPanel({
           Warning at (%)
           <input name="warn_pct" defaultValue={warnPct} data-testid="budget-warn-pct" />
         </label>
-        {budgetState && "error" in budgetState ? (
-          <span className="error" role="alert">{budgetState.error}</span>
+        {budgetResult && "error" in budgetResult ? (
+          <span className="error" role="alert">{budgetResult.error}</span>
         ) : null}
-        {budgetState && "ok" in budgetState ? <span className="subtle" data-testid="budget-saved">Saved.</span> : null}
+        {budgetResult && "ok" in budgetResult ? <span className="subtle" data-testid="budget-saved">Saved.</span> : null}
         <div className="builds-settings-actions">
-          <button type="submit" className="btn accent" data-testid="budget-save" disabled={savingBudget}>
-            {savingBudget ? "Saving…" : "Save budget"}
-          </button>
+          <SaveButton label="Save budget" testid="budget-save" />
         </div>
       </form>
 

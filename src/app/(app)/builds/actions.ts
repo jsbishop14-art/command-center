@@ -36,7 +36,8 @@ export async function submitAnswerAction(input: {
       questionId: input.questionId,
       questionNumber: input.questionNumber,
       by: user.display_name,
-      at: nowEastern(),
+      // Eastern date-time in the chain-ruling style ("2026-11-09 13:05"), not raw ISO (handoff §7.1).
+      at: nowEastern().slice(0, 16).replace("T", " "),
       answer,
     });
   } catch (e) {

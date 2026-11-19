@@ -33,6 +33,7 @@ export type NeedsYouItem =
   | {
       kind: "answers-saved";
       project: string;
+      repo: string;
       buildName: string;
       answeredCount: number;
       runnerCommand: string;
@@ -90,6 +91,7 @@ function needsYou(cards: ProjectCard[]): NeedsYouItem[] {
       out.push({
         kind: "answers-saved",
         project: c.name,
+        repo: c.repo,
         buildName: c.current.name,
         answeredCount: c.current.questions.length,
         runnerCommand: c.runnerCommand,
