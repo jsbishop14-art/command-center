@@ -15,6 +15,7 @@
 | 9 | CC9 | cc9-touch-screen | docs/specs/CC9-BUILD-SPEC.md | 6 | Landed |
 | 10 | CC10 | cc10-phone-lookup | docs/specs/CC10-BUILD-SPEC.md | 8 | Landed |
 | 11 | CC11 | cc11-mac-fixes-google | docs/specs/CC11-BUILD-SPEC.md | 2, 2.1, 2.2, 4.4, 7.2, 7.3, 7.4, 1.1 | Landed |
+| 12 | CC12 | cc12-updater-sessions | docs/specs/CC12-BUILD-SPEC.md | 7.4, 7.5, 1.1 | Building |
 
 ## Grants
 
@@ -81,6 +82,20 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
 - 2026-11-19 05:56, on the Calendar menu item (CC3-ASK-1): "3. understood. i will test the system and see whats
   needed." Meaning: no standalone Calendar screen now; the menu item stays a later-build placeholder.
 - 2026-11-19 07:43: "im back on the windows machine. run fixes now" (go-ahead to build CC11).
+- 2026-11-19 16:11, on the updater cadence: "every 5 minutes seems excessive. it should be once a
+  day and then on command." Meaning: the updater runs once a day, plus a Check for updates now button
+  — no 5-minute polling. Built in CC12.
+- 2026-11-19 16:13, answers to the daily-update questions ("1. What time of day should the daily
+  update run? I recommend 3:00 AM" / "2. Should 'on demand' be a 'Check for updates now' button in
+  Settings that also shows when the last update ran?"): "ok" and "yes". Meaning: daily update at
+  3:00 AM Eastern; a Check for updates now button in Settings that shows when the last update ran and
+  its result. Built in CC12.
+- 2026-11-19 17:33, on being signed out: "i have all of the tokens. they didnt save again and i was
+  signed out. its running fine when signed back in but i shouldnt have to sign in so often. in fact,
+  when im in i dont want to ever have to sign in again". Meaning: sessions must be sliding (renew on
+  use) so Josh and Christine stay signed in; an update must never lose saved keys or sign anyone out.
+  Window chosen = 365 days (CC12 status D1). Built in CC12.
+- 2026-11-19 17:35: "plan and fix now" (go-ahead to build CC12).
 
 ## What waits on Josh
 
