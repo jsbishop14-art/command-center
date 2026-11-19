@@ -146,6 +146,30 @@ Plus spec §4: (1) revert + changed-again — unit actions revert; (2) Claude/Du
 + e2e tokens; (3) Duet off refused — unit tokens + e2e; (4) browser reaches board + panel per login —
 e2e check4.
 
+## Landing
+
+CC2 landed 2026-11-19.
+
+- Deliberate CI run: 44455383320 (browser job failed: e2e global-setup wrote .e2e/tokens.json before
+  the repo-root .e2e/ existed — ENOENT in CI where CC_DB_PATH/CC_KANBAN_DIR live under RUNNER_TEMP).
+  Fix run: 44455624341 — both jobs success (Lint/types/build/unit; Browser tests). Budget used: 1
+  deliberate + 1 fix, of 1 + 2 infrastructure + 2 fix.
+- Landing rule (CLAUDE §3 / handoff §7.5): (1) CI green on the branch; cc2-kanban was fast-forwardable
+  onto current main dc32000; the only commits after the CI-green commit a747852 are docs (chain.md and
+  this status file), named in the merge message. (2) Every agreed check passed with its number — see
+  the "Checks (spec §4) — evidence" section above: handoff §11 "Kanban storage" 1-11 and spec §4 1-4;
+  unit 65/65, browser 18/18.
+- Migration 0002_kanban lands with the code; the Mac mini updater applies it (handoff §7.5). Expected
+  objects: kanban_snapshots, app_settings, action_tokens, kanban_problems, card_seq.
+- After merge: deploy and smoke are the Mac mini updater's job (handoff §7.4), not this build session.
+
+## Waits on Josh
+
+- Issue the Claude and Duet action-layer tokens in Settings → "Kanban action layer" when he wants
+  Claude or Duet to edit cards over the tunnel. Duet stays off until he turns the switch on.
+- Set the kanban folder path in Settings on the Mac mini — a local path outside iCloud, Dropbox and
+  OneDrive (handoff §4.1). CC_KANBAN_DIR overrides it; the default is a `kanban/` folder beside the app.
+
 ## PICK UP HERE
 
-Landing: one deliberate CI run (ALLOW_CI=1), then merge to main with "[Merge] CC2 (".
+CC2 is landed. Nothing more to do for CC2. STOP (do not start CC3).
