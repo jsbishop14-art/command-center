@@ -43,6 +43,69 @@ export interface CardSeq {
   last: number;
 }
 
+export interface ContactDeals {
+  contact_id: number;
+  deal_id: number;
+}
+
+export interface ContactEmails {
+  contact_id: number;
+  email: string;
+  sort: number;
+}
+
+export interface Contacts {
+  id: number;
+  name: string;
+  company: string;
+  role: string;
+  phone: string;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string | null;
+}
+
+export interface DealChanges {
+  id: number;
+  deal_id: number;
+  at: string;
+  actor: string;
+  action: string;
+  before?: string | null;
+  after?: string | null;
+  run?: string | null;
+  undoes?: number | null;
+}
+
+export interface DealEstimates {
+  deal_id: number;
+  estimate_id: string;
+  linked_at: string;
+}
+
+export interface Deals {
+  id: number;
+  name: string;
+  type: string;
+  stage: string;
+  value?: number | null;
+  probability?: number | null;
+  current_task: string;
+  next_action: string;
+  next_action_date?: string | null;
+  notes: string;
+  boards: string;
+  customer_id?: string | null;
+  job_id?: string | null;
+  created_at: string;
+  updated_at: string;
+  archived_at?: string | null;
+  last_actor?: string | null;
+  last_run?: string | null;
+  deleted_at?: string | null;
+}
+
 export interface FeedState {
   feed: string;
   status: string;

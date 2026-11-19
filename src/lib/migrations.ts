@@ -210,6 +210,111 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    id: "0005_deals_contacts",
+    expects: [
+      { type: "table", name: "deals" },
+      { type: "table", name: "deal_estimates" },
+      { type: "table", name: "deal_changes" },
+      { type: "table", name: "contacts" },
+      { type: "table", name: "contact_emails" },
+      { type: "table", name: "contact_deals" },
+      { type: "index", name: "idx_deal_estimates_deal" },
+      { type: "index", name: "idx_deal_changes_deal" },
+      { type: "index", name: "idx_contact_emails_email" },
+      { type: "index", name: "idx_contact_deals_deal" },
+    ],
+    up: (db) => {
+      db.exec(`
+        -- Deals (handoff §3.3). EZ Binder does not hold deals; Command Center stores them here.
+        -- Changed only through the action layer (handoff §4.8, spec §3), which writes these rows and
+        -- a deal_changes line. Soft delete via deleted_at (handoff §6). Archive is a separate marker:
+        -- an archived deal is hidden from Projects but still found by search (spec §3), so it is not
+        -- a delete. boards is a JSON array ('["josh"]'); a deal shows on every board it lists
+        -- (handoff §1.3), filtered in code like kanban cards. value is whole US dollars.
+        CREATE TABLE deals (
+          id                INTEGER PRIMARY KEY,
+          name              TEXT NOT NULL,
+          type              TEXT NOT NULL CHECK (type IN ('sale', 'development')),
+          stage             TEXT NOT NULL,
+          value             INTEGER,
+          probability       INTEGER,
+          current_task      TEXT NOT NULL DEFAULT '',
+          next_action       TEXT NOT NULL DEFAULT '',
+          next_action_date  TEXT,
+          notes             TEXT NOT NULL DEFAULT '',
+          boards            TEXT NOT NULL DEFAULT '["josh"]',
+          customer_id       TEXT,
+          job_id            TEXT,
+          created_at        TEXT NOT NULL,
+          updated_at        TEXT NOT NULL,
+          archived_at       TEXT,
+          last_actor        TEXT,
+          last_run          TEXT,
+          deleted_at        TEXT
+        );
+
+        -- Estimates Josh links to a deal (handoff §3.3). Several allowed. Status and total are read
+        -- live from EZ Binder GET /estimates/{id} (a stub until CC6); only the link is stored here.
+        CREATE TABLE deal_estimates (
+          deal_id      INTEGER NOT NULL REFERENCES deals(id),
+          estimate_id  TEXT NOT NULL,
+          linked_at    TEXT NOT NULL,
+          PRIMARY KEY (deal_id, estimate_id)
+        );
+        CREATE INDEX idx_deal_estimates_deal ON deal_estimates(deal_id);
+
+        -- Deal history for the detail panel and Revert (handoff §3.3 history, §5.4). One row per
+        -- change, holding the before/after of the changed fields so a Claude or Duet change can be
+        -- reverted to its earlier values (spec check 2). undoes points at the row a revert undoes.
+        CREATE TABLE deal_changes (
+          id       INTEGER PRIMARY KEY,
+          deal_id  INTEGER NOT NULL REFERENCES deals(id),
+          at       TEXT NOT NULL,
+          actor    TEXT NOT NULL,
+          action   TEXT NOT NULL,
+          before   TEXT,
+          after    TEXT,
+          run      TEXT,
+          undoes   INTEGER
+        );
+        CREATE INDEX idx_deal_changes_deal ON deal_changes(deal_id);
+
+        -- Contacts: lenders, partners and others who are not EZ Binder customers (handoff §3.4). EZ
+        -- Binder customers are never copied here; they are looked up live.
+        CREATE TABLE contacts (
+          id          INTEGER PRIMARY KEY,
+          name        TEXT NOT NULL,
+          company     TEXT NOT NULL DEFAULT '',
+          role        TEXT NOT NULL CHECK (role IN ('lender', 'partner', 'other')),
+          phone       TEXT NOT NULL DEFAULT '',
+          notes       TEXT NOT NULL DEFAULT '',
+          created_at  TEXT NOT NULL,
+          updated_at  TEXT NOT NULL,
+          deleted_at  TEXT
+        );
+
+        -- Several email addresses per contact (handoff §3.4). Stored lowercased so Awaiting reply
+        -- and Inbox suggestions can match a recipient by any of a contact's addresses (spec check 3).
+        CREATE TABLE contact_emails (
+          contact_id  INTEGER NOT NULL REFERENCES contacts(id),
+          email       TEXT NOT NULL,
+          sort        INTEGER NOT NULL DEFAULT 0,
+          PRIMARY KEY (contact_id, email)
+        );
+        CREATE INDEX idx_contact_emails_email ON contact_emails(email);
+
+        -- Contact ↔ deal links (handoff §3.4 linked deals; §3.3 deal's linked contacts). The one
+        -- join serves both directions.
+        CREATE TABLE contact_deals (
+          contact_id  INTEGER NOT NULL REFERENCES contacts(id),
+          deal_id     INTEGER NOT NULL REFERENCES deals(id),
+          PRIMARY KEY (contact_id, deal_id)
+        );
+        CREATE INDEX idx_contact_deals_deal ON contact_deals(deal_id);
+      `);
+    },
+  },
 ];
 
 // Other inbox/email settings (handoff §2, §2.1, §8.7) live in app_settings (migration 0002), a
