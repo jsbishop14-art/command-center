@@ -7,7 +7,6 @@ import { readCardFile } from "@/lib/kanban/store";
 import { getBoardView, problemsCount, projectOptions, searchCards, BOARD_BADGE, MEMBER } from "@/lib/kanban/view";
 import { nowEastern } from "@/lib/kanban/time";
 import { STAGE_LABEL, type Board, type Card } from "@/lib/kanban/types";
-import QuickAdd from "@/components/kanban/QuickAdd";
 import CardPanel from "@/components/kanban/CardPanel";
 import { restoreAction } from "@/app/(app)/kanban/actions";
 
@@ -78,7 +77,6 @@ export default function KanbanPage({
         <Link className="kb-link-problems" href="/kanban/problems" data-testid="problems-link">
           Problems <span className="kb-count">{problems}</span>
         </Link>
-        <QuickAdd />
       </div>
 
       {results ? (

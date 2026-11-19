@@ -118,6 +118,71 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    id: "0003_home",
+    expects: [
+      { type: "table", name: "calendar_feeds" },
+      { type: "table", name: "calendar_events" },
+      { type: "table", name: "weather_readings" },
+      { type: "table", name: "feed_state" },
+      { type: "index", name: "idx_calendar_events_feed" },
+    ],
+    up: (db) => {
+      db.exec(`
+        -- The three fixed Google calendars shown on Home (handoff §2 Today, §7.3). A feed is
+        -- "connected" when Josh signs it in from Settings; the OAuth token lives in the secret
+        -- store (spec §3), never here. color is the per-person colour from the mockup legend.
+        CREATE TABLE calendar_feeds (
+          slug          TEXT PRIMARY KEY,
+          label         TEXT NOT NULL,
+          owner         TEXT NOT NULL CHECK (owner IN ('josh', 'christine')),
+          color         TEXT NOT NULL,
+          sort          INTEGER NOT NULL,
+          connected_at  TEXT          -- NULL until Josh connects it in Settings
+        );
+        INSERT INTO calendar_feeds (slug, label, owner, color, sort) VALUES
+          ('josh_work',     'Josh work',          'josh',      '#16181D', 1),
+          ('josh_personal', 'Josh personal',      'josh',      '#8A8F99', 2),
+          ('christine',     'Christine personal', 'christine', '#2F5BD3', 3);
+
+        -- Cached calendar events, replaced per feed on each Refresh (handoff §5.2, §7.3). No AI.
+        CREATE TABLE calendar_events (
+          id         TEXT PRIMARY KEY,   -- feed slug + external event id
+          feed       TEXT NOT NULL REFERENCES calendar_feeds(slug),
+          title      TEXT NOT NULL,
+          starts_at  TEXT NOT NULL,      -- ISO-8601; all-day events use the date at 00:00
+          ends_at    TEXT,
+          all_day    INTEGER NOT NULL DEFAULT 0,
+          location   TEXT,
+          fetched_at TEXT NOT NULL
+        );
+        CREATE INDEX idx_calendar_events_feed ON calendar_events(feed);
+
+        -- The last weather reading for the saved zip (handoff §2 top bar, §7.3). request_url is the
+        -- request built from the saved zip, kept so a zip change is visible in the request (spec
+        -- check 3). Weather comes from a free source with no paid key (spec §2).
+        CREATE TABLE weather_readings (
+          zip         TEXT PRIMARY KEY,
+          temp_f      INTEGER NOT NULL,
+          conditions  TEXT NOT NULL,
+          rain_pct    INTEGER NOT NULL,
+          hi_f        INTEGER NOT NULL,
+          lo_f        INTEGER NOT NULL,
+          request_url TEXT NOT NULL,
+          fetched_at  TEXT NOT NULL
+        );
+
+        -- Health of each live feed, shown in the left-menu feed list (handoff §2, mockup Main).
+        -- Updated on each Refresh. status is 'ok' or 'error'; detail is a short human note.
+        CREATE TABLE feed_state (
+          feed    TEXT PRIMARY KEY,
+          status  TEXT NOT NULL,
+          detail  TEXT NOT NULL,
+          at      TEXT NOT NULL
+        );
+      `);
+    },
+  },
 ];
 
 // Apply any migrations not yet recorded in schema_migrations. Returns the ids applied.

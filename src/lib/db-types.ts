@@ -13,9 +13,36 @@ export interface AppSettings {
   value: string;
 }
 
+export interface CalendarEvents {
+  id: string;
+  feed: string;
+  title: string;
+  starts_at: string;
+  ends_at?: string | null;
+  all_day: number;
+  location?: string | null;
+  fetched_at: string;
+}
+
+export interface CalendarFeeds {
+  slug: string;
+  label: string;
+  owner: string;
+  color: string;
+  sort: number;
+  connected_at?: string | null;
+}
+
 export interface CardSeq {
   id: number;
   last: number;
+}
+
+export interface FeedState {
+  feed: string;
+  status: string;
+  detail: string;
+  at: string;
 }
 
 export interface KanbanProblems {
@@ -67,4 +94,15 @@ export interface Users {
   password_salt: string;
   created_at: string;
   deleted_at?: string | null;
+}
+
+export interface WeatherReadings {
+  zip: string;
+  temp_f: number;
+  conditions: string;
+  rain_pct: number;
+  hi_f: number;
+  lo_f: number;
+  request_url: string;
+  fetched_at: string;
 }

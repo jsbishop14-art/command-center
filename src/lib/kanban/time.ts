@@ -36,6 +36,11 @@ export function easternStamp(d: Date): string {
   return `${p.year}-${p.month}-${p.day}T${hour}:${p.minute}:${p.second}${sign}${oh}:${om}`;
 }
 
+// The Eastern calendar date (YYYY-MM-DD) for an instant. Used for "due today" and today's events.
+export function todayEastern(d: Date = new Date()): string {
+  return easternStamp(d).slice(0, 10);
+}
+
 // Days between two ISO timestamps (a - b), as a floating-point number of days.
 export function daysBetween(aIso: string, bIso: string): number {
   return (new Date(aIso).getTime() - new Date(bIso).getTime()) / (24 * 60 * 60 * 1000);

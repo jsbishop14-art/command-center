@@ -1,8 +1,11 @@
 import { listSecretStatus } from "@/lib/secrets";
 import SecretsPanel from "@/components/SecretsPanel";
 import ActionLayerPanel from "@/components/kanban/ActionLayerPanel";
+import ZipForm from "@/components/ZipForm";
 import { tokenStatus } from "@/lib/kanban/tokens";
 import { duetEnabled } from "@/lib/kanban/state";
+import { listFeeds, getZip } from "@/lib/feeds/store";
+import { connectCalendarAction, disconnectCalendarAction } from "./feed-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +13,8 @@ export default function SettingsPage() {
   const secrets = listSecretStatus();
   const statuses = tokenStatus();
   const duetOn = duetEnabled();
+  const feeds = listFeeds();
+  const zip = getZip();
   return (
     <>
       <div className="card">
@@ -18,6 +23,54 @@ export default function SettingsPage() {
           The keys the app needs for its outside connections. Enter or replace a key here. A saved
           value is never shown back in full — only that it is set and its last four characters.
         </p>
+      </div>
+
+      <div className="card">
+        <h2>Home feeds</h2>
+        <p className="subtle" style={{ marginTop: 4 }}>
+          Connect each Google calendar so the Today panel shows its events, coloured by person.
+          Connecting stores the calendar&rsquo;s sign-in in the secret store; Josh completes the
+          Google sign-in on the Mac mini. Set the zip used for the weather in the top bar.
+        </p>
+        <div className="feed-list">
+          {feeds.map((f) => (
+            <div key={f.slug} className="secret-row" data-testid={`feed-${f.slug}`}>
+              <span className="label">
+                <span className="feed-swatch" style={{ background: f.color }} aria-hidden="true" />
+                {f.label}
+              </span>
+              <span className="status" data-testid={`feed-status-${f.slug}`}>
+                {f.connectedAt ? "connected" : "not connected"}
+              </span>
+              {f.connectedAt ? (
+                <form action={disconnectCalendarAction}>
+                  <input type="hidden" name="slug" value={f.slug} />
+                  <button
+                    className="btn ghost"
+                    type="submit"
+                    data-testid={`disconnect-${f.slug}`}
+                    style={{ height: 36 }}
+                  >
+                    Disconnect
+                  </button>
+                </form>
+              ) : (
+                <form action={connectCalendarAction}>
+                  <input type="hidden" name="slug" value={f.slug} />
+                  <button
+                    className="btn ghost"
+                    type="submit"
+                    data-testid={`connect-${f.slug}`}
+                    style={{ height: 36 }}
+                  >
+                    Connect
+                  </button>
+                </form>
+              )}
+            </div>
+          ))}
+          <ZipForm zip={zip} />
+        </div>
       </div>
 
       <div className="card">

@@ -21,6 +21,16 @@ export const SECRET_DEFS: SecretDef[] = [
 
 const DEF_BY_NAME = new Map(SECRET_DEFS.map((d) => [d.name, d] as const));
 
+// Google calendar OAuth tokens live in the secret store too (CC3 spec §3), but are not manual
+// keys, so they never appear in the Settings "Keys" list (listSecretStatus iterates SECRET_DEFS
+// only). Their names are gcal_<feed slug>; the calendar connect flow sets and clears them.
+export function calendarTokenName(feedSlug: string): string {
+  return `gcal_${feedSlug}`;
+}
+function isCalendarTokenName(name: string): boolean {
+  return name.startsWith("gcal_");
+}
+
 export type SecretStatus = { name: string; label: string; usedIn: string; isSet: boolean; hint: string };
 
 function mask(plaintext: string): string {
@@ -51,7 +61,7 @@ export function listSecretStatus(): SecretStatus[] {
 }
 
 export function setSecret(name: string, plaintext: string, updatedBy: string): void {
-  if (!DEF_BY_NAME.has(name)) {
+  if (!DEF_BY_NAME.has(name) && !isCalendarTokenName(name)) {
     throw new Error(`Unknown secret: ${name}`);
   }
   if (plaintext.length === 0) {
@@ -75,6 +85,11 @@ export function setSecret(name: string, plaintext: string, updatedBy: string): v
       updated_at: new Date().toISOString(),
       updated_by: updatedBy,
     });
+}
+
+// Remove a stored secret (e.g. disconnecting a calendar clears its token).
+export function deleteSecret(name: string): void {
+  getDb().prepare("DELETE FROM secrets WHERE name = ?").run(name);
 }
 
 // Read the plaintext for a feature that needs it (later builds). Returns null when unset.
