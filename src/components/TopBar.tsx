@@ -2,6 +2,7 @@ import Link from "next/link";
 import { signOutAction } from "@/app/actions";
 import BoardToggle from "./BoardToggle";
 import RefreshButton from "./RefreshButton";
+import SyncButton from "./sync/SyncButton";
 import QuickAdd from "./kanban/QuickAdd";
 import type { Board } from "@/lib/prefs";
 import type { WeatherReading } from "@/lib/feeds/store";
@@ -60,15 +61,8 @@ export default function TopBar({
 
       <RefreshButton ago={refreshAgo} />
 
-      {/* Sync runs only when pressed and arrives in CC7 (handoff §5.1). Placeholder until then. */}
-      <button className="chip" type="button" disabled data-testid="sync-placeholder" title="Sync with Claude runs in CC7">
-        <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.15 }}>
-          <span style={{ fontWeight: 600, fontSize: 13 }}>Sync with Claude</span>
-          <span className="mono" style={{ fontSize: 10, color: "#b8bcc6" }}>
-            runs in CC7
-          </span>
-        </span>
-      </button>
+      {/* Sync with Claude (handoff §5.1): opens the popup; Claude runs only on Run sync, no timer. */}
+      <SyncButton />
 
       {/* The bell opens Builds, which arrives in CC8. Placeholder, no count until then. */}
       <Link href="/soon?s=Builds" className="chip" aria-label="Builds" data-testid="bell" style={{ width: 40, justifyContent: "center" }}>
