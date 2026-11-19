@@ -69,8 +69,18 @@ Built:
 - Each login reaches Phone lookup from the left menu; not tied to a board (§8.8): cc10-phone e2e
   (josh + christine). Touch screen stays display-only (no phone lookup): cc9-touch e2e unchanged.
 
-Tallies (local): unit 212/212, browser 73/73. Lint/types/build clean. CI run: <pending — see
-chain.md landing entry>.
+Tallies: unit 212/212, browser 73/73. Lint/types/build clean. CI green: run 44486999240, both jobs
+(Lint/types/build/unit: success; Browser tests: success).
+
+## Landed
+
+CC10 landed 2026-11-19. Merge into main starts "[Merge] CC10 (". CI green run 44486999240, both
+jobs. Branch fast-forwardable onto main (0 behind; merge-base = main tip 104f72f); the only commits
+after the CI-green commit 41c2001 are docs (chain.md + CC10-status.md), listed in the merge message,
+via git merge --no-ff cc10-phone-lookup. Migration 0009_phone_lookup lands with the code; the Mac
+mini updater applies it (handoff §7.5) — expected objects: ftc_counts, ftc_sync_state, twilio_cache,
+phone_lookups, phone_marks, idx_ftc_counts_phone, idx_phone_lookups_phone, idx_phone_lookups_created.
+Deploy and smoke after merge are the Mac mini updater's job (handoff §7.4). Recorded in chain.md.
 
 ## Decided without asking
 
