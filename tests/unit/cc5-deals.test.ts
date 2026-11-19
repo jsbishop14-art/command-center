@@ -18,6 +18,7 @@ import {
 } from "../../src/lib/deals/actions";
 import { contactByEmail, listContacts, searchContacts } from "../../src/lib/deals/store";
 import { estimateInfo } from "../../src/lib/deals/estimates";
+import { awaitingReply, matchRecipient } from "../../src/lib/feeds/awaiting";
 
 function fresh() {
   useTempDb();
@@ -165,6 +166,21 @@ describe("CC5 contacts — email matching (spec check 3)", () => {
   it("contacts list and search work", () => {
     expect(listContacts().length).toBe(3);
     expect(searchContacts("keystone").map((c) => c.name)).toEqual(["Marcus Reed"]);
+  });
+
+  it("Awaiting reply matches a thread to the right deal by a contact's second email (spec check 3)", () => {
+    // joe@sparkelectric.com is Joe Abrams' SECOND address; the stub thread t-spark was sent to it.
+    const now = new Date();
+    const items = awaitingReply(now);
+    const spark = items.find((i) => i.to === "joe@sparkelectric.com")!;
+    expect(spark).toBeTruthy();
+    expect(spark.matchKind).toBe("deal");
+    expect(spark.matchLabel).toBe("BNT / ES Windows pool");
+    // An active-job client still labels as a client, not a deal (CC4 behaviour preserved).
+    const riverwood = items.find((i) => i.to === "dana@riverwoodbuild.com")!;
+    expect(riverwood.matchKind).toBe("client");
+    // An address that is neither a client nor a contact stays the bare address.
+    expect(matchRecipient("sales@tilewarehouse.com")).toEqual({ kind: "none", label: "sales@tilewarehouse.com" });
   });
 
   it("linking an estimate is reflected on the deal", () => {
