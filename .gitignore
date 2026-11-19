@@ -31,3 +31,6 @@ next-env.d.ts.timestamp
 .DS_Store
 *.log
 /coverage/
+
+# TypeScript incremental build info
+*.tsbuildinfo
