@@ -69,7 +69,18 @@ dashboard uses (no new outside calls, no AI).
 
 ## PICK UP HERE
 
-Step 3: run the one deliberate CI run, then land per CLAUDE §3.
+Landed. Nothing to continue.
+
+## Landing
+
+CC9 landed 2026-11-19. CI green: run 44482326329 on cc9-touch-screen, both jobs (Lint/types/build/unit:
+success; Browser tests: success). CI-green commit df7b7ab (added cc9-touch-screen to .github/workflows/ci.yml's
+branch list so the one deliberate run fired). Branch fast-forwardable onto main (0 behind; merge-base = main tip
+57c9c7f); the only commits after df7b7ab are docs (chain.md + CC9-status.md), listed in the merge message. Merge:
+git merge --no-ff cc9-touch-screen, message starting "[Merge] CC9 (", ending [skip ci]. No new migration (CC9 is
+display-only; the idle-minutes setting reuses app_settings from migration 0002). The Mac mini updater deploys and
+smoke-checks after the merge (handoff §7.4); a build session never touches the Mac mini (handoff §7.5). Recorded in
+chain.md.
 
 ## Checks (spec §4)
 

@@ -12,7 +12,7 @@
 | 6 | CC6 | cc6-ez-binder | docs/specs/CC6-BUILD-SPEC.md | 2 (money, schedule), 2.2, 7.2, 7.3 | Landed |
 | 7 | CC7 | cc7-sync | docs/specs/CC7-BUILD-SPEC.md | 5 | Landed |
 | 8 | CC8 | cc8-builds | docs/specs/CC8-BUILD-SPEC.md | 7.1 | Landed |
-| 9 | CC9 | cc9-touch-screen | docs/specs/CC9-BUILD-SPEC.md | 6 | Queued |
+| 9 | CC9 | cc9-touch-screen | docs/specs/CC9-BUILD-SPEC.md | 6 | Landed |
 | 10 | CC10 | cc10-phone-lookup | docs/specs/CC10-BUILD-SPEC.md | 8 | Queued |
 
 ## Grants
@@ -107,6 +107,11 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   builds (until set, usage is recorded with no hold — chain.md 2026-11-09 16:39). Tracked projects
   are editable in the same place.
 - Twilio, api.data.gov and FCC keys, plus 15 to 20 known numbers (before CC10 goes live).
+- Touch screen on the Mac mini (CC9 landed): set it to start in Chrome kiosk mode on the touch
+  display beside the Mac mini (docs/guides/touch_kiosk.md — sign in once, start full screen at
+  /touch, add it as a login item). Optionally change the idle-return time in Settings → Touch screen
+  (default 3 minutes). Display only; the builds screen shows the GitHub stub until CC8's live wiring
+  is on.
 
 ## Landings
 
@@ -229,3 +234,23 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   github_token in Settings → Keys (docs/guides/github_token.md) and CC_LIVE_GITHUB=1 on the Mac mini
   to read/write real GitHub (the stub stands in until then); create the private build-control repo
   and set the weekly build limit in Settings → Software builds.
+- CC9, 2026-11-19. Merge "[Merge] CC9 (touch screen, swipe, idle return, build-alert jump)" into
+  main. CI green: run 44482326329, both jobs (Lint/types/build/unit: success; Browser tests:
+  success). Spec §4 checks all pass (evidence in docs/sessions/CC9-status.md): check 1 touch screen
+  returns to screen 1 after the idle time and swipe works both ways (cc9-touch e2e idle + swipe;
+  cc9-touch unit idle-setting default 3 / persists / clamps 1–60); check 2 a build entering Needs
+  Josh, the hold starting and a failed update each jump to screen 2 with the banner (cc9-touch unit
+  touchAlerts + decideInitialScreen + newAlertKeys for all three conditions; cc9-touch e2e opens on
+  screen 2 with the banner naming EZ Binder + the hold and the red Needs-Josh row); check 3 the
+  toggle switches screen 1's data and choosing Christine or Bishops on screen 2 jumps to screen 1
+  (cc9-touch e2e). Each login reaches the touch screen from the left menu and the idle time is set
+  in Settings → Touch screen (cc9-touch e2e, josh + christine). The touch screen is display only —
+  no phone lookup (cc9-touch e2e). unit 182/182, browser 62/62. Branch was fast-forwardable onto
+  main (0 behind; merge-base = main tip 57c9c7f); the CI-green commit df7b7ab added
+  cc9-touch-screen to the CI branch list (.github/workflows/ci.yml), and the only commits after it
+  are docs (chain.md + CC9-status.md), listed in the merge message, via: git merge --no-ff
+  cc9-touch-screen. No new migration: CC9 is display-only and its one editable setting (the idle
+  minutes, app_settings key touch_idle_minutes) reuses the app_settings table (migration 0002), so
+  there are no new database objects for the Mac mini updater to apply. New waits on Josh: set the
+  touch screen to start in Chrome kiosk mode on the Mac mini (docs/guides/touch_kiosk.md); optionally
+  change the idle-return time in Settings → Touch screen.
