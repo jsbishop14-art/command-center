@@ -11,6 +11,8 @@ import InboxEmailPanel from "@/components/InboxEmailPanel";
 import BuildsSettingsPanel from "@/components/builds/BuildsSettingsPanel";
 import { listProjects } from "@/lib/builds/projects";
 import { budgetState } from "@/lib/builds/budget";
+import TouchIdleForm from "@/components/TouchIdleForm";
+import { getTouchIdleMinutes } from "@/lib/touch/settings";
 import { connectCalendarAction, disconnectCalendarAction } from "./feed-actions";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +26,7 @@ export default function SettingsPage() {
   const shortcut = shortcutTokenStatus();
   const projects = listProjects();
   const budget = budgetState();
+  const touchIdle = getTouchIdleMinutes();
   return (
     <>
       <div className="card">
@@ -122,6 +125,15 @@ export default function SettingsPage() {
           are written to build-control; a blank limit records usage with no hold.
         </p>
         <BuildsSettingsPanel projects={projects} limit={budget.limit} warnPct={budget.warnPct} />
+      </div>
+
+      <div className="card">
+        <h2>Touch screen</h2>
+        <p className="subtle" style={{ marginTop: 4 }}>
+          The ambient touch screen beside the Mac mini. Set how long it waits, with no touch, before
+          returning to screen 1 (Today). Open it from the <strong>Touch screen</strong> menu item.
+        </p>
+        <TouchIdleForm minutes={touchIdle} />
       </div>
     </>
   );
