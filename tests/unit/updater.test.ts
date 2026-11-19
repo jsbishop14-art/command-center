@@ -41,6 +41,7 @@ function makeOps(opts: {
         ? { ok: false, detail: "missing table:users" }
         : { ok: true, detail: "ok" };
     },
+    activate: () => calls.push("activate"),
     restart: () => calls.push("restart"),
     smoke: () => {
       calls.push("smoke");
@@ -84,12 +85,35 @@ describe("Mac mini updater", () => {
       expect.stringContaining("log:"),
       "apply:new222",
       "readBack",
+      "activate",
       "restart",
       "smoke",
       "recordLive:new222",
       expect.stringContaining("log:"),
     ]);
     expect(r.liveAfter()).toBe("new222");
+  });
+
+  it("switches the staged build in only after a successful build and read-back (CC11 build-and-switch)", () => {
+    // apply (the build) and read-back both run BEFORE activate (the switch), so the served build is
+    // never replaced while the new one is building or if the read-back fails.
+    const r = makeOps({ live: "old111", latest: "new222" });
+    runUpdate(r.ops);
+    const applyAt = r.calls.indexOf("apply:new222");
+    const readAt = r.calls.indexOf("readBack");
+    const activateAt = r.calls.indexOf("activate");
+    const restartAt = r.calls.indexOf("restart");
+    expect(applyAt).toBeGreaterThanOrEqual(0);
+    expect(activateAt).toBeGreaterThan(readAt);
+    expect(readAt).toBeGreaterThan(applyAt);
+    expect(restartAt).toBeGreaterThan(activateAt);
+  });
+
+  it("does not switch the build when the build (apply) fails — the served version is untouched", () => {
+    const r = makeOps({ live: "old111", latest: "new222", applyThrows: true });
+    const out = runUpdate(r.ops);
+    expect(out.status).toBe("rolled-back");
+    expect(r.calls).not.toContain("activate");
   });
 
   it("rolls back and alerts when the smoke check fails, restoring the previous version and database", () => {

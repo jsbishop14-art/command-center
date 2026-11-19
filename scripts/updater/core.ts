@@ -6,9 +6,10 @@
 //   1. a new [Merge] commit on main?         -> else up-to-date
 //   2. wait until no Sync is in progress     -> else deferred
 //   3. back up the database, commit kanban
-//   4. pull, install, build, migrate
+//   4. pull, install, build the new version into a STAGING dir, migrate (the served build is not
+//      touched, so no request errors while the build runs — CC11 spec §1)
 //   5. read back the migrations' objects
-//   6. restart and smoke-check
+//   6. switch the staged build in, restart and smoke-check
 //   7. if 4, 5 or 6 fails: restore previous version + database, restart, raise a red alert
 //   8. record which merge is live
 
@@ -25,8 +26,9 @@ export interface UpdaterOps {
   latestMergeOnMain(): string | null; // newest [Merge] commit sha on origin/main after a fetch
   syncInProgress(): boolean;
   backup(): BackupHandle; // step 3
-  apply(targetSha: string): void; // step 4 (throws on failure)
+  apply(targetSha: string): void; // step 4 — pull, install, build into staging, migrate (throws on failure)
   readBack(): ReadBackResult; // step 5
+  activate(): void; // step 6 — switch the staged build in (only after a successful build + read-back)
   restart(): void; // step 6
   smoke(): SmokeResult; // step 6
   restore(handle: BackupHandle): void; // step 7
@@ -85,7 +87,9 @@ export function runUpdate(ops: UpdaterOps): UpdateOutcome {
     return rollback("read-back", read.detail);
   }
 
-  // Step 6
+  // Step 6 — switch the staged build in only now that the build and read-back have succeeded, then
+  // restart onto it and smoke-check.
+  ops.activate();
   ops.restart();
   const smoke = ops.smoke();
   if (!smoke.ok) {
