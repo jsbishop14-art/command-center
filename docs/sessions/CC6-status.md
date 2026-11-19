@@ -40,10 +40,23 @@ Run prompt (verbatim):
 
 ## PICK UP HERE
 
-Build complete against the stub; all checks pass (unit 121/121, browser 50/50 local). Next action:
-the one deliberate CI run on cc6-ez-binder, then land per handoff §7.5. EZB-ASK-1 is tabled (live
-Mac-mini wiring of josh/rule proposals), it does not block the landing — everything is built and
-tested against the stub.
+LANDED. Nothing left for this build. CC7 is a separate session.
+
+## Landing
+
+Landed 2026-11-19. Merge message starts "[Merge] CC6 (EZ Binder connection, money, GC schedule)".
+CI green: run 44469708327 on cc6-ez-binder, both jobs (Lint/types/build/unit: success; Browser
+tests: success) on the CI-green commit 089cac9. All checks above pass against the stub (unit
+121/121, browser 50/50). Branch was fast-forwardable onto main (0 behind; merge-base = main tip
+634d229); the only commits after 089cac9 are docs (chain.md + CC6-status.md), listed in the merge
+message, via: git merge --no-ff cc6-ez-binder. Migration 0006_ez_binder lands with the code; the Mac
+mini updater applies it (handoff §7.4/§7.5) — expected objects: ezb_money, ezb_jobs, ezb_tasks,
+ezb_proposals, ezb_events, ezb_sync, idx_ezb_tasks_job, idx_ezb_proposals_task. Deploy and smoke
+after merge are the Mac mini updater's job (handoff §7.4), not this session's.
+
+EZB-ASK-1 is tabled for Josh (live Mac-mini wiring of josh/rule proposals). It did NOT block the
+landing: the whole flow is built and tested against the stub per spec §5 ("build everything else
+first"). It is recorded in chain.md "What waits on Josh".
 
 ## Plan
 

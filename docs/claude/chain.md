@@ -9,7 +9,7 @@
 | 3 | CC3 | cc3-home | docs/specs/CC3-BUILD-SPEC.md | 2 (top bar, panels), 5.2, 7.3 | Landed |
 | 4 | CC4 | cc4-inbox-email | docs/specs/CC4-BUILD-SPEC.md | 2 (Inbox, Awaiting reply), 2.1, 4.4 | Landed |
 | 5 | CC5 | cc5-deals-contacts | docs/specs/CC5-BUILD-SPEC.md | 2 (Projects), 3.3, 3.4, 4.8 | Landed |
-| 6 | CC6 | cc6-ez-binder | docs/specs/CC6-BUILD-SPEC.md | 2 (money, schedule), 2.2, 7.2, 7.3 | Queued |
+| 6 | CC6 | cc6-ez-binder | docs/specs/CC6-BUILD-SPEC.md | 2 (money, schedule), 2.2, 7.2, 7.3 | Landed |
 | 7 | CC7 | cc7-sync | docs/specs/CC7-BUILD-SPEC.md | 5 | Queued |
 | 8 | CC8 | cc8-builds | docs/specs/CC8-BUILD-SPEC.md | 7.1 | Queued |
 | 9 | CC9 | cc9-touch-screen | docs/specs/CC9-BUILD-SPEC.md | 6 | Queued |
@@ -86,8 +86,14 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   later-build placeholder until Josh decides.
 - Intake email address for notes: set it in Settings → Inbox & email on the Mac mini, and issue the
   iPhone Shortcut token there (CC4-ASK-1 tables new vs alias; built configurable so either works).
-- EZ Binder: confirming S156 is live, and the API key (CC6). The Awaiting-reply 1-day rule uses a
-  stub active-job client list until CC6 wires EZ Binder /customers?has_active_job=true.
+- EZ Binder: confirming S156 is live, and the keys. CC6 landed the whole connection — money tiles,
+  GC jobs, the GC schedule, the webhook receiver, the 90-minute sync and Josh/slip-rule proposals —
+  all against the stub built from the S156 contract. To go live on the Mac mini, set the EZ Binder
+  API key and webhook signing secret in Settings, set app settings ezb_base_url and ezb_live=1, and
+  answer EZB-ASK-1 (does the S156 API accept proposals with X-EZB-Actor josh and rule? ideally add
+  the S156 contract to docs/specs/). Until ezb_live is on, the stub stands in and an unconnected Mac
+  mini shows no EZ Binder data. The Awaiting-reply 1-day rule and deal estimate status still use the
+  CC5 synchronous stubs (identical values); they move to the async client at go-live.
 - A GitHub token for the Builds screen (CC8).
 - Twilio, api.data.gov and FCC keys, plus 15 to 20 known numbers (before CC10 goes live).
 
@@ -148,3 +154,23 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   deal_changes, contacts, contact_emails, contact_deals, idx_deal_estimates_deal,
   idx_deal_changes_deal, idx_contact_emails_email, idx_contact_deals_deal. New waits on Josh: none
   (EZ Binder estimate status and GC jobs use stubs until CC6).
+- CC6, 2026-11-19. Merge "[Merge] CC6 (EZ Binder connection, money, GC schedule)" into main. CI
+  green: run 44469708327, both jobs (Lint/types/build/unit: success; Browser tests: success). All
+  handoff §11 "EZ Binder and schedule" checks and spec §4 checks pass against the stub (evidence in
+  docs/sessions/CC6-status.md): money tiles match GET /summary/ar to the cent (cc6-ezbinder unit +
+  browser); a schedule change reaches Home by webhook (~10s) and by the 90-minute sync (cc6-ezbinder
+  unit); Josh/rule/Claude moves each show as proposals with their source and change nothing in EZ
+  Binder until confirmed (cc6-ezbinder unit + browser); no QuickBooks calls (static scan); spec
+  check 1 bad-signature webhook refused and logged, check 2 a repeat event changes data once, check
+  3 a rule proposal is not repeated once confirmed/rejected (cc6-ezbinder unit). Each login reaches
+  Money and Schedule from the menu (cc6-ezbinder browser). unit 121/121, browser 50/50. Branch was
+  fast-forwardable onto main (0 behind; merge-base = main tip 634d229); the only commits after the
+  CI-green commit (089cac9) are docs (chain.md + CC6-status.md), listed in the merge message, via:
+  git merge --no-ff cc6-ez-binder. Migration 0006_ez_binder lands with the code; the Mac mini
+  updater applies it (handoff §7.5) — expected objects: ezb_money, ezb_jobs, ezb_tasks,
+  ezb_proposals, ezb_events, ezb_sync, idx_ezb_tasks_job, idx_ezb_proposals_task. New waits on Josh:
+  EZB-ASK-1 (confirm the S156 API accepts josh and rule proposals, ideally add the S156 contract to
+  docs/specs/) before the live Mac-mini wiring of Josh/rule schedule proposals; set the EZ Binder
+  API key, webhook signing secret, base URL (app setting ezb_base_url) and turn on ezb_live when
+  S156 is live. Until then the stub stands in and CC6 shows no EZ Binder data on an unconnected Mac
+  mini.
