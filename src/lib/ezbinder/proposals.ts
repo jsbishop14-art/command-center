@@ -3,7 +3,7 @@ import { nowEastern, todayEastern } from "@/lib/kanban/time";
 import { postProposal, postWithdraw } from "./client";
 import { tasksForJob, listTasks } from "./store";
 import { addDays, daysFrom } from "./dates";
-import type { EzbTask } from "./types";
+import type { EzbTask, EzbActor } from "./types";
 
 // Schedule-move proposals (handoff §2.2, spec §1). A proposal changes nothing in EZ Binder until
 // Josh confirms the move there; each shows its source. Three sources: Josh (drags a bar), the slip
@@ -12,6 +12,22 @@ import type { EzbTask } from "./types";
 
 export type ProposalSource = "josh" | "rule" | "claude";
 export type ProposalStatus = "proposed" | "confirmed" | "rejected";
+
+// The slip rule's name, used in the note sent to EZ Binder when a rule move is posted.
+export const SLIP_RULE_NAME = "schedule slip";
+
+// Map a proposal's real source to how it is posted to EZ Binder (EZB-ASK-1, Josh 2026-11-19:
+// "i think claude can change the schedule" / "yes if it is already built into the system"). Every
+// schedule-move proposal goes under X-EZB-Actor `claude`; a Josh or rule move carries a note naming
+// the real source ("moved by Josh" / "moved by rule: <rule name>") so EZ Binder shows who asked. It
+// stays a proposal until Josh confirms it there. The dashboard keeps the real source and the
+// original note for its own display; only the outbound actor and note change.
+export function ezbOutbound(source: ProposalSource, note: string): { actor: EzbActor; note: string } {
+  const label =
+    source === "josh" ? "moved by Josh" : source === "rule" ? `moved by rule: ${SLIP_RULE_NAME}` : "";
+  if (!label) return { actor: "claude", note }; // a Claude move is already Claude; note unchanged
+  return { actor: "claude", note: note ? `${label} — ${note}` : label };
+}
 
 export type Proposal = {
   id: number;
@@ -106,13 +122,17 @@ export type CreateProposal = {
 // actor sent to EZ Binder is the source (josh, rule or claude).
 export async function createProposal(input: CreateProposal, opts?: { at?: string }): Promise<Proposal> {
   const at = opts?.at ?? nowEastern();
+  // Post under X-EZB-Actor `claude` with a note naming the real source (EZB-ASK-1). The dashboard
+  // keeps the real source and the original note; EZ Binder gets the Claude actor and the sourced
+  // note. The stored `actor` is the outbound one so a later withdraw posts under the same actor.
+  const outbound = ezbOutbound(input.source, input.note ?? "");
   const receipt = await postProposal({
     jobId: input.jobId,
     taskId: input.taskId,
     toStart: input.toStart,
     toEnd: input.toEnd,
-    actor: input.source,
-    note: input.note,
+    actor: outbound.actor,
+    note: outbound.note,
   });
   const info = getDb()
     .prepare(
@@ -123,7 +143,7 @@ export async function createProposal(input: CreateProposal, opts?: { at?: string
       job: input.jobId,
       task: input.taskId,
       source: input.source,
-      actor: input.source,
+      actor: outbound.actor,
       fromStart: input.fromStart ?? null,
       fromEnd: input.fromEnd ?? null,
       toStart: input.toStart,

@@ -8,6 +8,7 @@ import { openDatabaseAt, dbPath } from "../../src/lib/db";
 import { verifyObjects } from "../../src/lib/schema-check";
 import { isSyncInProgress } from "../../src/lib/sync-lock";
 import type { BackupHandle, ReadBackResult, SmokeResult, UpdaterOps } from "./core";
+import { stageBuild, activateBuild, restoreBuild, type BuildOps } from "./build";
 
 const REPO = process.env.CC_REPO_DIR || process.cwd();
 const STATE_FILE = process.env.CC_UPDATER_STATE || path.join(REPO, "data", "updater-state.json");
@@ -21,6 +22,20 @@ function git(args: string[]): string {
 function npm(args: string[]): void {
   execFileSync("npm", args, { cwd: REPO, stdio: "inherit" });
 }
+
+// Build-and-switch operations over the real filesystem (CC11 spec §1). The build runs with
+// CC_DIST_DIR set so next.config.mjs writes to the staging dir, never the served .next.
+const buildOps: BuildOps = {
+  runBuild: (distDir) =>
+    execFileSync("npm", ["run", "build"], {
+      cwd: REPO,
+      stdio: "inherit",
+      env: { ...process.env, CC_DIST_DIR: distDir },
+    }),
+  exists: (p) => fs.existsSync(p),
+  rm: (p) => fs.rmSync(p, { recursive: true, force: true }),
+  rename: (from, to) => fs.renameSync(from, to),
+};
 
 function readState(): { liveMerge: string | null; prevSha?: string } {
   try {
@@ -93,9 +108,13 @@ export function realOps(): UpdaterOps {
         throw new Error(`HEAD ${head.slice(0, 8)} is not the expected merge ${targetSha.slice(0, 8)}`);
       }
       npm(["ci"]);
-      npm(["run", "build"]);
+      // Build the new version into the staging dir; the served .next is untouched throughout, so
+      // no request errors while the build runs (CC11 spec §1). The switch happens in activate().
+      stageBuild(buildOps, REPO);
       npm(["run", "migrate"]);
     },
+
+    activate: () => activateBuild(buildOps, REPO),
 
     readBack: (): ReadBackResult => {
       const db = openDatabaseAt(dbPath());
@@ -131,14 +150,17 @@ export function realOps(): UpdaterOps {
     },
 
     restore: (handle) => {
+      // Put the previous build back as the served one (fast rename; no rebuild in place). If the
+      // build never switched (apply failed before activate), the served .next was never touched and
+      // this is a no-op.
+      restoreBuild(buildOps, REPO);
       const state = readState();
       if (state.prevSha) {
         git(["checkout", "--force", state.prevSha]);
         try {
           npm(["ci"]);
-          npm(["run", "build"]);
         } catch {
-          // best effort; the previous build artifacts may still be present
+          // best effort; the previous build artifacts are already restored above
         }
       }
       // Restore the database backup.

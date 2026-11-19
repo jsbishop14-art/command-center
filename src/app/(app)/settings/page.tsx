@@ -5,7 +5,8 @@ import ZipForm from "@/components/ZipForm";
 import { tokenStatus } from "@/lib/kanban/tokens";
 import { duetEnabled } from "@/lib/kanban/state";
 import { listFeeds, getZip } from "@/lib/feeds/store";
-import { gmailConnected, intakeAddress, nudgeTemplate } from "@/lib/feeds/gmail";
+import { gmailConnected, intakeConnected, intakeAddress, nudgeTemplate } from "@/lib/feeds/gmail";
+import { googleRedirectUri } from "@/lib/feeds/google";
 import { shortcutTokenStatus } from "@/lib/shortcut";
 import InboxEmailPanel from "@/components/InboxEmailPanel";
 import BuildsSettingsPanel from "@/components/builds/BuildsSettingsPanel";
@@ -15,7 +16,8 @@ import TouchIdleForm from "@/components/TouchIdleForm";
 import { getTouchIdleMinutes } from "@/lib/touch/settings";
 import ScoringConfigPanel from "@/components/phone/ScoringConfigPanel";
 import { getScoringConfig, SCORING_FIELDS } from "@/lib/phone/config";
-import { connectCalendarAction, disconnectCalendarAction } from "./feed-actions";
+import { disconnectGoogleAction } from "./feed-actions";
+import { googleConnectHref } from "@/lib/feeds/connect-url";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +31,7 @@ export default function SettingsPage() {
   const projects = listProjects();
   const budget = budgetState();
   const touchIdle = getTouchIdleMinutes();
+  const redirectUri = googleRedirectUri();
   const scoring = getScoringConfig();
   const scoringFields = SCORING_FIELDS.map((f) => ({ key: f.key as string, label: f.label }));
   return (
@@ -45,8 +48,18 @@ export default function SettingsPage() {
         <h2>Home feeds</h2>
         <p className="subtle" style={{ marginTop: 4 }}>
           Connect each Google calendar so the Today panel shows its events, coloured by person.
-          Connecting stores the calendar&rsquo;s sign-in in the secret store; Josh completes the
-          Google sign-in on the Mac mini. Set the zip used for the weather in the top bar.
+          Connect opens Google&rsquo;s own sign-in and stores the token in the secret store. Each
+          calendar connects to whichever Google account owns it. Set the zip used for the weather in
+          the top bar.
+        </p>
+        <p className="subtle" style={{ marginTop: 4 }}>
+          Enter the Google OAuth client ID and secret below in <strong>Keys</strong>, and register
+          this redirect URI in the Google client:{" "}
+          <code className="mono" data-testid="google-redirect-uri">
+            {redirectUri}
+          </code>{" "}
+          (see docs/guides/google_connect.md). An expired or revoked connection shows on the{" "}
+          <strong>Problems</strong> screen with a Reconnect button.
         </p>
         <div className="feed-list">
           {feeds.map((f) => (
@@ -59,8 +72,8 @@ export default function SettingsPage() {
                 {f.connectedAt ? "connected" : "not connected"}
               </span>
               {f.connectedAt ? (
-                <form action={disconnectCalendarAction}>
-                  <input type="hidden" name="slug" value={f.slug} />
+                <form action={disconnectGoogleAction}>
+                  <input type="hidden" name="target" value={`cal:${f.slug}`} />
                   <button
                     className="btn ghost"
                     type="submit"
@@ -71,17 +84,14 @@ export default function SettingsPage() {
                   </button>
                 </form>
               ) : (
-                <form action={connectCalendarAction}>
-                  <input type="hidden" name="slug" value={f.slug} />
-                  <button
-                    className="btn ghost"
-                    type="submit"
-                    data-testid={`connect-${f.slug}`}
-                    style={{ height: 36 }}
-                  >
-                    Connect
-                  </button>
-                </form>
+                <a
+                  className="btn ghost"
+                  href={googleConnectHref(`cal:${f.slug}`)}
+                  data-testid={`connect-${f.slug}`}
+                  style={{ height: 36, display: "inline-flex", alignItems: "center" }}
+                >
+                  Connect
+                </a>
               )}
             </div>
           ))}
@@ -98,6 +108,7 @@ export default function SettingsPage() {
         </p>
         <InboxEmailPanel
           gmailConnected={gmailConnected()}
+          intakeConnected={intakeConnected()}
           intakeAddress={intakeAddress()}
           template={nudgeTemplate()}
           shortcutIssued={shortcut.issued}

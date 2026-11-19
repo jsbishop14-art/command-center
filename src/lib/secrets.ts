@@ -17,18 +17,21 @@ export const SECRET_DEFS: SecretDef[] = [
   { name: "duet_token", label: "Duet access token", usedIn: "CC7" },
   { name: "shortcut_token", label: "iPhone Shortcut token", usedIn: "CC4 / CC10" },
   { name: "github_token", label: "GitHub token (Builds screen)", usedIn: "CC8" },
+  { name: "google_oauth_client_id", label: "Google OAuth client ID", usedIn: "CC11" },
+  { name: "google_oauth_client_secret", label: "Google OAuth client secret", usedIn: "CC11" },
 ];
 
 const DEF_BY_NAME = new Map(SECRET_DEFS.map((d) => [d.name, d] as const));
 
-// Google calendar OAuth tokens live in the secret store too (CC3 spec §3), but are not manual
-// keys, so they never appear in the Settings "Keys" list (listSecretStatus iterates SECRET_DEFS
-// only). Their names are gcal_<feed slug>; the calendar connect flow sets and clears them.
+// Google OAuth token bundles live in the secret store too (spec §3), but are not manual keys, so
+// they never appear in the Settings "Keys" list (listSecretStatus iterates SECRET_DEFS only). The
+// calendars use gcal_<feed slug>; Gmail uses gmail_oauth and the intake mailbox gintake_oauth. The
+// connect flow sets and clears them.
 export function calendarTokenName(feedSlug: string): string {
   return `gcal_${feedSlug}`;
 }
-function isCalendarTokenName(name: string): boolean {
-  return name.startsWith("gcal_");
+function isGoogleTokenName(name: string): boolean {
+  return name.startsWith("gcal_") || name === "gmail_oauth" || name === "gintake_oauth";
 }
 
 export type SecretStatus = { name: string; label: string; usedIn: string; isSet: boolean; hint: string };
@@ -61,7 +64,7 @@ export function listSecretStatus(): SecretStatus[] {
 }
 
 export function setSecret(name: string, plaintext: string, updatedBy: string): void {
-  if (!DEF_BY_NAME.has(name) && !isCalendarTokenName(name)) {
+  if (!DEF_BY_NAME.has(name) && !isGoogleTokenName(name)) {
     throw new Error(`Unknown secret: ${name}`);
   }
   if (plaintext.length === 0) {

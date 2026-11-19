@@ -117,6 +117,10 @@ These changed none of Josh's rulings, widened no access, wrote no real data, and
 CC4-ASK-1 is the spec §7 question (intake mailbox). Built configurable per the spec, so it is not a
 hard stop; tabled for Josh below.
 
+ANSWERED 2026-11-19 (CC11): Josh — "1. a new address. evanmbishop23@gmail.com." Chosen: A, a new
+dedicated Gmail address. The intake mailbox is evanmbishop23@gmail.com; CC11 connects it separately
+to its own Google account and defaults the intake address to it (still editable in Settings).
+
 Q1. [CC4-ASK-1] Which mailbox is the intake address for notes — a new Gmail address, or an alias on
 your existing account (josh@worthprop.com)?
 Options: A) A new dedicated Gmail address.  B) An alias/plus-address on josh@worthprop.com.

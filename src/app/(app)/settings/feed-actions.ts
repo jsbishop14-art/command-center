@@ -1,30 +1,23 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@/lib/auth";
-import { connectFeed, disconnectFeed, setZip, getFeed } from "@/lib/feeds/store";
-import { nowEastern } from "@/lib/kanban/time";
+import { setZip } from "@/lib/feeds/store";
+import { resolveTarget, disconnect } from "@/lib/feeds/connections";
 
-// Settings actions for the Home feeds (CC3 spec §1: connect each Google calendar; edit the saved
-// zip). Connecting stores a stub OAuth token in the secret store; the real token arrives when Josh
-// signs in on the Mac mini. No AI, no real outside call from here.
+// Settings actions for the Home feeds and Google connections (spec §1; handoff §7.3). Connecting a
+// Google target is started by a plain link to GET /api/auth/google/start (built with
+// googleConnectHref from @/lib/feeds/connect-url), which opens Google's own sign-in (the stub
+// consent screen in CI / build sessions); the OAuth callback stores the token. Disconnecting is
+// this server action. No real Google call is made from here or in a build session.
 
-export async function connectCalendarAction(formData: FormData): Promise<void> {
+export async function disconnectGoogleAction(formData: FormData): Promise<void> {
   const user = currentUser();
-  if (!user) return;
-  const slug = String(formData.get("slug") || "");
-  if (!getFeed(slug)) return;
-  connectFeed(slug, nowEastern(), user.username);
-  revalidatePath("/", "layout");
-  revalidatePath("/settings");
-}
-
-export async function disconnectCalendarAction(formData: FormData): Promise<void> {
-  const user = currentUser();
-  if (!user) return;
-  const slug = String(formData.get("slug") || "");
-  if (!getFeed(slug)) return;
-  disconnectFeed(slug);
+  if (!user) redirect("/signin");
+  const t = resolveTarget(String(formData.get("target") || ""));
+  if (!t) return;
+  disconnect(t);
   revalidatePath("/", "layout");
   revalidatePath("/settings");
 }

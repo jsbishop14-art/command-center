@@ -10,6 +10,7 @@ import { issueToken } from "../../src/lib/kanban/tokens";
 import { nowEastern, todayEastern } from "../../src/lib/kanban/time";
 import { connectFeed } from "../../src/lib/feeds/store";
 import { connectGmail, setIntakeAddress } from "../../src/lib/feeds/gmail";
+import { recordFeedProblem, feedLabel } from "../../src/lib/feeds/google";
 import { runRefresh } from "../../src/lib/feeds/refresh";
 import { issueShortcutToken } from "../../src/lib/shortcut";
 import { listDeals, updateDeal } from "../../src/lib/deals/actions";
@@ -66,6 +67,11 @@ export default async function globalSetup() {
   connectGmail(at);
   setIntakeAddress("josh+notes@worthprop.com");
   await runRefresh();
+
+  // CC11: an expired/revoked connection shows on the Problems screen with a Reconnect button
+  // (spec §1, check 2). Seed one so the Reconnect button has browser coverage; the cc11-google
+  // test reconnects it and the Problem clears.
+  recordFeedProblem("cal:josh_personal", feedLabel({ kind: "calendar", slug: "josh_personal" }), "sign-in expired or was revoked", at);
 
   // CC5: the five seed deals and their contacts come from seed() above. Make one Claude change to a
   // deal through the action layer so the Deals history shows a revertable Claude entry (spec check

@@ -194,6 +194,13 @@ export interface EzbTasks {
   fetched_at: string;
 }
 
+export interface FeedProblems {
+  target: string;
+  label: string;
+  reason: string;
+  at: string;
+}
+
 export interface FeedState {
   feed: string;
   status: string;
@@ -217,6 +224,13 @@ export interface FtcSyncState {
   backfill_target?: string | null;
   backfill_done: number;
   updated_at?: string | null;
+}
+
+export interface GoogleOauthPending {
+  state: string;
+  target: string;
+  by: string;
+  created_at: string;
 }
 
 export interface IntakeSeen {

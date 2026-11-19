@@ -14,6 +14,7 @@
 | 8 | CC8 | cc8-builds | docs/specs/CC8-BUILD-SPEC.md | 7.1 | Landed |
 | 9 | CC9 | cc9-touch-screen | docs/specs/CC9-BUILD-SPEC.md | 6 | Landed |
 | 10 | CC10 | cc10-phone-lookup | docs/specs/CC10-BUILD-SPEC.md | 8 | Landed |
+| 11 | CC11 | cc11-mac-fixes-google | docs/specs/CC11-BUILD-SPEC.md | 2, 2.1, 2.2, 4.4, 7.2, 7.3, 7.4, 1.1 | Landed |
 
 ## Grants
 
@@ -70,6 +71,16 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   2. No weekly build budget limit for the first week; usage is recorded with no hold, then Josh sets a limit.
   3. The 15:37 ruling covers the setup work only; Command Center still opens on the Windows PC over the tunnel.
   4. Keep the build budget and the build-control repo.
+- 2026-11-19 05:52, answers to the open asks: "1. a new address. evanmbishop23@gmail.com" (CC4-ASK-1 — the intake
+  mailbox is a new Google account, evanmbishop23@gmail.com) and "2. i think claude can change the schedule"
+  (EZB-ASK-1 — Claude may change the EZ Binder schedule).
+- 2026-11-19 05:56, on how Josh/rule schedule moves are labeled in EZ Binder: "2a- yes if it is already built into
+  the system." Meaning: Josh and slip-rule schedule-move proposals go to EZ Binder with X-EZB-Actor `claude` and a
+  note naming the real source ("moved by Josh" / "moved by rule: <rule name>"); they stay proposals until Josh
+  confirms them in EZ Binder (handoff §2.2, §7.2). Built in CC11.
+- 2026-11-19 05:56, on the Calendar menu item (CC3-ASK-1): "3. understood. i will test the system and see whats
+  needed." Meaning: no standalone Calendar screen now; the menu item stays a later-build placeholder.
+- 2026-11-19 07:43: "im back on the windows machine. run fixes now" (go-ahead to build CC11).
 
 ## What waits on Josh
 
@@ -259,6 +270,33 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   there are no new database objects for the Mac mini updater to apply. New waits on Josh: set the
   touch screen to start in Chrome kiosk mode on the Mac mini (docs/guides/touch_kiosk.md); optionally
   change the idle-return time in Settings → Touch screen.
+- CC11, 2026-11-19. Merge "[Merge] CC11 (Mac install fixes, real Google sign-in, Josh's answers)"
+  into main. CI green: run 44533714010, both jobs (Lint/types/build/unit: success; Browser tests:
+  success). Spec §4 checks all pass against the stubs (evidence in docs/sessions/CC11-status.md):
+  check 1 connect/refresh/disconnect each calendar, Gmail and the intake mailbox clicked from
+  Settings as Josh and Christine (cc11-google e2e); check 2 an expired/revoked token raises a
+  Problem with Reconnect that restores the feed (cc11 unit + cc11-google e2e Problems/Reconnect);
+  check 3 the Today panel shows stub events on the live code path (cc11 unit); check 4 one pending
+  note per intake message, no duplicate on a second poll (cc11 unit); check 5 Awaiting reply and
+  nudge drafts on the live path with no send scope and no send call (cc11 unit + static scan);
+  check 6 Josh and rule moves post X-EZB-Actor claude with the source note (cc11 unit); check 7 the
+  installer dry run in a spaced path — quoted env that sources cleanly, PATH + log paths in both
+  plists, tunnel job only with a config.yml (install-dryrun unit); check 8 the updater builds into
+  staging and switches only after a successful build, failed build leaves the served version
+  untouched (cc11 + updater unit). unit 235/235, browser 77/77. Branch was fast-forwardable onto
+  main (0 behind; merge-base = main tip 0157472); the CI-green commit c3d0089 added
+  cc11-mac-fixes-google to the CI branch list (.github/workflows/ci.yml), and the only commits
+  after it are docs (chain.md + CC11-status.md), listed in the merge message, via:
+  git merge --no-ff cc11-mac-fixes-google. Migration 0010_google_oauth lands with the code; the Mac
+  mini updater applies it (handoff §7.5) — expected objects: google_oauth_pending, feed_problems.
+  Answered this build: CC3-ASK-1 (no standalone Calendar screen now), CC4-ASK-1 (intake mailbox is
+  evanmbishop23@gmail.com), EZB-ASK-1 (Claude can change the schedule; Josh/rule moves post as
+  actor claude with a source note). New waits on Josh: create the Google Cloud project and OAuth
+  client per docs/guides/google_connect.md, enter the client ID and secret in Settings → Keys, set
+  CC_LIVE_FEEDS=1 in ~/.commandcenter/env (or the Library config dir), then connect the three
+  calendars, Gmail and evanmbishop23@gmail.com in Settings; set up Cloudflare Access (one-time PIN,
+  Cloudflare IdP off, Bypass apps for /api/notes, /api/phone/*, /api/ezbinder/webhook) per
+  docs/install-mac.md; re-run the installer to add the tunnel-run launchd job.
 - CC10, 2026-11-19. Merge "[Merge] CC10 (phone lookup, Twilio/FTC/FCC, marks, Shortcut)" into main.
   CI green: run 44486999240, both jobs (Lint/types/build/unit: success; Browser tests: success).
   Spec §4 = handoff §11 "Phone lookup" checks (minus Josh's 80% test-list check, which needs real
