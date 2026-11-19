@@ -1,6 +1,7 @@
 import { getDb } from "./db";
 import { runMigrations } from "./migrations";
 import { createUser, getUserByUsername } from "./users";
+import { seedDeals } from "./deals/seed";
 
 // Seed the two logins (handoff 1.1: Josh and Christine, separate logins; Christine sees
 // everything). Passwords come from the environment so no real password is ever committed. In CI
@@ -31,5 +32,8 @@ export function seed(): { created: string[] } {
       created.push(p.username);
     }
   }
+  // The five seed deals and their contacts (handoff §3.3, spec check 4). Idempotent: skipped if any
+  // deal already exists.
+  seedDeals();
   return { created };
 }
