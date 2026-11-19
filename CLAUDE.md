@@ -12,9 +12,15 @@ Rules in working form. Full text and history: docs/process.md (how to build), do
   commit secrets, real customer data or anything from the real kanban folder. Plan branch: docs/next-builds.
 - **Where it runs:** Josh's Mac mini, always on, plus a touch screen beside it. Reached from outside the home through a
   secure tunnel with login. No hosted website. Builds run in GitHub Codespaces and never touch the Mac mini.
-- **Stack:** chosen in CC1 and recorded here with the reason. Constraints: runs 24/7 on macOS (Apple silicon); serves
-  a desktop window on the Mac mini and on Josh's Windows PC (over the tunnel) and a full-screen kiosk on the touch
-  screen; local database and local kanban folder; no paid hosting.
+- **Stack:** chosen in CC1. Next.js 14 (App Router) + React 18 + TypeScript, served locally by `next start` (process.md
+  measures speed with `next build && next start`). Local database is SQLite via better-sqlite3 (one file on the Mac
+  mini, no server process, backup = copy the file). Tests: Vitest (unit) and Playwright (browser). Crypto is Node's
+  built-in `crypto` only (scrypt for passwords, AES-256-GCM for the secret store) — no third-party crypto. The desktop
+  window is the browser in app mode (no Electron); the touch-screen kiosk (CC9) is Chromium kiosk. Remote access is a
+  Cloudflare Tunnel (`cloudflared`), free, no hosting; the install guide names the one account step. Reasons recorded
+  in docs/sessions/CC1-status.md. Constraints: runs 24/7 on macOS (Apple silicon); serves a desktop window on the Mac
+  mini and on Josh's Windows PC (over the tunnel) and a full-screen kiosk on the touch screen; local database and local
+  kanban folder; no paid hosting.
 - **Layout source of truth:** docs/mockup/ (exported from the approved mockup). Bracketed values are placeholders.
 
 ## 2. Run protocol
