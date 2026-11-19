@@ -1,5 +1,4 @@
-import "server-only";
-import { listCards } from "./store";
+import { listCards, listArchivedCards } from "./store";
 import { listProblems } from "./state";
 import { readEntries } from "./activity";
 import { loadConfig } from "./boardyaml";
@@ -37,6 +36,20 @@ export function getBoardView(filters: BoardFilters, now: string): ColumnView[] {
 
 export function problemsCount(): number {
   return listProblems().length;
+}
+
+// Global search across active and archived cards (handoff §4.9: search includes archived cards;
+// spec §1: search finds Done/discarded cards, restore works). Matches title, notes, id and project.
+export function searchCards(query: string): { active: Card[]; archived: Card[] } {
+  const q = query.trim().toLowerCase();
+  const match = (c: Card) =>
+    c.title.toLowerCase().includes(q) ||
+    c.notes.toLowerCase().includes(q) ||
+    c.id.toLowerCase().includes(q) ||
+    (c.project ?? "").toLowerCase().includes(q);
+  const active = q ? listCards().filter(match) : [];
+  const archived = q ? listArchivedCards().filter(match) : [];
+  return { active, archived };
 }
 
 export function projectOptions(): { slug: string; name: string }[] {

@@ -1,4 +1,3 @@
-import "server-only";
 import fs from "node:fs";
 import { logDir, logFileFor } from "./paths";
 import { cardSnapshotFields, type Card } from "./card";

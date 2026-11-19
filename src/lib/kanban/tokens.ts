@@ -1,4 +1,3 @@
-import "server-only";
 import { getDb } from "../db";
 import { newSessionToken, hashToken } from "../crypto";
 import { duetEnabled } from "./state";

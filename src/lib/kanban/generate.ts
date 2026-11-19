@@ -1,4 +1,3 @@
-import "server-only";
 import fs from "node:fs";
 import { agentsPath, contextFile } from "./paths";
 import { atomicWrite } from "./store";

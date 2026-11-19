@@ -71,6 +71,18 @@ No real outside calls (use stubs). No real email, ever. Migrations land with the
 - D-7 App-automatic archive (30-day move) logs with actor `unknown` — no person makes it; the actor
   enum has no "app" value. Restore re-opens the card to the Inbox stage with done/discarded stamps
   cleared, so a restored old card is not immediately re-archived.
+- D-8 Removed `import "server-only"` from the kanban lib modules. Reason: the real `server-only`
+  package throws whenever it is loaded outside a React-Server-Components bundle, so Playwright's
+  globalSetup (which seeds the kanban folder by importing these modules) could not load them. The
+  modules stay server-only in practice because they import node:fs / better-sqlite3 — a client
+  bundle importing them fails the build regardless. Vitest still aliases server-only to a stub for
+  the CC1 modules that keep the guard. Changes no runtime behaviour, undoable.
+- D-9 The Quick add (Ctrl K) dialog is rendered via a React portal into document.body. Reason: an
+  ancestor `.card` uses `backdrop-filter`, which makes a `position: fixed` child a containing block
+  trapped behind the board columns; the columns then intercept the click. The portal escapes it.
+- D-10 e2e seeds a kanban folder and action tokens in global-setup; CI and Playwright webServer are
+  passed CC_KANBAN_DIR so both read the same folder. Tokens are written to .e2e/tokens.json for the
+  route tests. `.e2e/` is gitignored.
 
 ## Questions
 
@@ -107,6 +119,33 @@ No real outside calls (use stubs). No real email, ever. Migrations land with the
   real links. Column defs moved to client-safe types.ts. typecheck 0; lint 0; build 0 (10 routes);
   unit 65/65.
 
+- Step 6: tests + CI. Added search-across-archive + restore (handoff §11 check 8 "search finds
+  them"). e2e: check4-kanban (board + card panel per login, Added-by-Claude, quick add, hand-edit
+  reload) and kanban-tokens (no token 401, Claude add/list ok, Claude done 403 limit, Duet-off 403).
+  Updated CC1 check1 to target Calendar (Kanban is now built). CI: added cc2-kanban to push
+  branches; webServer gets CC_KANBAN_DIR. Local CI sequence each on its own line: LINT=0 TYPECHECK=0
+  GENTYPES=0 TYPES_IN_SYNC=0 BUILD=0 UNIT=65/65; browser 18/18.
+
+## Checks (spec §4) — evidence
+
+Handoff §11 "Kanban storage":
+1. Hand edit reloads within 2s — e2e check4 "a hand edit to a card file shows in the app" (PASS);
+   the app reads files on each dynamic render and the 500 ms reconciler keeps the view current.
+2. Invalid frontmatter → Problems, not dropped — unit kanban-reconciler "Problems" (2 cases).
+3. new/ gets next id, moves to cards/ within a second — unit kanban-reconciler "new/ pickup".
+4. Two writers both keep changes — unit kanban-reconciler "two writers at once".
+5. Unknown fields survive a rewrite — unit kanban-storage + kanban-reconciler.
+6. Every change has a log line with actor/run/before-after — unit kanban-log + actions.
+7. Claude direct change → log actor claude + Revert undoes — unit kanban-reconciler + actions revert.
+8. 30-day archive; search finds; restore works — unit kanban-reconciler archive/restore + searchCards.
+9. Second Sync over same source_ref → no duplicate — unit kanban-reconciler + actions dedup.
+10. Windows PC writes through the app only — /api/action needs a token (e2e kanban-tokens 401) and
+    enforces limits; non-Mac-mini writers use the action layer (handoff §4.8).
+11. Git commit after each Sync — commitKanban unit-tested; the Sync trigger itself is CC7.
+Plus spec §4: (1) revert + changed-again — unit actions revert; (2) Claude/Duet limits — unit actions
++ e2e tokens; (3) Duet off refused — unit tokens + e2e; (4) browser reaches board + panel per login —
+e2e check4.
+
 ## PICK UP HERE
 
-Step 6: tests (e2e check 4 + hand-edit/new reload), CI branches, deliberate CI run, land.
+Landing: one deliberate CI run (ALLOW_CI=1), then merge to main with "[Merge] CC2 (".

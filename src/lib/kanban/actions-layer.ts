@@ -1,4 +1,3 @@
-import "server-only";
 import { readCardFile, writeNewCard, mutateCard } from "./store";
 import { cardSnapshotFields, applyFields, type Card } from "./card";
 import { logCardChange, findEntry, type LogEntry } from "./activity";

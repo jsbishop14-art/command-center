@@ -1,4 +1,3 @@
-import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -97,4 +96,24 @@ export function mutateCard(id: string, mutate: CardMutator): Card | null {
 
 export function writeNewCard(card: Card): void {
   atomicWrite(cardFile(card.id), serializeCard(card));
+}
+
+// All archived cards across every archive/<year>/ folder (handoff §4.9: search includes archived).
+export function listArchivedCards(): Card[] {
+  const root = path.join(kanbanDir(), "archive");
+  if (!fs.existsSync(root)) return [];
+  const out: Card[] = [];
+  for (const year of fs.readdirSync(root)) {
+    const yd = path.join(root, year);
+    if (!fs.statSync(yd).isDirectory()) continue;
+    for (const f of fs.readdirSync(yd)) {
+      if (!f.endsWith(".md") || f.startsWith(".")) continue;
+      try {
+        out.push(parseCard(fs.readFileSync(path.join(yd, f), "utf8"), f));
+      } catch {
+        // archived files that no longer parse are skipped in search
+      }
+    }
+  }
+  return out;
 }

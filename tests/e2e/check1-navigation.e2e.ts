@@ -18,7 +18,8 @@ for (const who of ["josh", "christine"] as const) {
 
 test("a not-yet-built screen shows 'Coming in a later build'", async ({ page }) => {
   await signIn(page, "josh");
-  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Kanban" }).click();
+  // Kanban is built in CC2; Calendar (CC3) is still a later build.
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Calendar" }).click();
   await page.waitForURL("**/soon**");
   await expect(page.getByTestId("coming-soon")).toHaveText("Coming in a later build.");
 });

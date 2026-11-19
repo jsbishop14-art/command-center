@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useFormState, useFormStatus } from "react-dom";
 import { quickAddAction, type ActionResult } from "@/app/(app)/kanban/actions";
 
@@ -19,9 +20,13 @@ function AddButton() {
 // the same dialog.
 export default function QuickAdd() {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [state, formAction] = useFormState(quickAddAction, initial);
   const inputRef = useRef<HTMLInputElement>(null);
   const wasOpen = useRef(false);
+
+  // Only render the portal after mount (document.body exists on the client).
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -50,39 +55,50 @@ export default function QuickAdd() {
       <button className="btn accent" type="button" onClick={() => setOpen(true)} data-testid="add-card">
         + Card
       </button>
-      {open ? (
-        <div className="qa-overlay" role="dialog" aria-modal="true" aria-label="Quick add card" onClick={() => setOpen(false)}>
-          <div className="qa-dialog" onClick={(e) => e.stopPropagation()}>
-            <h2>Quick add</h2>
-            <p className="subtle">Adds a card to the board you are on, in Inbox.</p>
-            <form action={formAction} className="qa-form">
-              <label className="field">
-                Title
-                <input ref={inputRef} type="text" name="title" aria-label="Card title" required />
-              </label>
-              <label className="field">
-                Area
-                <select name="area" defaultValue="business" aria-label="Area">
-                  <option value="business">Business</option>
-                  <option value="personal">Personal</option>
-                  <option value="family">Family</option>
-                </select>
-              </label>
-              {state.error ? (
-                <span className="error" role="alert">
-                  {state.error}
-                </span>
-              ) : null}
-              <div className="qa-actions">
-                <button className="btn ghost" type="button" onClick={() => setOpen(false)}>
-                  Cancel
-                </button>
-                <AddButton />
+      {open && mounted
+        ? createPortal(
+            // Rendered into document.body: an ancestor .card uses backdrop-filter, which would
+            // otherwise make this fixed overlay a containing block trapped behind the board columns.
+            <div
+              className="qa-overlay"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Quick add card"
+              onClick={() => setOpen(false)}
+            >
+              <div className="qa-dialog" onClick={(e) => e.stopPropagation()}>
+                <h2>Quick add</h2>
+                <p className="subtle">Adds a card to the board you are on, in Inbox.</p>
+                <form action={formAction} className="qa-form">
+                  <label className="field">
+                    Title
+                    <input ref={inputRef} type="text" name="title" aria-label="Card title" required />
+                  </label>
+                  <label className="field">
+                    Area
+                    <select name="area" defaultValue="business" aria-label="Area">
+                      <option value="business">Business</option>
+                      <option value="personal">Personal</option>
+                      <option value="family">Family</option>
+                    </select>
+                  </label>
+                  {state.error ? (
+                    <span className="error" role="alert">
+                      {state.error}
+                    </span>
+                  ) : null}
+                  <div className="qa-actions">
+                    <button className="btn ghost" type="button" onClick={() => setOpen(false)}>
+                      Cancel
+                    </button>
+                    <AddButton />
+                  </div>
+                </form>
               </div>
-            </form>
-          </div>
-        </div>
-      ) : null}
+            </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }

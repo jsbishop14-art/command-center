@@ -24,8 +24,11 @@ export default defineConfig({
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    stdout: "pipe",
+    stderr: "pipe",
     env: {
       CC_DB_PATH: process.env.CC_DB_PATH || ".e2e/cc.db",
+      CC_KANBAN_DIR: process.env.CC_KANBAN_DIR || ".e2e/kanban",
       CC_SECRET_KEY:
         process.env.CC_SECRET_KEY ||
         "0000000000000000000000000000000000000000000000000000000000000000",

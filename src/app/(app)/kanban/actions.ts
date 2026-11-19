@@ -130,6 +130,20 @@ export async function discardAction(formData: FormData): Promise<void> {
   redirect("/kanban");
 }
 
+export async function restoreAction(formData: FormData): Promise<void> {
+  const who = actor();
+  const id = String(formData.get("id") || "");
+  const { restoreCard } = await import("@/lib/kanban/reconciler");
+  const { nowEastern } = await import("@/lib/kanban/time");
+  try {
+    restoreCard(id, nowEastern(), who);
+  } catch {
+    // ignore
+  }
+  revalidatePath("/kanban");
+  redirect(`/kanban?card=${encodeURIComponent(id)}`);
+}
+
 export type RevertState = { ok?: boolean; status?: string; error?: string; versions?: unknown };
 
 export async function revertAction(_prev: RevertState, formData: FormData): Promise<RevertState> {

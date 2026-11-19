@@ -4,11 +4,12 @@ import { currentUser } from "@/lib/auth";
 import { getBoard } from "@/lib/prefs";
 import { startReconciler } from "@/lib/kanban/reconciler";
 import { readCardFile } from "@/lib/kanban/store";
-import { getBoardView, problemsCount, projectOptions, BOARD_BADGE, MEMBER } from "@/lib/kanban/view";
+import { getBoardView, problemsCount, projectOptions, searchCards, BOARD_BADGE, MEMBER } from "@/lib/kanban/view";
 import { nowEastern } from "@/lib/kanban/time";
-import type { Board, Card } from "@/lib/kanban/types";
+import { STAGE_LABEL, type Board, type Card } from "@/lib/kanban/types";
 import QuickAdd from "@/components/kanban/QuickAdd";
 import CardPanel from "@/components/kanban/CardPanel";
+import { restoreAction } from "@/app/(app)/kanban/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ function chipClass(area: string): string {
 export default function KanbanPage({
   searchParams,
 }: {
-  searchParams: { area?: string; project?: string; card?: string };
+  searchParams: { area?: string; project?: string; card?: string; q?: string };
 }) {
   const user = currentUser();
   if (!user) redirect("/signin");
@@ -61,15 +62,64 @@ export default function KanbanPage({
     }
   }
 
+  const query = (searchParams.q || "").trim();
+  const results = query ? searchCards(query) : null;
+
   return (
     <>
       <div className="card kb-top">
         <h1>Kanban</h1>
+        <form action="/kanban" method="get" style={{ display: "flex", gap: 6 }}>
+          <input type="search" name="q" defaultValue={query} placeholder="Search all cards" aria-label="Search cards" style={{ height: 36 }} />
+          <button className="btn ghost" type="submit" style={{ height: 36 }}>
+            Search
+          </button>
+        </form>
         <Link className="kb-link-problems" href="/kanban/problems" data-testid="problems-link">
           Problems <span className="kb-count">{problems}</span>
         </Link>
         <QuickAdd />
       </div>
+
+      {results ? (
+        <div className="card">
+          <h2>Search: &ldquo;{query}&rdquo;</h2>
+          <p className="subtle">
+            {results.active.length} on the board, {results.archived.length} archived. Archived cards
+            can be restored.
+          </p>
+          <div className="problems-list">
+            {results.active.map((c) => (
+              <div key={c.id} className="row" style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <Link href={base({ card: c.id })} className="file">
+                  {c.id}
+                </Link>
+                <span style={{ flex: 1 }}>{c.title}</span>
+                <span className="subtle mono">{STAGE_LABEL[c.stage]}</span>
+              </div>
+            ))}
+            {results.archived.map((c) => (
+              <div key={c.id} className="row" style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <span className="file">{c.id}</span>
+                <span style={{ flex: 1 }}>{c.title}</span>
+                <span className="subtle mono">archived</span>
+                <form action={restoreAction}>
+                  <input type="hidden" name="id" value={c.id} />
+                  <button className="btn ghost" type="submit" data-testid={`restore-${c.id}`} style={{ height: 32 }}>
+                    Restore
+                  </button>
+                </form>
+              </div>
+            ))}
+            {results.active.length === 0 && results.archived.length === 0 ? (
+              <p data-testid="no-results">No cards match.</p>
+            ) : null}
+          </div>
+          <Link href="/kanban" className="kb-pill" style={{ marginTop: 10 }}>
+            Clear search
+          </Link>
+        </div>
+      ) : null}
 
       <div className="card kb-filters">
         <span className="label">Area</span>
