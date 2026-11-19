@@ -10,7 +10,7 @@
 | 4 | CC4 | cc4-inbox-email | docs/specs/CC4-BUILD-SPEC.md | 2 (Inbox, Awaiting reply), 2.1, 4.4 | Landed |
 | 5 | CC5 | cc5-deals-contacts | docs/specs/CC5-BUILD-SPEC.md | 2 (Projects), 3.3, 3.4, 4.8 | Landed |
 | 6 | CC6 | cc6-ez-binder | docs/specs/CC6-BUILD-SPEC.md | 2 (money, schedule), 2.2, 7.2, 7.3 | Landed |
-| 7 | CC7 | cc7-sync | docs/specs/CC7-BUILD-SPEC.md | 5 | Queued |
+| 7 | CC7 | cc7-sync | docs/specs/CC7-BUILD-SPEC.md | 5 | Landed |
 | 8 | CC8 | cc8-builds | docs/specs/CC8-BUILD-SPEC.md | 7.1 | Queued |
 | 9 | CC9 | cc9-touch-screen | docs/specs/CC9-BUILD-SPEC.md | 6 | Queued |
 | 10 | CC10 | cc10-phone-lookup | docs/specs/CC10-BUILD-SPEC.md | 8 | Queued |
@@ -94,6 +94,11 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   the S156 contract to docs/specs/). Until ezb_live is on, the stub stands in and an unconnected Mac
   mini shows no EZ Binder data. The Awaiting-reply 1-day rule and deal estimate status still use the
   CC5 synchronous stubs (identical values); they move to the async client at go-live.
+- Sync with Claude live wiring (CC7 landed against the Claude stub): on the Mac mini set
+  CC_LIVE_AI=1 so Sync runs Claude through the Claude Code command line (signed in to Josh's plan,
+  no API key, the same way the build runner does). Until then the stub stands in, with deterministic
+  output and token counts. Optional: set app setting ai_weekly_plan_tokens for the Sync popup's
+  "weekly plan %" tile (unset shows "—"; the Max plan has no hard cap on Sync, handoff §5.6).
 - A GitHub token for the Builds screen (CC8).
 - Twilio, api.data.gov and FCC keys, plus 15 to 20 known numbers (before CC10 goes live).
 
@@ -174,3 +179,22 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   API key, webhook signing secret, base URL (app setting ezb_base_url) and turn on ezb_live when
   S156 is live. Until then the stub stands in and CC6 shows no EZ Binder data on an unconnected Mac
   mini.
+- CC7, 2026-11-19. Merge "[Merge] CC7 (Sync with Claude, Revert and usage)" into main. CI green:
+  run 44472510340, both jobs (Lint/types/build/unit: success; Browser tests: success). Spec §4 and
+  handoff §11 "AI usage" checks all pass against the Claude stub (evidence in
+  docs/sessions/CC7-status.md): nothing calls Claude except the Sync button (cc7-sync unit static
+  scan — only src/lib/sync imports the Claude client — and "engine starts no timer"; refresh-no-ai
+  unit); unchecked items do not run and an item with nothing new is skipped without a Claude call
+  (cc7-sync unit); Refresh makes no Claude call (refresh-no-ai unit); Revert restores a Claude change
+  and is logged and Revert all undoes a whole run (spec check 1 — cc7-sync unit + browser); Claude
+  cannot move to done/discarded, change boards or rewrite a body (cc7-sync unit + kanban-tokens
+  browser); Duet off is refused (unchanged kanban-tokens/permissions); a run's usage line matches its
+  own report (spec check 2 — cc7-sync unit). Each login reaches Sync from the top bar and the 30-day
+  usage panel shows on the popup (cc7-sync browser, josh + christine). unit 139/139, browser 52/52.
+  Branch was fast-forwardable onto main (0 behind; merge-base = main tip 09a9cc9); the only commits
+  after the CI-green commit (cd6397e) are docs (chain.md + CC7-status.md), listed in the merge
+  message, via: git merge --no-ff cc7-sync. Migration 0007_sync lands with the code; the Mac mini
+  updater applies it (handoff §7.5) — expected objects: sync_runs, sync_run_items, sync_changes,
+  idx_sync_run_items_at, idx_sync_changes_run. New waits on Josh: set CC_LIVE_AI=1 on the Mac mini to
+  run Sync through the Claude Code command line (the stub stands in until then); optionally set app
+  setting ai_weekly_plan_tokens for the Sync popup's weekly-plan % tile.

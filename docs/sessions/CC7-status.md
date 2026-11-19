@@ -32,7 +32,9 @@ Prompt (verbatim):
 
 ## PICK UP HERE
 
-Step 1 done: branch cc7-sync created from origin/main; CC7 spec brought from origin/docs/next-builds; hooks path set. Building per the plan below.
+LANDED. CC7 merged into main — "[Merge] CC7 (Sync with Claude, Revert and usage)". CI green: run 44472510340, both jobs (Lint/types/build/unit: success; Browser tests: success). unit 139/139, browser 52/52. Branch fast-forwardable onto main (0 behind; merge-base = main tip 09a9cc9); only docs/ changed after the CI-green commit cd6397e (chain.md + this file), via git merge --no-ff cc7-sync. Migration 0007_sync lands with the code; the Mac mini updater applies it — expected objects: sync_runs, sync_run_items, sync_changes, idx_sync_run_items_at, idx_sync_changes_run. Waits on Josh: set CC_LIVE_AI=1 on the Mac mini to run Sync through the Claude Code command line (the stub stands in until then); optionally set app setting ai_weekly_plan_tokens for the weekly-plan % tile. The Mac mini updater deploys and smoke-checks after the merge (handoff §7.4).
+
+Earlier: branch cc7-sync created from origin/main; CC7 spec brought from origin/docs/next-builds; hooks path set. Built per the plan below.
 
 ## Plan (steps, each its own commit, [skip ci] except the one CI run)
 
