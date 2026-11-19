@@ -13,7 +13,7 @@
 | 7 | CC7 | cc7-sync | docs/specs/CC7-BUILD-SPEC.md | 5 | Landed |
 | 8 | CC8 | cc8-builds | docs/specs/CC8-BUILD-SPEC.md | 7.1 | Landed |
 | 9 | CC9 | cc9-touch-screen | docs/specs/CC9-BUILD-SPEC.md | 6 | Landed |
-| 10 | CC10 | cc10-phone-lookup | docs/specs/CC10-BUILD-SPEC.md | 8 | Queued |
+| 10 | CC10 | cc10-phone-lookup | docs/specs/CC10-BUILD-SPEC.md | 8 | Landed |
 
 ## Grants
 
@@ -106,7 +106,12 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   each runner at it (BUILD_BUDGET_REPO), then sets the weekly build limit in Settings → Software
   builds (until set, usage is recorded with no hold — chain.md 2026-11-09 16:39). Tracked projects
   are editable in the same place.
-- Twilio, api.data.gov and FCC keys, plus 15 to 20 known numbers (before CC10 goes live).
+- Phone lookup go-live (CC10 landed against stubs): set the three keys in Settings → Keys (Twilio
+  account SID + auth token, FTC api.data.gov key, FCC app token) and CC_LIVE_PHONE=1 on the Mac
+  mini; issue the iPhone Shortcut token in Settings → Inbox & email and build the Lookup Shortcut
+  (docs/guides/iphone_phone_shortcut.md); supply 15–20 known numbers and run the test list, tuning
+  points/thresholds in Settings → Phone lookup to reach ≥80% match (handoff §8.4, §8.9; Josh's
+  check). Until CC_LIVE_PHONE=1 the stub stands in with deterministic data.
 - Touch screen on the Mac mini (CC9 landed): set it to start in Chrome kiosk mode on the touch
   display beside the Mac mini (docs/guides/touch_kiosk.md — sign in once, start full screen at
   /touch, add it as a login item). Optionally change the idle-return time in Settings → Touch screen
@@ -254,3 +259,29 @@ None. Production is the Mac mini; build sessions never touch it (handoff 7.5). N
   there are no new database objects for the Mac mini updater to apply. New waits on Josh: set the
   touch screen to start in Chrome kiosk mode on the Mac mini (docs/guides/touch_kiosk.md); optionally
   change the idle-return time in Settings → Touch screen.
+- CC10, 2026-11-19. Merge "[Merge] CC10 (phone lookup, Twilio/FTC/FCC, marks, Shortcut)" into main.
+  CI green: run 44486999240, both jobs (Lint/types/build/unit: success; Browser tests: success).
+  Spec §4 = handoff §11 "Phone lookup" checks (minus Josh's 80% test-list check, which needs real
+  keys) all pass against the stubs (evidence in docs/sessions/CC10-status.md): a verdict with
+  reasons for any US number in any format, desktop and Shortcut (cc10-phone unit + e2e check 1 +
+  cc10-api-phone); no Claude call and no Twilio call on a repeat within 30 days (cc10-phone unit
+  twilioFetchCount + no-AI import scan); the FTC backfill stops and resumes without losing progress
+  and the daily ingest prunes >12 months (cc10-phone unit resumable month-paged backfill + prune);
+  an FCC timeout still returns a result marked "FCC data unavailable" (cc10-phone unit injected
+  never/throwing fetcher); a spam/real mark overrides the verdict for both users and removing it
+  restores scoring (cc10-phone unit + e2e check 5 — Josh marks, Christine sees "Marked spam by
+  Josh"); lookup history older than 90 days is deleted (cc10-phone unit pruneHistory); the Shortcut
+  token works only on the phone and note routes and stops once revoked (cc10-api-phone + permissions
+  e2e + cc10-phone unit revoke; refusal elsewhere in cc4-api-shortcut + permissions). Each login
+  reaches Phone lookup from the left menu; it is not tied to a board and the touch screen stays
+  display-only (cc10-phone e2e josh + christine; cc9-touch unchanged). unit 212/212, browser 73/73.
+  Branch was fast-forwardable onto main (0 behind; merge-base = main tip 104f72f); the CI-green
+  commit 41c2001 added cc10-phone-lookup to the CI branch list (.github/workflows/ci.yml), and the
+  only commits after it are docs (chain.md + CC10-status.md), listed in the merge message, via:
+  git merge --no-ff cc10-phone-lookup. Migration 0009_phone_lookup lands with the code; the Mac mini
+  updater applies it (handoff §7.5) — expected objects: ftc_counts, ftc_sync_state, twilio_cache,
+  phone_lookups, phone_marks, idx_ftc_counts_phone, idx_phone_lookups_phone,
+  idx_phone_lookups_created. New waits on Josh: set the three keys (Twilio SID + token, FTC
+  api.data.gov key, FCC app token) and CC_LIVE_PHONE=1 on the Mac mini; issue the Shortcut token and
+  build the Lookup Shortcut (docs/guides/iphone_phone_shortcut.md); run the 15–20 number test list
+  and tune Settings → Phone lookup to ≥80% match. Until CC_LIVE_PHONE=1 the stub stands in.

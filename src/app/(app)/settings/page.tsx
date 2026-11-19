@@ -13,6 +13,8 @@ import { listProjects } from "@/lib/builds/projects";
 import { budgetState } from "@/lib/builds/budget";
 import TouchIdleForm from "@/components/TouchIdleForm";
 import { getTouchIdleMinutes } from "@/lib/touch/settings";
+import ScoringConfigPanel from "@/components/phone/ScoringConfigPanel";
+import { getScoringConfig, SCORING_FIELDS } from "@/lib/phone/config";
 import { connectCalendarAction, disconnectCalendarAction } from "./feed-actions";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +29,8 @@ export default function SettingsPage() {
   const projects = listProjects();
   const budget = budgetState();
   const touchIdle = getTouchIdleMinutes();
+  const scoring = getScoringConfig();
+  const scoringFields = SCORING_FIELDS.map((f) => ({ key: f.key as string, label: f.label }));
   return (
     <>
       <div className="card">
@@ -134,6 +138,17 @@ export default function SettingsPage() {
           returning to screen 1 (Today). Open it from the <strong>Touch screen</strong> menu item.
         </p>
         <TouchIdleForm minutes={touchIdle} />
+      </div>
+
+      <div className="card">
+        <h2>Phone lookup</h2>
+        <p className="subtle" style={{ marginTop: 4 }}>
+          The points each signal adds and the verdict thresholds (handoff §8.4). Tune these during
+          testing; a higher threshold makes &ldquo;Likely telemarketer&rdquo; harder to reach. The
+          Twilio, FTC and FCC keys are set above in <strong>Keys</strong>, and the iPhone Shortcut
+          token in <strong>Inbox &amp; email</strong>.
+        </p>
+        <ScoringConfigPanel fields={scoringFields} config={scoring as unknown as Record<string, number>} />
       </div>
     </>
   );

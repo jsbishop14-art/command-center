@@ -201,6 +201,24 @@ export interface FeedState {
   at: string;
 }
 
+export interface FtcCounts {
+  phone: string;
+  month: string;
+  complaints: number;
+  robocalls: number;
+  last_seen?: string | null;
+  top_subject: string;
+}
+
+export interface FtcSyncState {
+  id: number;
+  synced_through?: string | null;
+  backfill_cursor?: string | null;
+  backfill_target?: string | null;
+  backfill_done: number;
+  updated_at?: string | null;
+}
+
 export interface IntakeSeen {
   source_ref: string;
   note_id: string;
@@ -218,6 +236,26 @@ export interface KanbanSnapshots {
   fields: string;
   updated: string;
   seen_at: string;
+}
+
+export interface PhoneLookups {
+  id: number;
+  phone: string;
+  verdict: string;
+  score: number;
+  reasons: string;
+  detail: string;
+  source: string;
+  user: string;
+  created_at: string;
+}
+
+export interface PhoneMarks {
+  phone: string;
+  label: string;
+  note: string;
+  user: string;
+  created_at: string;
 }
 
 export interface SchemaMigrations {
@@ -270,6 +308,15 @@ export interface SyncRuns {
   total_tokens: number;
   started_at: string;
   finished_at?: string | null;
+}
+
+export interface TwilioCache {
+  phone: string;
+  caller_name: string;
+  caller_type: string;
+  line_type: string;
+  carrier: string;
+  fetched_at: string;
 }
 
 export interface UserPrefs {

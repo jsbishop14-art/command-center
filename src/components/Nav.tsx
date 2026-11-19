@@ -21,7 +21,7 @@ const ITEMS: Item[] = [
   { label: "Contacts", href: "/contacts" },
   { label: "Builds", href: "/builds" },
   { label: "Money", href: "/money" },
-  { label: "Phone lookup", soon: "CC10" },
+  { label: "Phone lookup", href: "/phone" },
   { label: "Touch screen", href: "/touch" },
   { label: "Problems", href: "/kanban/problems" },
 ];
