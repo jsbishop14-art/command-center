@@ -59,15 +59,37 @@ dashboard uses (no new outside calls, no AI).
 - The touch screen is reachable from the main app by a Nav entry point ("Touch screen" → /touch) so each login reaches
   it by clicking (quality rule: no direct URL). The touch screen itself carries no app nav (display only).
 
+## Built
+
+- Step 1 (data layer): `src/lib/touch/settings.ts`, `src/lib/touch/view.ts`; unit `tests/unit/cc9-touch.test.ts`.
+- Step 2 (UI): `src/app/touch/{layout,page}.tsx`, `src/app/touch/data/route.ts`,
+  `src/components/touch/TouchScreen.tsx`; Settings → Touch screen (`touch-actions.ts`, `TouchIdleForm.tsx`);
+  Nav entry "Touch screen" → /touch; dark-glass CSS in globals.css; e2e `tests/e2e/cc9-touch.e2e.ts`.
+- Step 3 (guide): `docs/guides/touch_kiosk.md` (Chrome kiosk setup on the Mac mini).
+
 ## PICK UP HERE
 
-Start Step 1.
+Step 3: run the one deliberate CI run, then land per CLAUDE §3.
 
 ## Checks (spec §4)
 
-1. Touch screen returns to screen 1 after the idle time; swipe works both ways. — PENDING
-2. A build entering Needs Josh, the hold starting, and a failed update each jump to screen 2 with the banner. — PENDING
-3. The toggle switches screen 1's data; choosing Christine or Bishops on screen 2 jumps to screen 1. — PENDING
+1. Touch screen returns to screen 1 after the idle time; swipe works both ways. — PASS.
+   - Idle: e2e "the touch screen returns to screen 1 after the idle time" (opens on screen 2, returns to screen
+     1 untouched; idle set to 2s via the ?idle override, which Settings sets in minutes). unit "idle-time setting"
+     (default 3, persists, clamps 1–60).
+   - Swipe both ways: e2e "swipe works both ways …" (pointer drag right → screen 1, drag left → screen 2).
+2. A build entering Needs Josh, the hold starting, and a failed update each jump to screen 2 with the banner. — PASS.
+   - unit "alerts and the jump decision": each of Needs Josh, hold and a rolled-back update yields its key, a
+     banner naming it, and decideInitialScreen → 2; newAlertKeys returns only the unseen keys (the live jump).
+   - e2e "Josh reaches the touch screen …": opens on screen 2 with the banner naming EZ Binder (answer questions)
+     and the budget hold, and the EZ Binder row is red/Needs Josh. (The e2e re-establishes a fresh question + hold
+     in the shared stub, which cc8 had cleared, directly in the test DB — same pattern as global-setup.)
+3. The toggle switches screen 1's data; choosing Christine or Bishops on screen 2 jumps to screen 1. — PASS.
+   - e2e "swipe works both ways …": choosing Christine on screen 1 swaps the stats in place (Open A/R → Her cards
+     in progress); choosing Bishops on screen 2 jumps to screen 1 with Bishops' data.
+
+Tallies: unit 182/182 (163 prior + 19 new in cc9-touch); browser 62/62 (57 prior + 5 new in cc9-touch). tsc
+clean, lint clean, prod build OK.
 
 ## Questions
 
