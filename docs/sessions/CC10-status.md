@@ -32,19 +32,68 @@ Unattended run in a FRESH session, started by scripts/run_chain.py. Your job is 
 
 ## PICK UP HERE
 
-Build started. Plan (commit + push feature branch after each step; ONE deliberate CI run near the end):
+Build complete locally; the single deliberate CI run is pushed (ALLOW_CI=1). On CI green, land per
+the rule (fast-forwardable onto main, docs-only commits after the green commit listed in the merge
+message). If CI is red, fix within the budget (1 + 2 infra + 2 fix) and re-run.
 
-1. Migration 0009_phone_lookup + generated types + scoring config file.
-2. Phone lib: mode, normalize, stub, twilio (30-day cache), ftc (backfill/daily ingest/prune), fcc (3s timeout),
-   scoring, store, lookup orchestrator, history, view.
-3. Phone screen (/phone) + server actions, API routes (/api/phone/lookup, /api/phone/mark) with the Shortcut token,
-   Quick-add number recognition, Settings scoring-config card, Nav entry, iPhone lookup Shortcut guide.
-4. Tests: cc10-phone unit + cc10-phone / cc10-api-phone e2e; add branch to CI; deliberate CI run.
-5. Land.
+Built:
+1. Migration 0009_phone_lookup (ftc_counts, ftc_sync_state, twilio_cache, phone_lookups,
+   phone_marks + idx_ftc_counts_phone, idx_phone_lookups_phone, idx_phone_lookups_created);
+   generated types; scoring config (src/lib/phone/config.ts, app_settings key phone_scoring).
+2. Phone lib (src/lib/phone/): mode, dates, normalize, stub, store, twilio (30-day cache),
+   ftc (resumable month-paged backfill + daily ingest + prune + lazy ensure), fcc (3s timeout →
+   unavailable), scoring, lookup orchestrator, view, jobs (live-only background timer).
+3. /phone screen + server actions; /api/phone/lookup (POST) + /api/phone/mark (PUT/DELETE) gated by
+   the Shortcut token; Quick-add number recognition; Settings scoring-config card; Nav entry;
+   docs/guides/iphone_phone_shortcut.md.
+4. Tests + CI branch add + permissions inversion.
+
+## Evidence (spec §4 = handoff §11 "Phone lookup", against the stubs)
+
+- Returns a verdict with reasons for any US number in any format, desktop and Shortcut:
+  cc10-phone unit (normalize + lookup orchestrator), cc10-phone e2e check 1, cc10-api-phone e2e.
+- Makes no Claude calls; a repeat lookup within 30 days makes no Twilio call: cc10-phone unit
+  (twilioFetchCount stays 1 on repeat; refresh/>30d refetch) + no-AI import scan.
+- FTC backfill stops and resumes without losing progress; daily ingest runs and prunes >12 months:
+  cc10-phone unit (backfillStep/runBackfill resume, idempotent 24-total, pruneFtc/dailyIngest).
+- An FCC timeout still returns a result marked "FCC data unavailable": cc10-phone unit (injected
+  never-resolving/throwing fetcher → available:false) + scoring reason.
+- A spam/real mark overrides the verdict for both users; removing it restores scoring: cc10-phone
+  unit + e2e check 5 (Josh marks, Christine sees "Marked spam by Josh", remove restores).
+- Lookup history older than 90 days is deleted: cc10-phone unit (pruneHistory).
+- The Shortcut token works only on the phone and note routes and stops working once revoked:
+  cc10-api-phone e2e (token allows lookup/mark; Claude token refused), permissions e2e (401 without
+  token), cc10-phone unit (revoke → isValidShortcutToken false). The refusal on other routes is in
+  cc4-api-shortcut + permissions.
+- The 80% test-list check is Josh's, after the keys are in (spec §2, §4).
+- Each login reaches Phone lookup from the left menu; not tied to a board (§8.8): cc10-phone e2e
+  (josh + christine). Touch screen stays display-only (no phone lookup): cc9-touch e2e unchanged.
+
+Tallies (local): unit 212/212, browser 73/73. Lint/types/build clean. CI run: <pending — see
+chain.md landing entry>.
 
 ## Decided without asking
 
-(none yet)
+- FTC ingest modelled as month pages (newest-first) across the 12-month window, not the real API's
+  day pages. The handoff's day-paged daily ingest is aggregated per month in the stub; each page is
+  an idempotent SET so a resumed/repeated page never double-counts. Satisfies the resumable-backfill
+  and 12-month-prune checks. The live path (Mac mini only, never tested) pages the real API per
+  month. Changes no ruling, widens no access, writes no real data, reversible.
+- Shortcut lookups and marks are attributed to user `josh` (the iPhone is Josh's; the handoff gives
+  the Shortcut one token and does not distinguish the two logins). History shows "Josh · Shortcut".
+- The /api/phone routes accept the Shortcut token ONLY (like /api/notes in CC4); the desktop screen
+  uses server actions, not these routes. Matches handoff §8.7 and roles §7.
+- CC_LIVE_PHONE=1 is the Mac-mini live switch (mirrors CC_LIVE_FEEDS / CC_LIVE_AI / CC_LIVE_GITHUB);
+  off everywhere else so no build session or CI job makes a real Twilio/FTC/FCC call.
+
+## Waits on Josh (for go-live on the Mac mini)
+
+- Set the three keys in Settings → Keys: Twilio account SID + auth token, FTC (api.data.gov) key,
+  FCC app token; then set CC_LIVE_PHONE=1. Until then the stub stands in (deterministic data).
+- Issue the iPhone Shortcut token in Settings → Inbox & email and build the Lookup Shortcut from
+  docs/guides/iphone_phone_shortcut.md (one token covers the note and phone Shortcuts).
+- Supply 15–20 known numbers and run the test list; tune points/thresholds in Settings → Phone
+  lookup (handoff §8.4) to reach ≥80% match (spec §2, §4 — Josh's check).
 
 ## Questions for Josh
 

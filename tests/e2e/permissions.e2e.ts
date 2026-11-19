@@ -14,13 +14,15 @@ test("signed-out requests to protected pages redirect to sign-in", async ({ base
   await ctx.dispose();
 });
 
-test("phone-lookup routes are still absent until CC10", async ({ baseURL }) => {
+// Inverted from CC1 (where these 404'd): CC10 builds the phone lookup/mark routes. They now exist
+// and refuse a request with no Shortcut token (401), rather than 404 (handoff §8.7, roles §7). The
+// lookup route is POST; mark is PUT/DELETE. The token's full allow/deny is in cc10-api-phone.
+test("phone-lookup routes exist in CC10 and refuse without a Shortcut token", async ({ baseURL }) => {
   const ctx = await request.newContext({ baseURL });
-  // Phone lookup/mark routes arrive in CC10; their entry points must still be absent.
-  for (const route of ["/api/phone/lookup", "/api/phone/mark"]) {
-    const res = await ctx.post(route, { data: {}, failOnStatusCode: false });
-    expect(res.status(), `${route} should not exist yet`).toBe(404);
-  }
+  const look = await ctx.post("/api/phone/lookup", { data: { phone: "5615550111" }, failOnStatusCode: false });
+  expect(look.status()).toBe(401);
+  const mark = await ctx.put("/api/phone/mark", { data: { phone: "5615550111", label: "spam" }, failOnStatusCode: false });
+  expect(mark.status()).toBe(401);
   await ctx.dispose();
 });
 
