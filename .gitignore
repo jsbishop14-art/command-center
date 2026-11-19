@@ -1,0 +1,33 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts.timestamp
+
+# production build
+/build
+
+# local database and backups (never commit real data)
+/data/
+*.db
+*.db-shm
+*.db-wal
+/backups/
+
+# local secrets and env (never commit)
+.env
+.env.local
+.env*.local
+/.secret-key
+
+# playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+# misc
+.DS_Store
+*.log
+/coverage/
