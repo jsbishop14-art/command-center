@@ -49,7 +49,26 @@ the Mac mini updater (handoff 7.4) applies them.
 
 ## Decided without asking
 
-(filled in during the build)
+- D-1 Stack: Next.js 14 (App Router) + React 18 + TypeScript; local database SQLite via
+  better-sqlite3; Vitest (unit) + Playwright (browser); Node built-in `crypto` only (scrypt, AES-256-GCM).
+  Reason: process.md measures speed with `next build && next start` (Next.js is the intended production
+  build); a single-file local database fits a single-household host with no paid hosting; no third-party
+  crypto. Changes no ruling, widens no access, writes no real data, undoable. Recorded in CLAUDE.md.
+- D-2 Desktop window is the browser in app mode (no Electron); the touch-screen kiosk (CC9) is Chromium
+  kiosk. Reason: lighter, same glass UI, nothing to package.
+- D-3 Secure tunnel is Cloudflare Tunnel (`cloudflared`), free, no hosting. The one account step is in
+  docs/install-mac.md (answers chain.md "Tunnel account for remote access").
+- D-4 Fonts use a system/`IBM Plex` CSS stack, not a Google Fonts fetch, so the app makes no outside call
+  (keeps CI free of real outside calls and the Mac mini self-contained).
+- D-5 The repo smoke check (handoff 7.4 step 6) covers for CC1: the app answers and both logins reach
+  Home. The kanban-loads check is added in CC2 and the touch-screen reconnect check in CC9, since those
+  screens do not exist yet. Logged because it narrows the smoke check for now.
+- D-6 Seed passwords come from the environment (`CC_JOSH_PASSWORD`, `CC_CHRISTINE_PASSWORD`), defaulting to
+  dev values for CI/local; the install step sets the real ones on the Mac mini. No real secret is committed.
+- D-7 Christine's role is stored as `christine`; she sees everything (same menu). Her floor "cannot edit
+  kanban files directly" is enforced in CC2, when kanban editing exists.
+- D-8 CI runs on push to cc1-foundation/main and PRs to main. GitHub Actions honours `[skip ci]` natively,
+  so only the one deliberate ALLOW_CI=1 push triggers a run.
 
 ## Questions
 
@@ -57,9 +76,22 @@ the Mac mini updater (handoff 7.4) applies them.
 
 ## Progress
 
-(one line per step, with numbers)
+- Step 1 commit 1bdcbf0: scaffold (Next 14.2.35 after security bump, TS, SQLite, Vitest, Playwright);
+  stack recorded in CLAUDE.md. typecheck 0, build 0, lint 0.
+- Step 2 commit 98d97cb: database, migrations (0001_foundation) with read-back of 6/6 expected objects,
+  crypto, users/prefs/secrets, seed, generated types. migrate/seed/gen-types run clean.
+- Step 3 commit 1c5d396: redaction logger + session/auth (scrypt passwords, sha256 session cookie).
+- Step 4 commit f45b059: glass UI shell (top bar, left menu with "Coming in a later build" items, per-user
+  board toggle), sign-in, Home, Settings secret store. Build 0, lint 0; live smoke: /signin 200,
+  signed-out /home -> 307 /signin.
+- Step 5 commit 18ebe58: Mac mini updater (core + real ops + run loop), repo smoke check, sync lock,
+  install-mac.sh with --dry-run, docs/install-mac.md, health + signin routes. Dry-run changes nothing;
+  live smoke PASS (app answers, josh+christine reach Home); wrong password -> 401.
+- Step 6 (this step): tests + CI. unit 23/23; browser 9/9 (checks 1,2,3 + route permission map + health).
+  Local CI sequence each read on its own line: LINT=0 TYPECHECK=0 GENTYPES=0 TYPES_IN_SYNC=0 BUILD=0 UNIT=0.
 
 ## PICK UP HERE
 
-Start building the CC1 spec. First step after this commit: choose and record the stack in CLAUDE.md, then scaffold the
-app shell.
+Tests and CI are committed with [skip ci]. Next: do the ONE deliberate CI run (push with ALLOW_CI=1), then
+land per the landing rule (merge message starts "[Merge] CC1 ("), record the landing in chain.md and here,
+and STOP.

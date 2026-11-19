@@ -1,0 +1,70 @@
+name: CI
+
+# One deliberate CI run per build (CLAUDE §3, docs/process.md §7). Every other push carries
+# [skip ci], which GitHub Actions honours natively, so only the deliberate ALLOW_CI=1 push runs
+# this. No real outside calls: CC1 makes none; later builds stub EZ Binder, Gmail, Calendar,
+# weather, Twilio, FTC, FCC and GitHub (handoff 7.5). CC_SECRET_KEY here is a throwaway test key,
+# not a real secret.
+on:
+  push:
+    branches: [cc1-foundation, main]
+  pull_request:
+    branches: [main]
+
+env:
+  CC_SECRET_KEY: "00000000000000000000000000000000000000000000000000000000000000ff"
+  CC_JOSH_PASSWORD: "josh-dev-password"
+  CC_CHRISTINE_PASSWORD: "christine-dev-password"
+
+jobs:
+  unit:
+    name: Lint, types, build, unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Each job gets its own seeded local database and temporary kanban folder (handoff 7.5).
+      - run: echo "CC_DB_PATH=$RUNNER_TEMP/cc-unit.db" >> "$GITHUB_ENV"
+      - run: echo "CC_KANBAN_DIR=$RUNNER_TEMP/kanban" >> "$GITHUB_ENV"
+      - name: Lint
+        run: npm run lint
+      - name: Type check
+        run: npm run typecheck
+      - name: Generated types are in sync
+        run: |
+          npm run gen:types
+          git diff --exit-code src/lib/db-types.ts
+      - name: Production build
+        run: npm run build
+      - name: Unit tests
+        run: npm run test:unit
+
+  e2e:
+    name: Browser tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: echo "CC_DB_PATH=$RUNNER_TEMP/cc-e2e.db" >> "$GITHUB_ENV"
+      - run: echo "CC_KANBAN_DIR=$RUNNER_TEMP/kanban" >> "$GITHUB_ENV"
+      - name: Install Playwright (chromium + deps)
+        run: npx playwright install --with-deps chromium
+      - name: Production build
+        run: npm run build
+      - name: Browser tests
+        run: npm run test:e2e
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
