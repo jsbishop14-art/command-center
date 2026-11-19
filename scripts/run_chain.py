@@ -37,6 +37,7 @@ BUILDS = [
     ("CC9", "cc9-touch-screen", "docs/specs/CC9-BUILD-SPEC.md", ""),
     ("CC10", "cc10-phone-lookup", "docs/specs/CC10-BUILD-SPEC.md", ""),
     ("CC11", "cc11-mac-fixes-google", "docs/specs/CC11-BUILD-SPEC.md", ""),
+    ("CC12", "cc12-updater-sessions", "docs/specs/CC12-BUILD-SPEC.md", ""),
 ]
 
 
