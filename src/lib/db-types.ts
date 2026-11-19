@@ -106,6 +106,75 @@ export interface Deals {
   deleted_at?: string | null;
 }
 
+export interface EzbEvents {
+  event_id: string;
+  kind: string;
+  entity?: string | null;
+  updated_at?: string | null;
+  received_at: string;
+  outcome: string;
+}
+
+export interface EzbJobs {
+  job_id: string;
+  name: string;
+  phase: string;
+  now_task: string;
+  next_task: string;
+  due?: string | null;
+  billed_cents: number;
+  paid_cents: number;
+  boards: string;
+  updated_at: string;
+  fetched_at: string;
+}
+
+export interface EzbMoney {
+  id: number;
+  open_ar_cents: number;
+  received_week_cents: number;
+  open_invoice_count: number;
+  over_30_cents: number;
+  as_of: string;
+  fetched_at: string;
+}
+
+export interface EzbProposals {
+  id: number;
+  job_id: string;
+  task_id?: string | null;
+  source: string;
+  actor: string;
+  from_start?: string | null;
+  from_end?: string | null;
+  to_start: string;
+  to_end: string;
+  note: string;
+  status: string;
+  ezb_ref?: string | null;
+  created_at: string;
+  resolved_at?: string | null;
+}
+
+export interface EzbSync {
+  id: number;
+  cursor?: string | null;
+  last_sync?: string | null;
+  last_webhook?: string | null;
+}
+
+export interface EzbTasks {
+  task_id: string;
+  job_id: string;
+  name: string;
+  starts_on: string;
+  ends_on: string;
+  kind: string;
+  completed: number;
+  updated_at: string;
+  fetched_at: string;
+}
+
 export interface FeedState {
   feed: string;
   status: string;

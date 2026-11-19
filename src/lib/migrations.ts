@@ -315,6 +315,119 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    id: "0006_ez_binder",
+    expects: [
+      { type: "table", name: "ezb_money" },
+      { type: "table", name: "ezb_jobs" },
+      { type: "table", name: "ezb_tasks" },
+      { type: "table", name: "ezb_proposals" },
+      { type: "table", name: "ezb_events" },
+      { type: "table", name: "ezb_sync" },
+      { type: "index", name: "idx_ezb_tasks_job" },
+      { type: "index", name: "idx_ezb_proposals_task" },
+    ],
+    up: (db) => {
+      db.exec(`
+        -- The money summary from EZ Binder GET /summary/ar (handoff §2 money tiles, spec §1). One
+        -- row, replaced on each sync or webhook. Amounts are stored in whole cents so the tiles
+        -- match EZ Binder "to the cent" (spec check 1). Open invoices is a count, not an amount.
+        -- as_of is EZ Binder's reported timestamp; a stale update (older as_of) never overwrites a
+        -- newer one (handoff §7.2 "keep the newest updated_at", spec §3).
+        CREATE TABLE ezb_money (
+          id                   INTEGER PRIMARY KEY CHECK (id = 1),
+          open_ar_cents        INTEGER NOT NULL,
+          received_week_cents  INTEGER NOT NULL,
+          open_invoice_count   INTEGER NOT NULL,
+          over_30_cents        INTEGER NOT NULL,
+          as_of                TEXT NOT NULL,
+          fetched_at           TEXT NOT NULL
+        );
+
+        -- GC jobs cache for the Projects grid (handoff §2: "GC jobs: from EZ Binder, grouped by
+        -- computed phase"). Filled by sync and webhooks from EZ Binder (a stub until S156 is live).
+        -- phase is EZ Binder's computed phase. billed/paid are whole cents. boards is a JSON array
+        -- so a job shows on the boards it belongs to, filtered in code like deals (handoff §1.3).
+        CREATE TABLE ezb_jobs (
+          job_id       TEXT PRIMARY KEY,
+          name         TEXT NOT NULL,
+          phase        TEXT NOT NULL CHECK (phase IN ('sold_not_started', 'active', 'punch')),
+          now_task     TEXT NOT NULL DEFAULT '',
+          next_task    TEXT NOT NULL DEFAULT '',
+          due          TEXT,
+          billed_cents INTEGER NOT NULL DEFAULT 0,
+          paid_cents   INTEGER NOT NULL DEFAULT 0,
+          boards       TEXT NOT NULL DEFAULT '["josh"]',
+          updated_at   TEXT NOT NULL,
+          fetched_at   TEXT NOT NULL
+        );
+
+        -- Schedule tasks cache for the GC schedule grid (handoff §2 item 4). One row per task on an
+        -- active or sold-not-started job. starts_on/ends_on are Eastern calendar dates (YYYY-MM-DD).
+        -- kind drives the bar colour (task/inspection/mobilize). completed is set once a task is
+        -- done, so the slip rule can tell a past-due task from a finished one (handoff §2.2).
+        CREATE TABLE ezb_tasks (
+          task_id     TEXT PRIMARY KEY,
+          job_id      TEXT NOT NULL,
+          name        TEXT NOT NULL,
+          starts_on   TEXT NOT NULL,
+          ends_on     TEXT NOT NULL,
+          kind        TEXT NOT NULL DEFAULT 'task',
+          completed   INTEGER NOT NULL DEFAULT 0,
+          updated_at  TEXT NOT NULL,
+          fetched_at  TEXT NOT NULL
+        );
+        CREATE INDEX idx_ezb_tasks_job ON ezb_tasks(job_id);
+
+        -- Schedule-move proposals (handoff §2.2, spec §1). A proposal changes nothing in EZ Binder
+        -- until Josh confirms the move there; each shows its source (josh, rule or claude). source
+        -- is the proposer; actor is the X-EZB-Actor value sent on the proposal call. ezb_ref is the
+        -- reference EZ Binder returns on the 202. status moves proposed → confirmed | rejected; a
+        -- rule proposal is not repeated for the same task once it is confirmed or rejected (spec
+        -- check 3). task_id is null for a whole-job move.
+        CREATE TABLE ezb_proposals (
+          id           INTEGER PRIMARY KEY,
+          job_id       TEXT NOT NULL,
+          task_id      TEXT,
+          source       TEXT NOT NULL CHECK (source IN ('josh', 'rule', 'claude')),
+          actor        TEXT NOT NULL,
+          from_start   TEXT,
+          from_end     TEXT,
+          to_start     TEXT NOT NULL,
+          to_end       TEXT NOT NULL,
+          note         TEXT NOT NULL DEFAULT '',
+          status       TEXT NOT NULL DEFAULT 'proposed' CHECK (status IN ('proposed', 'confirmed', 'rejected')),
+          ezb_ref      TEXT,
+          created_at   TEXT NOT NULL,
+          resolved_at  TEXT
+        );
+        CREATE INDEX idx_ezb_proposals_task ON ezb_proposals(task_id);
+
+        -- Every EZ Binder delivery the app has seen: webhooks and /changes entries (handoff §7.2
+        -- "process each event id once"; spec checks 1 and 2). The event id is the primary key, so a
+        -- second delivery of the same id is recognised as a duplicate and changes nothing. A
+        -- bad-signature webhook is recorded here with outcome 'bad_signature' and refused (check 1).
+        CREATE TABLE ezb_events (
+          event_id     TEXT PRIMARY KEY,
+          kind         TEXT NOT NULL,
+          entity       TEXT,
+          updated_at   TEXT,
+          received_at  TEXT NOT NULL,
+          outcome      TEXT NOT NULL CHECK (outcome IN ('processed', 'duplicate', 'stale', 'bad_signature'))
+        );
+
+        -- Sync bookkeeping (handoff §7.3): the /changes cursor and the last sync / last webhook
+        -- times, shown as the EZ Binder feed state in the left menu. One row.
+        CREATE TABLE ezb_sync (
+          id            INTEGER PRIMARY KEY CHECK (id = 1),
+          cursor        TEXT,
+          last_sync     TEXT,
+          last_webhook  TEXT
+        );
+        INSERT INTO ezb_sync (id, cursor, last_sync, last_webhook) VALUES (1, NULL, NULL, NULL);
+      `);
+    },
+  },
 ];
 
 // Other inbox/email settings (handoff §2, §2.1, §8.7) live in app_settings (migration 0002), a

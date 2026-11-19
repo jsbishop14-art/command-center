@@ -1,6 +1,7 @@
 import { connectedFeeds, getFeedStateRow } from "./store";
 import { gmailConnected } from "./gmail";
 import { duetEnabled } from "../kanban/state";
+import { getSyncState } from "../ezbinder/store";
 
 // The left-menu live feed list (handoff §2, mockup Main). CC3 drives Calendars and Weather from
 // real feed health; the rest are placeholders naming the build that connects them. No AI.
@@ -25,10 +26,15 @@ export function getFeedStatuses(): FeedStatusItem[] {
   const wxState = wx ? wx.detail : "refresh to load";
   const wxHealth: FeedHealth = wx ? (wx.status === "ok" ? "ok" : "error") : "pending";
 
+  // EZ Binder (CC6): webhooks keep it live, with a 90-minute sync as the safety net (handoff §7.3).
+  // "synced" once the first pull or webhook has landed; otherwise "not synced".
+  const ezb = getSyncState();
+  const ezbSynced = !!(ezb.lastSync || ezb.lastWebhook);
+
   return [
     { name: "Gmail", state: gmailState, health: gmailHealth },
     { name: "Calendars (3)", state: calState, health: calHealth },
-    { name: "EZ Binder", state: "CC6", health: "pending" },
+    { name: "EZ Binder", state: ezbSynced ? "synced · 90 min" : "not synced", health: ezbSynced ? "ok" : "pending" },
     { name: "Claude", state: "on Sync", health: "pending" },
     { name: "Duet", state: duet ? "on" : "off", health: duet ? "ok" : "pending" },
     { name: "Build files", state: "CC8", health: "pending" },

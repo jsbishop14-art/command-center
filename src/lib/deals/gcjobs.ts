@@ -1,12 +1,14 @@
-import { liveFeeds } from "@/lib/feeds/mode";
 import type { Board } from "@/lib/kanban/types";
+import { listJobs } from "@/lib/ezbinder/store";
+import { jobMoney } from "@/lib/ezbinder/view";
+import type { GcPhase } from "@/lib/ezbinder/types";
 
 // GC jobs for the Projects grid (handoff §2: "GC jobs: from EZ Binder, grouped by computed phase").
-// The real source is EZ Binder, wired in CC6; CC5 uses this stub for the grid (spec §2). Ordinary
-// code, NO AI, no real outside call: the live path returns nothing until CC6 (handoff §7.5), so the
-// grid simply shows no GC jobs on a real Mac mini until EZ Binder is connected.
+// Since CC6 the source is the EZ Binder cache (ezb_jobs), filled by the sync and webhooks from EZ
+// Binder (a stub until S156 is live). Before the first sync the cache is empty, so the grid simply
+// shows no GC jobs. Ordinary code, NO AI.
 
-export type GcPhase = "sold_not_started" | "active" | "punch";
+export type { GcPhase };
 
 export type GcJob = {
   id: string;
@@ -25,40 +27,15 @@ export const GC_PHASE_LABEL: Record<GcPhase, string> = {
   punch: "Punch",
 };
 
-const STUB: GcJob[] = [
-  {
-    id: "JOB-5521",
-    name: "Riverwood pool house",
-    phase: "active",
-    nowTask: "Framing inspection",
-    nextTask: "Rough electrical",
-    due: "2026-12-04",
-    money: "$184,500 billed / $120,000 paid",
-    boards: ["josh"],
-  },
-  {
-    id: "JOB-5530",
-    name: "Garcia pool deck",
-    phase: "sold_not_started",
-    nowTask: "Awaiting permit",
-    nextTask: "Demo",
-    due: "2026-12-18",
-    money: "$52,300 billed / $0 paid",
-    boards: ["josh"],
-  },
-  {
-    id: "JOB-5490",
-    name: "Maple St kitchen",
-    phase: "punch",
-    nowTask: "Punch list",
-    nextTask: "Final walk-through",
-    due: "2026-11-26",
-    money: "$96,000 billed / $90,000 paid",
-    boards: ["josh"],
-  },
-];
-
 export function gcJobs(): GcJob[] {
-  if (liveFeeds()) return []; // EZ Binder is wired in CC6; no real customer call here.
-  return STUB;
+  return listJobs().map((j) => ({
+    id: j.jobId,
+    name: j.name,
+    phase: j.phase,
+    nowTask: j.nowTask,
+    nextTask: j.nextTask,
+    due: j.due,
+    money: jobMoney(j),
+    boards: j.boards as Board[],
+  }));
 }

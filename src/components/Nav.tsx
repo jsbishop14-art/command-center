@@ -16,11 +16,11 @@ const ITEMS: Item[] = [
   { label: "Kanban", href: "/kanban" },
   { label: "Inbox", href: "/inbox" },
   { label: "Calendar", soon: "CC3" },
-  { label: "Schedule", soon: "CC6" },
+  { label: "Schedule", href: "/schedule" },
   { label: "Deals", href: "/deals" },
   { label: "Contacts", href: "/contacts" },
   { label: "Builds", soon: "CC8" },
-  { label: "Money", soon: "CC6" },
+  { label: "Money", href: "/money" },
   { label: "Phone lookup", soon: "CC10" },
   { label: "Problems", href: "/kanban/problems" },
 ];

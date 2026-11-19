@@ -1234,3 +1234,200 @@ select:focus {
 .proj-meta .v {
   flex: 1;
 }
+
+/* CC6: EZ Binder schedule, money and proposals (handoff §2, §2.2, mockup Main.dc.html) */
+.screen-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+.screen-head h1 {
+  flex: 1;
+}
+.gc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.gc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.gc-legend span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.gc-legend .sw {
+  width: 14px;
+  height: 8px;
+  border-radius: 2px;
+}
+.gc-legend .sw.dashed {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px dashed #9a9ea7;
+}
+.gc-grid-scroll {
+  overflow-x: auto;
+}
+.gc-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gc-grid-head {
+  display: grid;
+  gap: 4px;
+  font-family: var(--mono, "IBM Plex Mono", monospace);
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.gc-day {
+  text-align: center;
+  padding: 4px 0;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.55);
+}
+.gc-day.today {
+  background: #16181d;
+  color: #fff;
+}
+.gc-row {
+  display: grid;
+  gap: 4px;
+  align-items: center;
+  min-height: 36px;
+  border-top: 1px solid rgba(22, 24, 29, 0.08);
+  padding-top: 6px;
+}
+.gc-job {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.gc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+.gc-bar {
+  grid-row: 1;
+  height: 28px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.gc-bar.task {
+  background: #e7eaf1;
+  color: #273246;
+}
+.gc-bar.inspection {
+  background: #e3efe7;
+  color: #1d4d30;
+}
+.gc-bar.mobilize {
+  background: #fce7da;
+  color: #7c2d12;
+}
+.gc-bar.proposal {
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ink-mute);
+  border: 2px dashed #9a9ea7;
+}
+/* Proposals list and move form */
+.proposal-list {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.proposal-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid rgba(22, 24, 29, 0.08);
+  padding-top: 8px;
+}
+.proposal-main {
+  flex: 1;
+}
+.proposal-text {
+  font-weight: 600;
+  font-size: 13px;
+}
+.gc-move {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+.gc-move h3 {
+  width: 100%;
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+.gc-move label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--ink-mute);
+}
+.gc-move select,
+.gc-move input {
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--paper-line);
+  background: var(--paper);
+  font: inherit;
+}
+.btn-ghost {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.money-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.money-table th,
+.money-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(22, 24, 29, 0.08);
+}
+.money-table th {
+  font-size: 11px;
+  color: var(--ink-mute);
+  font-weight: 600;
+}
+.small {
+  font-size: 11px;
+}
