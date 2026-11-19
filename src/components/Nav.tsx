@@ -8,13 +8,13 @@ import type { FeedStatusItem, FeedHealth } from "@/lib/feeds/status";
 // other screens arrive in later builds and show "Coming in a later build" via /soon. Christine
 // sees the same menu — she sees everything (handoff 1.1). The live feed list shows each feed's
 // state (handoff §2); CC3 drives Calendars and Weather, the rest name their build.
-type Item = { label: string; href?: string; soon?: string };
+type Item = { label: string; href?: string; soon?: string; count?: number };
 
 const ITEMS: Item[] = [
   { label: "Home", href: "/home" },
   { label: "Projects", soon: "CC5" },
   { label: "Kanban", href: "/kanban" },
-  { label: "Inbox", soon: "CC4" },
+  { label: "Inbox", href: "/inbox" },
   { label: "Calendar", soon: "CC3" },
   { label: "Schedule", soon: "CC6" },
   { label: "Deals", soon: "CC5" },
@@ -32,11 +32,12 @@ const DOT: Record<FeedHealth, string> = {
   error: "#DC2626",
 };
 
-export default function Nav({ feeds }: { feeds: FeedStatusItem[] }) {
+export default function Nav({ feeds, inboxCount }: { feeds: FeedStatusItem[]; inboxCount: number }) {
   const pathname = usePathname();
+  const items = ITEMS.map((it) => (it.label === "Inbox" ? { ...it, count: inboxCount } : it));
   return (
     <nav className="nav" aria-label="Main">
-      {ITEMS.map((it) =>
+      {items.map((it) =>
         it.href ? (
           <Link
             key={it.label}
@@ -44,6 +45,11 @@ export default function Nav({ feeds }: { feeds: FeedStatusItem[] }) {
             className={pathname === it.href ? "active" : undefined}
           >
             <span>{it.label}</span>
+            {it.count ? (
+              <span className="nav-count" data-testid={`nav-count-${it.label.toLowerCase()}`}>
+                {it.count}
+              </span>
+            ) : null}
           </Link>
         ) : (
           <Link

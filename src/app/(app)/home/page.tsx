@@ -2,11 +2,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/auth";
 import { getBoard, getHomeLayout, type Board } from "@/lib/prefs";
-import { todayEastern } from "@/lib/kanban/time";
+import { todayEastern, nowEastern } from "@/lib/kanban/time";
 import { eventsOnDate, connectedFeeds, type DayEvent } from "@/lib/feeds/store";
+import { gmailConnected } from "@/lib/feeds/gmail";
+import { inboxNotes, awaitingItems } from "@/lib/feeds/inbox-view";
 import { inProgressCards, cardsDueOn } from "@/lib/kanban/view";
 import type { Card } from "@/lib/kanban/types";
 import HomePanels, { type PanelSpec } from "@/components/home/HomePanels";
+import InboxNotes from "@/components/home/InboxNotes";
+import AwaitingReply from "@/components/home/AwaitingReply";
 
 export const dynamic = "force-dynamic";
 
@@ -89,14 +93,6 @@ function TodayPanel({
   );
 }
 
-function ComingSoon({ build }: { build: string }) {
-  return (
-    <p className="subtle" data-testid="coming">
-      Coming in {build}.
-    </p>
-  );
-}
-
 function KanbanPanel({ cards }: { cards: Card[] }) {
   if (cards.length === 0) return <p className="subtle">No cards in progress on this board.</p>;
   return (
@@ -128,11 +124,25 @@ export default function HomePage() {
   const due = cardsDueOn(board, date);
   const doing = inProgressCards(board);
   const anyConnected = connectedFeeds().length > 0;
+  const notes = inboxNotes();
+  const awaiting = awaitingItems(new Date(nowEastern()));
+  const gmailOn = gmailConnected();
 
   const panels: PanelSpec[] = [
     { key: "today", title: "Today", body: <TodayPanel events={events} due={due} anyConnected={anyConnected} /> },
-    { key: "inbox", title: "Inbox", body: <ComingSoon build="CC4" /> },
-    { key: "awaiting", title: "Awaiting reply", body: <ComingSoon build="CC4" /> },
+    {
+      key: "inbox",
+      title: "Inbox",
+      count: notes.length,
+      openHref: "/inbox",
+      body: <InboxNotes notes={notes} />,
+    },
+    {
+      key: "awaiting",
+      title: "Awaiting reply",
+      count: gmailOn ? awaiting.length : null,
+      body: <AwaitingReply items={awaiting} gmailConnected={gmailOn} />,
+    },
     {
       key: "kanban",
       title: "Kanban · in progress",

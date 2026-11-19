@@ -3,6 +3,7 @@ import { currentUser } from "@/lib/auth";
 import { getBoard } from "@/lib/prefs";
 import { getWeather, getZip, getLastRefreshAt } from "@/lib/feeds/store";
 import { getFeedStatuses } from "@/lib/feeds/status";
+import { listPending } from "@/lib/kanban/pending";
 import TopBar from "@/components/TopBar";
 import Nav from "@/components/Nav";
 
@@ -28,6 +29,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const zip = getZip();
   const weather = getWeather(zip);
   const feeds = getFeedStatuses();
+  const inboxCount = listPending().length;
 
   return (
     <div className="app-shell">
@@ -39,7 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         refreshAgo={agoLabel(getLastRefreshAt())}
       />
       <div className="body">
-        <Nav feeds={feeds} />
+        <Nav feeds={feeds} inboxCount={inboxCount} />
         <main className="main">{children}</main>
       </div>
     </div>
